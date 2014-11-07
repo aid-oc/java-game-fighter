@@ -12,7 +12,7 @@
     <!--Required to publish on the bot store-->
     <internal-id>Ozzy-MassFighter</internal-id>
     <!--The rest are optional-->
-    <open-source>false</open-source>
+    <open-source>true</open-source>
     <hidden>false</hidden>
     <access>public</access>
     <tags>
