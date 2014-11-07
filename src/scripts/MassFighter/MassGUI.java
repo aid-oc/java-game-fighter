@@ -21,10 +21,10 @@ import java.util.List;
  */
 public class MassGUI extends JFrame {
     private JButton btnNpcScan;
-    private JComboBox cmbNpcs;
+    private JComboBox<String> cmbNpcs;
     private JCheckBox cbEating;
     private JSpinner eatValueSpinner;
-    private JComboBox cmbFoodType;
+    private JComboBox<java.io.Serializable> cmbFoodType;
     private JSpinner fightRegionSpinner;
     private JPanel mainPanel;
     private JButton btnStart;
