@@ -62,7 +62,7 @@ public class MassFighter extends TaskScript implements PaintListener {
         if (Settings.targetNpc != null)
             Settings.targetNpc.getModel().render(g2d);
 
-
+        // Added commit notes
         if (Settings.lootChoices != null) {
             g2d.drawString("Picking up:  " + Arrays.toString(Settings.lootChoices), 36, 258);
         }
