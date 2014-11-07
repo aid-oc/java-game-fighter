@@ -21,6 +21,9 @@ public class Settings {
     // COMBAT SETTINGS
     public static int chosenFightRegion;
     public static Coordinate startLocation;
+    public static Boolean isLooting;
+    public static String[] lootChoices;
+    public static Boolean useAbilities;
 
     /* END USER INPUT VARS */
 
@@ -28,6 +31,7 @@ public class Settings {
 
     public static Npc targetNpc;
     public static String status;
+
 
     /* END MISC VARS */
 

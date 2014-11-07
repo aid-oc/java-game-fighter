@@ -28,6 +28,10 @@ public class MassGUI extends JFrame {
     private JSpinner fightRegionSpinner;
     private JPanel mainPanel;
     private JButton btnStart;
+    private JList<String> listSelectedLoot;
+    private JTextField txtLootInput;
+    private JButton btnAddLoot;
+    private JCheckBox cbUseAbilities;
 
     public MassGUI() {
         super("MassFighter - AIO Combat");
@@ -83,6 +87,21 @@ public class MassGUI extends JFrame {
             }
         });
 
+        final DefaultListModel<String> modelDft = new DefaultListModel<String>();
+        listSelectedLoot.setModel(modelDft);
+
+        btnAddLoot.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (listSelectedLoot.getSelectedValue() != null) {
+                    modelDft.removeElement(listSelectedLoot.getSelectedValue());
+                }
+                if (!txtLootInput.getText().isEmpty()) {
+                    modelDft.addElement(txtLootInput.getText());
+                }
+            }
+        });
+
         btnStart.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -91,9 +110,22 @@ public class MassGUI extends JFrame {
                     if (cbEating.isSelected()) {
                         Settings.usingFood = true;
                         Settings.chosenFood = (Food)cmbFoodType.getSelectedItem();
+                    } else Settings.usingFood = false;
+                    if (listSelectedLoot.getModel().getSize() > 0) {
+                        Settings.lootChoices = new String[listSelectedLoot.getModel().getSize()];
+                        for (int i = 0; i < Settings.lootChoices.length; i++) {
+                            Settings.lootChoices[i] = listSelectedLoot.getModel().getElementAt(i);
+                        }
+                        Settings.isLooting = true;
                     } else {
-                        Settings.usingFood = false;
+                        Settings.isLooting = false;
                     }
+                    if (cbUseAbilities.isSelected()) {
+                        Settings.useAbilities = true;
+                    } else {
+                        Settings.useAbilities = false;
+                    }
+
                     Settings.eatValue = (Integer)eatValueSpinner.getValue();
                     Settings.chosenFightRegion = (Integer)fightRegionSpinner.getValue();
                     Settings.startLocation = Players.getLocal().getPosition();

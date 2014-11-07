@@ -5,6 +5,7 @@ import com.runemate.game.api.hybrid.entities.GameObject;
 import com.runemate.game.api.hybrid.entities.LocatableEntity;
 import com.runemate.game.api.hybrid.entities.Npc;
 import com.runemate.game.api.hybrid.entities.details.Locatable;
+import com.runemate.game.api.hybrid.entities.status.CombatGauge;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Health;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
 import com.runemate.game.api.hybrid.location.Area;
@@ -17,6 +18,7 @@ import com.runemate.game.api.hybrid.region.Npcs;
 import com.runemate.game.api.hybrid.region.Players;
 import com.runemate.game.api.script.Execution;
 import scripts.MassFighter.Data.Food;
+import scripts.MassFighter.Data.Settings;
 
 import java.util.concurrent.Callable;
 
@@ -115,4 +117,18 @@ public class Functions {
         return Health.getCurrent() / Health.getMaximum() * 100 >= healthyPercentage;
     }
 
+    /**
+     * Thanks to Cloud for this - hope you don't mind me using it.
+     * Returns true if Player is busy
+     */
+    public static boolean isBusy() {
+        final Actor interacting = Players.getLocal().getInteractingEntity();
+        if (interacting != null && Settings.chosenNpcName.equals(interacting.getName())) {
+            final CombatGauge health = interacting.getHealthGauge();
+            if (health == null || health.getPercent() > 0) {
+                return true;
+            }
+        }
+        return Players.getLocal().isMoving() || Players.getLocal().getAnimationId() != -1;
+    }
 }
