@@ -6,7 +6,6 @@ import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
 import com.runemate.game.api.hybrid.location.navigation.basic.BresenhamPath;
 import com.runemate.game.api.hybrid.region.GroundItems;
 import com.runemate.game.api.hybrid.util.calculations.Distance;
-import com.runemate.game.api.hybrid.util.calculations.Random;
 import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.task.Task;
 import scripts.MassFighter.Data.Settings;
@@ -45,7 +44,7 @@ public class LootHandler extends Task {
                         public Boolean call() throws Exception {
                             return !GroundItems.getLoaded().contains(targetLoot);
                         }
-                    }, Random.nextInt(2000, 3000));
+                    }, 2000,3000);
                 }
             } else {
                 Camera.turnTo(targetLoot);

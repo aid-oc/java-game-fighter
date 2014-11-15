@@ -10,7 +10,6 @@ import com.runemate.game.api.hybrid.region.GroundItems;
 import com.runemate.game.api.hybrid.region.Npcs;
 import com.runemate.game.api.hybrid.region.Players;
 import com.runemate.game.api.hybrid.util.Filter;
-import com.runemate.game.api.hybrid.util.calculations.Random;
 import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.task.Task;
 import scripts.MassFighter.Data.Settings;
@@ -81,7 +80,7 @@ public class CombatHandler extends Task {
                     public Boolean call() throws Exception {
                         return !suitableNpcQuery.accepts(targetNpc);
                     }
-                }, Random.nextInt(1000, 3000));
+                }, 1000,3000);
             } else {
                 Camera.turnTo(targetNpc);
             }

@@ -32,7 +32,7 @@ public class FoodHandler extends Task {
                         public Boolean call() throws Exception {
                             return Health.getCurrent() != startHealth;
                         }
-                    }, 2000);
+                    }, 1000,2000);
                 }
             }
         } else {

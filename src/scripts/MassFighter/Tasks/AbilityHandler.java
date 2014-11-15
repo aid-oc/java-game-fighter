@@ -1,7 +1,6 @@
 package scripts.MassFighter.Tasks;
 
 import com.runemate.game.api.hybrid.region.Players;
-import com.runemate.game.api.hybrid.util.calculations.Random;
 import com.runemate.game.api.rs3.local.hud.interfaces.eoc.ActionBar;
 import com.runemate.game.api.rs3.local.hud.interfaces.eoc.SlotAction;
 import com.runemate.game.api.script.Execution;
@@ -47,7 +46,7 @@ public class AbilityHandler extends Task {
                             public Boolean call() throws Exception {
                                 return Players.getLocal().getTarget() == null;
                             }
-                        }, Random.nextInt(800,1800));
+                        }, 800,1800);
                     }
                 }
             }

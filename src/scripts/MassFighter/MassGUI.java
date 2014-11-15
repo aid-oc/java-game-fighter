@@ -14,7 +14,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.List;
+import java.util.Collection;
 
 /**
  * Created by Aidan on 06/11/2014.
@@ -57,12 +57,12 @@ public class MassGUI extends JFrame {
         btnNpcScan.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                final List<Npc> nearbyNpcs = Npcs.newQuery().within(new Area.Circular(Players.getLocal().getPosition(), 15))
+                final Collection<Npc> nearbyNpcs = Npcs.newQuery().within(new Area.Circular(Players.getLocal().getPosition(), 15))
                         .actions("Attack").results();
                 cmbNpcs.removeItem("Please perform a scan");
-                for (int i = 0; i < nearbyNpcs.size(); i++) {
-                    if (!nearbyNpcs.get(i).getName().isEmpty())
-                        cmbNpcs.addItem(nearbyNpcs.get(i).getDefinition().getName());
+                for (Npc n: nearbyNpcs) {
+                    if (n != null)
+                        cmbNpcs.addItem(n.getDefinition().getName());
                 }
                 cmbNpcs.setEnabled(true);
             }
@@ -85,7 +85,6 @@ public class MassGUI extends JFrame {
                 }
             }
         });
-
 
 
         btnStart.addActionListener(new ActionListener() {
