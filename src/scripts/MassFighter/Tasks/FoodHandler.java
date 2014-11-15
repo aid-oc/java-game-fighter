@@ -10,21 +10,22 @@ import scripts.MassFighter.Data.Settings;
 
 import java.util.concurrent.Callable;
 
-/**
- * Created by Aidan on 06/11/2014.
- */
-public class Heal extends Task {
+public class FoodHandler extends Task {
     @Override
     public boolean validate() {
-        return Health.getCurrent() < Settings.eatValue;
+        return Settings.usingFood && Health.getCurrent() < Settings.eatValue;
     }
 
     @Override
     public void execute() {
-        Settings.status = "Healing";
+        Settings.status = "Food Handler is Active";
+
+        // Interacts with a SpriteItem with the name set by the user (chosenFood)
+        // This activates if the players health falls below their set threshold
         if (Settings.usingFood && Inventory.contains(Settings.chosenFood.getName())) {
             final int startHealth = Health.getCurrent();
             SpriteItem i = Inventory.getRandomItem(Settings.chosenFood.getName());
+            if (i != null) {
                 if (i.interact("Eat")) {
                     Execution.delayUntil(new Callable<Boolean>() {
                         @Override
@@ -33,10 +34,9 @@ public class Heal extends Task {
                         }
                     }, 2000);
                 }
-            } else {
-            System.out.println("No food, low health - exiting");
+            }
+        } else {
             Environment.getScript().stop();
         }
-
     }
 }

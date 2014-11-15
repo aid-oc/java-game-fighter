@@ -6,8 +6,8 @@ import com.runemate.game.api.hybrid.entities.LocatableEntity;
 import com.runemate.game.api.hybrid.entities.Npc;
 import com.runemate.game.api.hybrid.entities.details.Locatable;
 import com.runemate.game.api.hybrid.entities.status.CombatGauge;
+import com.runemate.game.api.hybrid.local.Varps;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Health;
-import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
 import com.runemate.game.api.hybrid.location.Area;
 import com.runemate.game.api.hybrid.location.Coordinate;
 import com.runemate.game.api.hybrid.location.navigation.Traversal;
@@ -16,34 +16,43 @@ import com.runemate.game.api.hybrid.region.Banks;
 import com.runemate.game.api.hybrid.region.GameObjects;
 import com.runemate.game.api.hybrid.region.Npcs;
 import com.runemate.game.api.hybrid.region.Players;
-import com.runemate.game.api.script.Execution;
-import scripts.MassFighter.Data.Food;
+import com.runemate.game.api.rs3.local.hud.Powers;
 import scripts.MassFighter.Data.Settings;
 
-import java.util.concurrent.Callable;
 
 /**
  * Created by Aidan on 05/11/2014.
  */
+
 public class Functions {
 
+
+    public static Boolean readyToFight() {
+        if (Settings.useSoulsplit) {
+            return  Powers.Prayer.getPoints() > Powers.Prayer.getMaximumPoints() / 2 && isSoulsplitActive();
+        } else return Health.getCurrent() > Settings.eatValue;
+    }
+
+
     /**
-     * Returns a random tree that is located near to te player
-     * @param typeName the in-game name of the tree
+     * Returns a random tree that is located near to the player
+     * @param objName the in-game name of the tree
+     * @param limit limit the amount objects which will be shuffled
      * @return randomly selected local tree
      */
-    public static GameObject getNearestGameObjRand(String typeName) {
-        return GameObjects.newQuery().names(typeName).results().sortByDistance().limit(3).random();
+    public static GameObject getNearestGameObjRand(String objName, int limit) {
+        return GameObjects.newQuery().names(objName).results().sortByDistance().limit(limit).random();
     }
 
 
     /**
      * Returns a random nearby npc with the given name
      * @param npcName
+     * @param limit limit the amount objects which will be shuffled
      * @return Npc npc
      */
-    public static Npc getNearestNpcRand(String npcName) {
-        return Npcs.newQuery().names(npcName).results().sortByDistance().limit(4).random();
+    public static Npc getNearestNpcRand(String npcName, int limit) {
+        return Npcs.newQuery().names(npcName).results().sortByDistance().limit(limit).random();
     }
 
     /**
@@ -73,62 +82,19 @@ public class Functions {
         return new Area.Circular(cord, radius);
     }
 
-    /**
-     * Waits until a condition is met or the method times out
-     * @param condition
-     * @param timeout
-     * @return boolean : success
-     */
-    public static Boolean waitFor(final Boolean condition, int timeout) {
-        return Execution.delayUntil(new Callable<Boolean>() {
-            @Override
-            public Boolean call() throws Exception {
-                return condition;
-            }
-        }, timeout);
-    }
-
-    /**
-     * Returns true if a player is idle and not interacting
-     * @param actor
-     * @return boolean character is not busy
-     */
-    public static Boolean isInteracting(Actor actor) {
-        return (actor.getAnimationId() != -1);
-    }
-
-    /**
-     * Returns true if the player has food and is above or equal to the health percetnage given
-     * @param food
-     * @param healthyPercentage
-     * @return boolean can fight
-     */
-    public static Boolean canPlayerFight(Food food, double healthyPercentage) {
-        return Inventory.containsAnyOf(food.getId())
-                && Health.getCurrent() / Health.getMaximum() * 100 >= healthyPercentage;
-    }
-
-    /**
-     * Returns true if the player is above a set health percentage
-     * @param healthyPercentage
-     * @return
-     */
-    public static Boolean canPlayerFight(double healthyPercentage) {
-        return Health.getCurrent() / Health.getMaximum() * 100 >= healthyPercentage;
-    }
-
-    /**
-     * Thanks to Cloud for this - hope you don't mind me using it.
-     * Returns true if Player is busy
-     */
     public static boolean isBusy() {
-        final Actor interacting = Players.getLocal().getInteractingEntity();
+        final Actor interacting = Players.getLocal().getTarget();
         if (interacting != null && Settings.chosenNpcName.equals(interacting.getName())) {
             final CombatGauge health = interacting.getHealthGauge();
             if (health == null || health.getPercent() > 0) {
                 return true;
             }
         }
-        return Players.getLocal().isMoving() || Players.getLocal().getAnimationId() != -1;
+        return Players.getLocal().isMoving();
+    }
+
+    public static Boolean isSoulsplitActive()
+    {
+        return Varps.getAt(3275).getBits() == 262144;
     }
 }

@@ -5,10 +5,6 @@ package scripts.MassFighter.Data;
  */
 public enum Food {
 
-    /**
-     * credits to perfecticus / nader
-     */
-
         ANCHOVIES("Anchovies", 319, 10),
         CRAYFISH("Crayfish", 13433, 10),
         SHRIMPS("Shrimps", 315, 30),
