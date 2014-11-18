@@ -6,7 +6,6 @@ import com.runemate.game.api.rs3.local.hud.interfaces.eoc.SlotAction;
 import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.task.Task;
 import scripts.MassFighter.Data.Settings;
-import util.Functions;
 
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -14,26 +13,18 @@ import java.util.concurrent.Callable;
 /**
  * Created by Ozzy on 07/11/2014.
  */
-public class AbilityHandler extends Task {
+public class AbilityHandler extends Task implements Runnable {
 
     @Override
     public boolean validate() {
-         return (Players.getLocal().getTarget() != null) && Functions.isBusy();
+         return Players.getLocal().getTarget() != null;
     }
 
     @Override
     public void execute() {
 
-        Settings.status = "Ability Handler Active";
+        Settings.abilityStatus = "Ability Handler Running";
 
-        // Enables the action bar if it is minimised
-        if (!ActionBar.isExpanded()) {
-            ActionBar.toggleExpansion();
-        }
-
-        // Loops through available abilities on the action bar, activates each if they are ready
-        // with a delay of 800-1800ms between activations
-        // Loop exits if the players target is null
         List<SlotAction> abilities = ActionBar.getActions();
         for (SlotAction a : abilities) {
             if (Players.getLocal().getTarget() == null)
@@ -46,10 +37,16 @@ public class AbilityHandler extends Task {
                             public Boolean call() throws Exception {
                                 return Players.getLocal().getTarget() == null;
                             }
-                        }, 800,1800);
+                        }, 1600,2500);
                     }
                 }
             }
         }
+    }
+
+    @Override
+    public void run() {
+        if (this.validate())
+            this.execute();
     }
 }

@@ -1,11 +1,9 @@
 package util;
 
-import com.runemate.game.api.hybrid.entities.Actor;
 import com.runemate.game.api.hybrid.entities.GameObject;
 import com.runemate.game.api.hybrid.entities.LocatableEntity;
 import com.runemate.game.api.hybrid.entities.Npc;
 import com.runemate.game.api.hybrid.entities.details.Locatable;
-import com.runemate.game.api.hybrid.entities.status.CombatGauge;
 import com.runemate.game.api.hybrid.local.Varps;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Health;
 import com.runemate.game.api.hybrid.location.Area;
@@ -80,17 +78,6 @@ public class Functions {
      */
     public static Area constructCircularArea(Coordinate cord, double radius) {
         return new Area.Circular(cord, radius);
-    }
-
-    public static boolean isBusy() {
-        final Actor interacting = Players.getLocal().getTarget();
-        if (interacting != null && Settings.chosenNpcName.equals(interacting.getName())) {
-            final CombatGauge health = interacting.getHealthGauge();
-            if (health == null || health.getPercent() > 0) {
-                return true;
-            }
-        }
-        return Players.getLocal().isMoving();
     }
 
     public static Boolean isSoulsplitActive()

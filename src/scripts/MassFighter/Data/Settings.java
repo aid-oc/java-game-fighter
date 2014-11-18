@@ -27,5 +27,6 @@ public class Settings {
     // MISC
     public static Npc targetNpc;
     public static String status;
+    public static String abilityStatus;
 
 }

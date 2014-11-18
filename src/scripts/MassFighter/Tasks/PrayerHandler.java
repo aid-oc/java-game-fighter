@@ -3,6 +3,7 @@ package scripts.MassFighter.Tasks;
 import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
 import com.runemate.game.api.hybrid.local.hud.interfaces.SpriteItem;
+import com.runemate.game.api.hybrid.util.calculations.Random;
 import com.runemate.game.api.rs3.local.hud.Powers;
 import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.task.Task;
@@ -29,7 +30,7 @@ public class PrayerHandler extends Task {
                     public Boolean call() throws Exception {
                         return Functions.isSoulsplitActive();
                     }
-                }, 1000,2500);
+                }, 1600,2500);
             }
         }
 
@@ -54,7 +55,7 @@ public class PrayerHandler extends Task {
                             public Boolean call() throws Exception {
                                 return Powers.Prayer.getPoints() > startPP;
                             }
-                        }, 1000,2000);
+                        }, Random.nextInt(1600, 2000));
                     }
                 }
             }
