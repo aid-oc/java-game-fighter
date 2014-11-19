@@ -24,6 +24,7 @@ public class MassFighter extends TaskScript implements PaintListener {
     private final StopWatch runningTime = new StopWatch();
     private final NumberFormat numberFormat = NumberFormat.getNumberInstance();
     private int startExp;
+    private final boolean byteCodeChange = true;
 
     public void onStart(String... args) {
 
@@ -88,6 +89,6 @@ public class MassFighter extends TaskScript implements PaintListener {
         g2d.drawString("Task Status: " + status, 36, 189);
         //g2d.drawString("Thread Status: " + abilityStatus, 36, 212);
         g2d.drawString("Exp Gained: " + expGained + " (" + numberFormat.format((int) CommonMath.rate(TimeUnit.HOURS, runningTime.getRuntime(), expGained)) + " p/h)", 36, 212);
-        g2d.drawString("Runtime: " + runningTime.getRuntimeAsString(), 36, 235);
+        g2d.drawString("Script Runtime: " + runningTime.getRuntimeAsString(), 36, 235);
     }
 }
