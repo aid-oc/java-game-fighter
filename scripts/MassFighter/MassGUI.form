@@ -18,7 +18,7 @@
           <text value="NPC Scan"/>
         </properties>
       </component>
-      <component id="f3152" class="javax.swing.JComboBox" binding="cmbNpcs">
+      <component id="f3152" class="javax.swing.JComboBox" binding="cmbNpcs" custom-create="true">
         <constraints>
           <grid row="1" column="4" row-span="1" col-span="3" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
           <gridbag weightx="1.0" weighty="0.0"/>
@@ -63,7 +63,7 @@
           <text value="Food Type?"/>
         </properties>
       </component>
-      <component id="a2cc0" class="javax.swing.JComboBox" binding="cmbFoodType">
+      <component id="a2cc0" class="javax.swing.JComboBox" binding="cmbFoodType" custom-create="true">
         <constraints>
           <grid row="12" column="4" row-span="2" col-span="3" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
           <gridbag weightx="1.0" weighty="0.0"/>
