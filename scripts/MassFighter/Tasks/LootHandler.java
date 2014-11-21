@@ -44,7 +44,7 @@ public class LootHandler extends Task {
                         public Boolean call() throws Exception {
                             return Inventory.getItems() != initialInventory;
                         }
-                    }, 1600, 2000);
+                    }, 1000,1600);
                 } else if (Menu.isOpen()) {
                     Menu.close();
                 } else {

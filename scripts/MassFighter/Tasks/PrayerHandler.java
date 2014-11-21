@@ -30,7 +30,7 @@ public class PrayerHandler extends Task {
                     public Boolean call() throws Exception {
                         return Functions.isSoulsplitActive();
                     }
-                }, 1600,2500);
+                }, 1600,2000);
             }
         }
 

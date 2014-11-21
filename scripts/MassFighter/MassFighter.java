@@ -28,7 +28,7 @@ public class MassFighter extends TaskScript implements PaintListener {
     public void onStart(String... args) {
 
         // Loop & GUI Setup
-        setLoopDelay(1000,1500);
+        setLoopDelay(400);
         getEventDispatcher().addListener(this);
         try {
             EventQueue.invokeAndWait(new Runnable() {
