@@ -21,6 +21,7 @@ import static scripts.MassFighter.Data.Settings.*;
 public class MassFighter extends TaskScript implements PaintListener {
 
     private static MassGUI ui;
+    public static Boolean requestedShutdown = false;
     private final StopWatch runningTime = new StopWatch();
     private final NumberFormat numberFormat = NumberFormat.getNumberInstance();
     private int startExp;
@@ -47,35 +48,40 @@ public class MassFighter extends TaskScript implements PaintListener {
             t.printStackTrace();
         }
 
-        // SETUP
-        if (Environment.isRS3()) {
-            if (!ActionBar.isAutoRetaliating()) {
-                ActionBar.toggleAutoRetaliation();
-            }
-        }
-        // Retrieve initial exp values
-        startExp = Skill.STRENGTH.getExperience() + Skill.ATTACK.getExperience() + Skill.DEFENCE.getExperience()
-                + Skill.CONSTITUTION.getExperience() + Skill.PRAYER.getExperience();
-        // Start the runtime
-        runningTime.start();
+        if (requestedShutdown) {
+            this.stop();
+        } else {
 
-        // TASKS
-        if (Settings.lootCharms) {
-            add(new LootHandler());
-        }
-        if (useSoulsplit && Environment.isRS3()) {
-            add(new PrayerHandler());
-        }
-        if (usingFood) {
-            add(new FoodHandler());
-        }
-        add(new CombatHandler());
-        // LOOPING THREADS
-        if (useAbilities && Environment.isRS3()) {
-            if (!ActionBar.isExpanded()) {
-                ActionBar.toggleExpansion();
+            // SETUP
+            if (Environment.isRS3()) {
+                if (!ActionBar.isAutoRetaliating()) {
+                    ActionBar.toggleAutoRetaliation();
+                }
             }
-            new LoopingThread(new AbilityHandler(), 1600,2000).start();
+            // Retrieve initial exp values
+            startExp = Skill.STRENGTH.getExperience() + Skill.ATTACK.getExperience() + Skill.DEFENCE.getExperience()
+                    + Skill.CONSTITUTION.getExperience() + Skill.PRAYER.getExperience();
+            // Start the runtime
+            runningTime.start();
+
+            // TASKS
+            if (Settings.lootCharms) {
+                add(new LootHandler());
+            }
+            if (useSoulsplit && Environment.isRS3()) {
+                add(new PrayerHandler());
+            }
+            if (usingFood) {
+                add(new FoodHandler());
+            }
+            add(new CombatHandler());
+            // LOOPING THREADS
+            if (useAbilities && Environment.isRS3()) {
+                if (!ActionBar.isExpanded()) {
+                    ActionBar.toggleExpansion();
+                }
+                new LoopingThread(new AbilityHandler(), 1600, 2000).start();
+            }
         }
     }
 

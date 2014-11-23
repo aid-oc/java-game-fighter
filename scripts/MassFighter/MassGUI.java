@@ -1,11 +1,9 @@
 package scripts.MassFighter;
 
-import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.entities.Npc;
 import com.runemate.game.api.hybrid.location.Area;
 import com.runemate.game.api.hybrid.region.Npcs;
 import com.runemate.game.api.hybrid.region.Players;
-import com.runemate.game.api.script.framework.AbstractScript;
 import scripts.MassFighter.Data.Food;
 import scripts.MassFighter.Data.Settings;
 
@@ -43,10 +41,7 @@ public class MassGUI extends JFrame {
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosed(WindowEvent e) {
-                final AbstractScript script = Environment.getScript();
-                if (script != null) {
-                    script.stop();
-                }
+                MassFighter.requestedShutdown = true;
             }
         });
 
