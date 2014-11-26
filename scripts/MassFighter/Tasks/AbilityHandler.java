@@ -10,9 +10,6 @@ import scripts.MassFighter.Data.Settings;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-/**
- * Created by Ozzy on 07/11/2014.
- */
 public class AbilityHandler extends Task implements Runnable {
 
     @Override
@@ -30,7 +27,7 @@ public class AbilityHandler extends Task implements Runnable {
             if (Players.getLocal().getTarget() == null)
                 break;
             if (a.getName() != null) {
-                if (a.isReady()) {
+                if (a.getType().equals(SlotAction.Type.ABILITY) && a.isReady()) {
                     if (a.activate()) {
                         Execution.delayUntil(new Callable<Boolean>() {
                             @Override

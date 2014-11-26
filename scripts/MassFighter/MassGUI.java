@@ -4,8 +4,8 @@ import com.runemate.game.api.hybrid.entities.Npc;
 import com.runemate.game.api.hybrid.location.Area;
 import com.runemate.game.api.hybrid.region.Npcs;
 import com.runemate.game.api.hybrid.region.Players;
-import scripts.MassFighter.Data.Food;
 import scripts.MassFighter.Data.Settings;
+import scripts.MassFighter.Data.Food;
 
 import javax.swing.*;
 import java.awt.*;

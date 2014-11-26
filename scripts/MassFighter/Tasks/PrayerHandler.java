@@ -23,6 +23,7 @@ public class PrayerHandler extends Task {
     public void execute() {
         Settings.status = "Prayer Handler is Active";
 
+        // Enable soulsplit if it is not active
         if (!Functions.isSoulsplitActive()) {
             if (Powers.Prayer.Curse.SOUL_SPLIT.toggle()) {
                 Execution.delayUntil(new Callable<Boolean>() {
@@ -39,7 +40,8 @@ public class PrayerHandler extends Task {
         // Delays until prayer points have increased or 2s pass
         if (Powers.Prayer.getPoints() < Powers.Prayer.getMaximumPoints()/2) {
             if (!Inventory.containsAnyOf(Potion.PRAYER_FLASK.getIds()) && !Inventory.containsAnyOf(Potion.PRAYER_POTION.getIds())) {
-                Environment.getScript().stop();
+                Settings.status = "Paused: out of prayer pots/flasks";
+                Environment.getScript().pause();
             } else {
                 final int startPP = Powers.Prayer.getPoints();
                 final SpriteItem targetPrayerFuel;
@@ -49,7 +51,7 @@ public class PrayerHandler extends Task {
                     targetPrayerFuel = Inventory.getFirstItem(Potion.PRAYER_POTION.getIds());
                 }
                 if (targetPrayerFuel != null) {
-                    if (targetPrayerFuel.interact("Drink")) {
+                    if (targetPrayerFuel.interact("Drink", targetPrayerFuel.getDefinition().getName())) {
                         Execution.delayUntil(new Callable<Boolean>() {
                             @Override
                             public Boolean call() throws Exception {

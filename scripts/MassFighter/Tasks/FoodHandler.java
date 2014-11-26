@@ -36,7 +36,8 @@ public class FoodHandler extends Task {
                 }
             }
         } else {
-            Environment.getScript().stop();
+            Settings.status = "Paused: out of food";
+            Environment.getScript().pause();
         }
     }
 }

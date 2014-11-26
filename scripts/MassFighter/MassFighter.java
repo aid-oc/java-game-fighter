@@ -9,7 +9,6 @@ import com.runemate.game.api.rs3.local.hud.interfaces.eoc.ActionBar;
 import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.core.LoopingThread;
 import com.runemate.game.api.script.framework.task.TaskScript;
-import scripts.MassFighter.Data.Settings;
 import scripts.MassFighter.Tasks.*;
 
 import java.awt.*;
@@ -65,7 +64,7 @@ public class MassFighter extends TaskScript implements PaintListener {
             runningTime.start();
 
             // TASKS
-            if (Settings.lootCharms) {
+            if (lootCharms) {
                 add(new LootHandler());
             }
             if (useSoulsplit && Environment.isRS3()) {
@@ -88,6 +87,9 @@ public class MassFighter extends TaskScript implements PaintListener {
     @Override
     public void onPaint(Graphics2D g2d) {
         g2d.setFont(new Font("Arial", Font.BOLD, 11));
+        if (targetNpc != null) {
+            targetNpc.render(g2d);
+        }
         int expGained = Skill.STRENGTH.getExperience() + Skill.ATTACK.getExperience() + Skill.DEFENCE.getExperience()
                 + Skill.CONSTITUTION.getExperience() + Skill.PRAYER.getExperience() - startExp;
         g2d.drawString("Ozzy's MassFighter", 36, 166);

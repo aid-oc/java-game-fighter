@@ -8,6 +8,7 @@ import com.runemate.game.api.hybrid.location.navigation.basic.BresenhamPath;
 import com.runemate.game.api.hybrid.queries.GroundItemQueryBuilder;
 import com.runemate.game.api.hybrid.queries.results.SpriteItemQueryResults;
 import com.runemate.game.api.hybrid.region.GroundItems;
+import com.runemate.game.api.hybrid.region.Players;
 import com.runemate.game.api.hybrid.util.calculations.Distance;
 import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.task.Task;
@@ -24,7 +25,8 @@ public class LootHandler extends Task {
 
     @Override
     public boolean validate() {
-        return Settings.lootCharms && !suitableGroundItemQuery.results().isEmpty() && !Inventory.isFull();
+        return Settings.lootCharms && Players.getLocal().getTarget() == null &&
+                !suitableGroundItemQuery.results().isEmpty() && !Inventory.isFull();
     }
 
     @Override
@@ -32,9 +34,10 @@ public class LootHandler extends Task {
         Settings.status = "Loot Handler is Active";
         GroundItem targetLoot = suitableGroundItemQuery.results().nearest();
         if (targetLoot != null) {
-            if (Camera.getPitch() < .6) {
+            if (Camera.getPitch() < 0.6) {
                 Camera.setPitch(.65);
             }
+            // Temporary model for an RS3 charm
             targetLoot.setBackupModel(new int[]{-11, -11, -12}, new int[]{13, 2, 6});
             final SpriteItemQueryResults initialInventory = Inventory.getItems();
             if (targetLoot.isVisible()) {
@@ -47,8 +50,6 @@ public class LootHandler extends Task {
                     }, 1000,1600);
                 } else if (Menu.isOpen()) {
                     Menu.close();
-                } else {
-                    Camera.turnTo(targetLoot);
                 }
             } else if (Distance.to(targetLoot) > 2) {
                 BresenhamPath.buildTo(targetLoot).step(true);

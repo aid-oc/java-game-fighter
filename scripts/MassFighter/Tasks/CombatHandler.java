@@ -20,40 +20,36 @@ import java.util.concurrent.Callable;
 
 public class CombatHandler extends Task {
 
-    private Player player = Players.getLocal();
+    // Accessed by the Loot Handler
     public static Area fightArea = new Area.Circular(Players.getLocal().getPosition(), Settings.chosenFightRegion);
+    private Player player = Players.getLocal();
+    private final NpcQueryBuilder npcQuery = Npcs.newQuery().within(fightArea).names(Settings.chosenNpcName).reachable();
 
     public boolean validate() {
-        return Settings.lootCharms &&  player.getTarget() == null && Functions.readyToFight() &&
-                (LootHandler.suitableGroundItemQuery.results().isEmpty() || Inventory.isFull())
-                || !Settings.lootCharms && player.getTarget() == null && Functions.readyToFight();
+        return  // Player is looting
+                Settings.lootCharms && needsTarget() && (LootHandler.suitableGroundItemQuery.results().isEmpty() || Inventory.isFull())
+                // Player is not looting
+                || !Settings.lootCharms && needsTarget();
     }
 
     @Override
     public void execute() {
         Settings.status = "Combat Handler is Active";
-
         final Npc targetNpc;
-        NpcQueryBuilder idealNpcQuery = Npcs.newQuery().within(fightArea).names(Settings.chosenNpcName).reachable();
-        NpcQueryBuilder possibleNpcQuery = Npcs.newQuery().reachable().filter(new Filter<Npc>() {
+        targetNpc = npcQuery.filter(new Filter<Npc>() {
             @Override
             public boolean accepts(Npc npc) {
-                return npc.getTarget() == player;
+                return npc.getHealthGauge() == null && npc.isValid() && npc.getAnimationId() == -1;
             }
-        });
-        if (!possibleNpcQuery.results().isEmpty()) {
-            targetNpc = possibleNpcQuery.results().nearest();
-        } else {
-            targetNpc = idealNpcQuery.results().nearest();
-        }
-
+        }).results().sortByDistance().limit(3).random();
         if (targetNpc != null) {
+            Settings.targetNpc = targetNpc;
             if (targetNpc.isVisible()) {
                 if (targetNpc.interact("Attack", targetNpc.getName())) {
                     Execution.delayUntil(new Callable<Boolean>() {
                         @Override
                         public Boolean call() throws Exception {
-                            return targetNpc.getTarget() != player;
+                            return player.getTarget() == null;
                         }
                     }, 1600, 2000);
                 } else {
@@ -61,12 +57,17 @@ public class CombatHandler extends Task {
                     Camera.turnTo(targetNpc);
                 }
             } else if (Distance.to(targetNpc) < 4) {
-                BresenhamPath.buildTo(targetNpc).step(true);
                 Camera.turnTo(targetNpc);
             } else {
+                BresenhamPath.buildTo(targetNpc).step(true);
                 Camera.turnTo(targetNpc);
             }
         }
     }
+
+    private Boolean needsTarget() {
+        return player.getTarget() == null && Functions.readyToFight();
+    }
+
 }
 
