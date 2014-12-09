@@ -1,6 +1,7 @@
 package scripts.MassFighter.Tasks;
 
 import com.runemate.game.api.hybrid.Environment;
+import com.runemate.game.api.hybrid.RuneScape;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
 import com.runemate.game.api.hybrid.local.hud.interfaces.SpriteItem;
 import com.runemate.game.api.hybrid.queries.SpriteItemQueryBuilder;
@@ -11,8 +12,6 @@ import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.task.Task;
 import scripts.MassFighter.Data.Settings;
 import util.Functions;
-
-import java.util.concurrent.Callable;
 
 public class PrayerHandler extends Task {
 
@@ -27,7 +26,8 @@ public class PrayerHandler extends Task {
 
     @Override
     public boolean validate() {
-        return Settings.useSoulsplit && Powers.Prayer.getPoints() < Powers.Prayer.getMaximumPoints() / 2 || !Functions.isSoulsplitActive();
+        return Settings.useSoulsplit && Powers.Prayer.getPoints() < Powers.Prayer.getMaximumPoints() / 2
+                || !Functions.isSoulsplitActive();
     }
 
     @Override
@@ -37,12 +37,7 @@ public class PrayerHandler extends Task {
         // Enable soulsplit if it is not active
         if (!Functions.isSoulsplitActive()) {
             if (Powers.Prayer.Curse.SOUL_SPLIT.toggle()) {
-                Execution.delayUntil(new Callable<Boolean>() {
-                    @Override
-                    public Boolean call() throws Exception {
-                        return Functions.isSoulsplitActive();
-                    }
-                }, 1600,2000);
+                Execution.delayUntil(Functions::isSoulsplitActive, 1600,2000);
             }
         }
 
@@ -52,25 +47,17 @@ public class PrayerHandler extends Task {
         if (Powers.Prayer.getPoints() < Powers.Prayer.getMaximumPoints()/2) {
             if (validPrayerItems.results().isEmpty()) {
                 Settings.status = "Paused: out of prayer pots/flasks";
+                RuneScape.logout();
                 Environment.getScript().pause();
             } else {
                 final int startPP = Powers.Prayer.getPoints();
                 final SpriteItem targetPrayerFuel = validPrayerItems.results().random();
                 if (targetPrayerFuel != null) {
                     if (targetPrayerFuel.interact("Drink", targetPrayerFuel.getDefinition().getName())) {
-                        Execution.delayUntil(new Callable<Boolean>() {
-                            @Override
-                            public Boolean call() throws Exception {
-                                return Powers.Prayer.getPoints() > startPP;
-                            }
-                        }, Random.nextInt(1600, 2000));
+                        Execution.delayUntil(() -> Powers.Prayer.getPoints() > startPP, Random.nextInt(1600, 2000));
                     }
                 }
             }
         }
-
     }
-
-
-
 }

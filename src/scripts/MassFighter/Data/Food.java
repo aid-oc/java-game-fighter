@@ -1,8 +1,5 @@
 package scripts.MassFighter.Data;
 
-/**
- * Created by Aidan on 06/11/2014.
- */
 public enum Food {
 
         ANCHOVIES("Anchovies", 319, 10),

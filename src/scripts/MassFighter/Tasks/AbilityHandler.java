@@ -8,7 +8,6 @@ import com.runemate.game.api.script.framework.task.Task;
 import scripts.MassFighter.Data.Settings;
 
 import java.util.List;
-import java.util.concurrent.Callable;
 
 public class AbilityHandler extends Task implements Runnable {
 
@@ -24,18 +23,11 @@ public class AbilityHandler extends Task implements Runnable {
 
         List<SlotAction> abilities = ActionBar.getActions();
         for (SlotAction a : abilities) {
-            if (Players.getLocal().getTarget() == null)
+            if (Players.getLocal().getTarget() == null || a.getType() == null)
                 break;
-            if (a.getName() != null) {
-                if (a.getType().equals(SlotAction.Type.ABILITY) && a.isReady()) {
-                    if (a.activate()) {
-                        Execution.delayUntil(new Callable<Boolean>() {
-                            @Override
-                            public Boolean call() throws Exception {
-                                return Players.getLocal().getTarget() == null;
-                            }
-                        }, 1600,2500);
-                    }
+            if (a.getType().equals(SlotAction.Type.ABILITY) && a.isReady()) {
+                if (a.activate()) {
+                    Execution.delayUntil(() -> Players.getLocal().getTarget() == null, 1600,2500);
                 }
             }
         }
@@ -43,7 +35,8 @@ public class AbilityHandler extends Task implements Runnable {
 
     @Override
     public void run() {
-        if (this.validate())
+        if (this.validate()) {
             this.execute();
+        }
     }
 }

@@ -2,25 +2,28 @@ package scripts.MassFighter;
 
 import com.runemate.game.api.client.paint.PaintListener;
 import com.runemate.game.api.hybrid.Environment;
+import com.runemate.game.api.hybrid.entities.Npc;
 import com.runemate.game.api.hybrid.local.Skill;
-import com.runemate.game.api.hybrid.local.hud.interfaces.Health;
+import com.runemate.game.api.hybrid.location.Area;
+import com.runemate.game.api.hybrid.region.Players;
 import com.runemate.game.api.hybrid.util.StopWatch;
 import com.runemate.game.api.hybrid.util.calculations.CommonMath;
 import com.runemate.game.api.rs3.local.hud.interfaces.eoc.ActionBar;
 import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.core.LoopingThread;
 import com.runemate.game.api.script.framework.task.TaskScript;
+import scripts.MassFighter.Data.Settings;
 import scripts.MassFighter.Tasks.*;
-import util.Functions;
 
 import java.awt.*;
 import java.text.NumberFormat;
 import java.util.concurrent.TimeUnit;
 
-import static scripts.MassFighter.Data.Settings.*;
-
 public class MassFighter extends TaskScript implements PaintListener {
 
+
+    public static Area fightArea;
+    public static Npc targetNpc;
     private static MassGUI ui;
     public static Boolean requestedShutdown = false;
     private final StopWatch runningTime = new StopWatch();
@@ -30,15 +33,12 @@ public class MassFighter extends TaskScript implements PaintListener {
     public void onStart(String... args) {
 
         // Loop & GUI Setup
-        setLoopDelay(400);
+        setLoopDelay(400, 600);
         getEventDispatcher().addListener(this);
         try {
-            EventQueue.invokeAndWait(new Runnable() {
-                @Override
-                public void run() {
-                    ui = new MassGUI();
-                    ui.setVisible(true);
-                }
+            EventQueue.invokeAndWait(() -> {
+                ui = new MassGUI();
+                ui.setVisible(true);
             });
             if (ui != null) {
                 while (ui.isVisible()) {
@@ -52,35 +52,26 @@ public class MassFighter extends TaskScript implements PaintListener {
         if (requestedShutdown) {
             this.stop();
         } else {
-
-            System.out.println(Functions.readyToFight());
-            System.out.println(Health.getCurrent());
-
-            // SETUP
             if (Environment.isRS3()) {
                 if (!ActionBar.isAutoRetaliating()) {
                     ActionBar.toggleAutoRetaliation();
                 }
             }
-            // Retrieve initial exp values
             startExp = Skill.STRENGTH.getExperience() + Skill.ATTACK.getExperience() + Skill.DEFENCE.getExperience()
                     + Skill.CONSTITUTION.getExperience() + Skill.PRAYER.getExperience();
-            // Start the runtime
             runningTime.start();
 
-            // TASKS
-            if (lootCharms && Environment.isRS3()) {
-                add(new LootHandler());
-            }
-            if (useSoulsplit && Environment.isRS3()) {
+            targetNpc = null;
+            fightArea = new Area.Circular(Players.getLocal().getPosition(), Settings.chosenFightRegion);
+
+            if (Settings.useSoulsplit && Environment.isRS3()) {
                 add(new PrayerHandler());
             }
-            if (usingFood) {
+            if (Settings.usingFood) {
                 add(new FoodHandler());
             }
             add(new CombatHandler());
-            // LOOPING THREADS
-            if (useAbilities && Environment.isRS3()) {
+            if (Settings.useAbilities && Environment.isRS3()) {
                 if (!ActionBar.isExpanded()) {
                     ActionBar.toggleExpansion();
                 }
@@ -93,13 +84,16 @@ public class MassFighter extends TaskScript implements PaintListener {
     public void onPaint(Graphics2D g2d) {
         g2d.setFont(new Font("Arial", Font.BOLD, 11));
         if (targetNpc != null) {
-            targetNpc.render(g2d);
+            if (targetNpc.getArea() != null) {
+                g2d.setColor(Color.red);
+                targetNpc.getArea().getCenter().render(g2d);
+            }
         }
+        g2d.setColor(Color.white);
         int expGained = Skill.STRENGTH.getExperience() + Skill.ATTACK.getExperience() + Skill.DEFENCE.getExperience()
                 + Skill.CONSTITUTION.getExperience() + Skill.PRAYER.getExperience() - startExp;
         g2d.drawString("Ozzy's MassFighter", 36, 166);
-        g2d.drawString("Task Status: " + status, 36, 189);
-        //g2d.drawString("Thread Status: " + abilityStatus, 36, 212);
+        g2d.drawString("Task Status: " + Settings.status, 36, 189);
         g2d.drawString("Exp Gained: " + expGained + " (" + numberFormat.format((int) CommonMath.rate(TimeUnit.HOURS, runningTime.getRuntime(), expGained)) + " p/h)", 36, 212);
         g2d.drawString("Script Runtime: " + runningTime.getRuntimeAsString(), 36, 235);
     }

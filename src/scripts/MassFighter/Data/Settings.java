@@ -1,6 +1,5 @@
 package scripts.MassFighter.Data;
 
-import com.runemate.game.api.hybrid.entities.Npc;
 import com.runemate.game.api.hybrid.location.Coordinate;
 
 /**
@@ -25,7 +24,6 @@ public class Settings {
     public static Boolean useSoulsplit;
 
     // MISC
-    public static Npc targetNpc;
     public static String status;
     public static String abilityStatus;
 

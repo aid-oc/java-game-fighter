@@ -1,14 +1,13 @@
 package scripts.MassFighter.Tasks;
 
 import com.runemate.game.api.hybrid.Environment;
+import com.runemate.game.api.hybrid.RuneScape;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Health;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
 import com.runemate.game.api.hybrid.local.hud.interfaces.SpriteItem;
 import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.task.Task;
 import scripts.MassFighter.Data.Settings;
-
-import java.util.concurrent.Callable;
 
 public class FoodHandler extends Task {
     @Override
@@ -24,19 +23,15 @@ public class FoodHandler extends Task {
         // This activates if the players health falls below their set threshold
         if (Settings.usingFood && Inventory.contains(Settings.chosenFood.getName())) {
             final int startHealth = Health.getCurrent();
-            SpriteItem i = Inventory.getRandomItem(Settings.chosenFood.getName());
+            SpriteItem i = Inventory.getItems(Settings.chosenFood.getName()).random();
             if (i != null) {
                 if (i.interact("Eat")) {
-                    Execution.delayUntil(new Callable<Boolean>() {
-                        @Override
-                        public Boolean call() throws Exception {
-                            return Health.getCurrent() != startHealth;
-                        }
-                    }, 1600,2000);
+                    Execution.delayUntil(() -> Health.getCurrent() != startHealth, 1600,2000);
                 }
             }
         } else {
             Settings.status = "Paused: out of food";
+            RuneScape.logout();
             Environment.getScript().pause();
         }
     }
