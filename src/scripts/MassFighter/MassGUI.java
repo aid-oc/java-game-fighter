@@ -12,7 +12,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.Collection;
+import java.util.*;
 
 public class MassGUI extends JFrame {
 
@@ -26,7 +26,14 @@ public class MassGUI extends JFrame {
     private JButton btnStart;
     private JCheckBox cbUseAbilities;
     private JCheckBox cbUseSoulsplit;
-    private JCheckBox cbLootCharms;
+    private JTextField txtLootInput;
+    private JButton btnAddLoot;
+    private JButton btnRemoveLoot;
+    private JList<String> listLoot;
+    private JComboBox<CombatProfile> cmbProfiles;
+    private JButton btnAddNpc;
+    private JButton btnRemoveNpc;
+    private JList<String> listNpcs;
 
     public MassGUI() {
         super("MassFighter - AIO Combat");
@@ -41,6 +48,27 @@ public class MassGUI extends JFrame {
             }
         });
 
+
+        CombatProfile.getProfiles().stream().forEach(cmbProfiles::addItem);
+        cmbProfiles.setSelectedItem(null);
+        cmbProfiles.addActionListener(e -> {
+            if (cmbProfiles.getSelectedItem() != null) {
+                CombatProfile selectedProfile = (CombatProfile)cmbProfiles.getSelectedItem();
+                int confResult = JOptionPane.showConfirmDialog(null, "Are you sure you wish to start " + selectedProfile.toString() + "?", "Profile Alert", JOptionPane.YES_NO_OPTION);
+                if (confResult == JOptionPane.YES_OPTION) {
+                    MassFighter.combatProfile = selectedProfile;
+                    cmbNpcs.setEnabled(false);
+                    btnNpcScan.setEnabled(false);
+                    fightRegionSpinner.setEnabled(false);
+                    btnAddLoot.setEnabled(false);
+                    btnRemoveLoot.setEnabled(false);
+                    listLoot.setEnabled(false);
+                    txtLootInput.setEnabled(false);
+                } else {
+                    cmbProfiles.setSelectedItem(null);
+                }
+            }
+        });
 
         cmbNpcs.addItem("Please perform a scan");
         cmbNpcs.setEnabled(false);
@@ -57,7 +85,10 @@ public class MassGUI extends JFrame {
             cmbNpcs.setEnabled(true);
         });
 
+        // Set recommended fight region
         fightRegionSpinner.setValue(10);
+
+        // Set default hitpoints values depending on game type
         if (Environment.isOSRS()) {
             eatValueSpinner.setValue(30);
         } else {
@@ -77,22 +108,100 @@ public class MassGUI extends JFrame {
         });
 
 
+        DefaultListModel<String> npcModel = new DefaultListModel<>();
+        listNpcs.setModel(npcModel);
+
+        btnAddNpc.addActionListener(e -> {
+            if (cmbNpcs.getSelectedItem() != null) {
+                if (!npcModel.contains(cmbNpcs.getSelectedItem().toString())) {
+                    npcModel.addElement(cmbNpcs.getSelectedItem().toString());
+                    listNpcs.setSelectedValue(cmbNpcs.getSelectedItem().toString(), false);
+                }
+            }
+        });
+
+        btnRemoveNpc.addActionListener(e -> {
+            if (npcModel.contains(listNpcs.getSelectedValue())) {
+                npcModel.removeElement(listNpcs.getSelectedValue());
+            }
+        });
+
+        //
+
+        DefaultListModel<String> lootModel = new DefaultListModel<>();
+        listLoot.setModel(lootModel);
+
+        btnAddLoot.addActionListener(e -> {
+            if (!txtLootInput.getText().isEmpty()) {
+                if (!lootModel.contains(txtLootInput.getText())) {
+                    lootModel.addElement(txtLootInput.getText());
+                    txtLootInput.setText("");
+                }
+            }
+        });
+
+        btnRemoveLoot.addActionListener(e -> {
+            if (listLoot.getSelectedValue() != null) {
+                if (lootModel.contains(listLoot.getSelectedValue())) {
+                    lootModel.removeElement(listLoot.getSelectedValue());
+                }
+            }
+
+        });
+
         btnStart.addActionListener(e -> {
-            if (cmbNpcs.isEnabled()) {
-                Settings.chosenNpcName = cmbNpcs.getSelectedItem().toString();
+
+            if (MassFighter.combatProfile != null) {
+
+                // SET UP PROFILE SETTINGS
+                CombatProfile selectedProfile = MassFighter.combatProfile;
+                Settings.lootChoices = Arrays.asList(selectedProfile.getLootNames());
+                Collections.addAll(Settings.chosenNpcNames, selectedProfile.getNpcNames());
+                Settings.fightAreas = selectedProfile.getFightAreas();
+                if (selectedProfile.getBankArea() != null) {
+                    Settings.profileBankArea = selectedProfile.getBankArea();
+                }
+                // SET UP GENERIC FIGHTER SETTINGS
+                Settings.useAbilities = cbUseAbilities.isSelected();
+                Settings.useSoulsplit = cbUseSoulsplit.isSelected();
+                Settings.eatValue = (Integer) eatValueSpinner.getValue();
                 if (cbEating.isSelected()) {
                     Settings.usingFood = true;
                     Settings.chosenFood = (Food) cmbFoodType.getSelectedItem();
                 } else Settings.usingFood = false;
-
-                Settings.lootCharms = cbLootCharms.isSelected();
-                Settings.useAbilities = cbUseAbilities.isSelected();
-                Settings.useSoulsplit = cbUseSoulsplit.isSelected();
-                Settings.eatValue = (Integer) eatValueSpinner.getValue();
-                Settings.chosenFightRegion = (Integer) fightRegionSpinner.getValue();
-                Settings.startLocation = Players.getLocal().getPosition();
+                Settings.isLooting = selectedProfile.getLootNames().length > 0;
                 MassGUI.this.setVisible(false);
-            }
+
+            } else if (MassFighter.combatProfile == null && listNpcs.getModel().getSize() > 0) {
+
+                    // Assign food
+                    if (cbEating.isSelected()) {
+                        Settings.usingFood = true;
+                        Settings.chosenFood = (Food) cmbFoodType.getSelectedItem();
+                    } else Settings.usingFood = false;
+                    // Assign loot
+                    java.util.List<String> lootItems = new ArrayList<>();
+                    Settings.isLooting = listLoot.getModel().getSize() > 0;
+                    if (listLoot.getModel().getSize() > 0) {
+                        for (int i = 0; i < listLoot.getModel().getSize(); i++) {
+                            lootItems.add(listLoot.getModel().getElementAt(i));
+                        }
+                    }
+                    // Assign options
+                    Settings.lootChoices = lootItems;
+                    java.util.List<String> npcItems = new ArrayList<>();
+                    for (int i = 0; i < listNpcs.getModel().getSize(); i++) {
+                        npcItems.add(listNpcs.getModel().getElementAt(i));
+                    }
+                    Settings.chosenNpcNames = npcItems;
+                    Settings.useAbilities = cbUseAbilities.isSelected();
+                    Settings.useSoulsplit = cbUseSoulsplit.isSelected();
+                    Settings.eatValue = (Integer) eatValueSpinner.getValue();
+                    Settings.chosenFightRegion = (Integer) fightRegionSpinner.getValue();
+                    Settings.startLocation = Players.getLocal().getPosition();
+                    MassGUI.this.setVisible(false);
+
+                }
         });
         pack();
     }
@@ -101,7 +210,9 @@ public class MassGUI extends JFrame {
     private void createUIComponents() {
         cmbNpcs = new JComboBox<>();
         cmbFoodType = new JComboBox<>();
-
+        listLoot = new JList<>();
+        cmbProfiles = new JComboBox<>();
+        listNpcs = new JList<>();
     }
 
     /**
@@ -255,14 +366,11 @@ public class MassGUI extends JFrame {
         gbc.weightx = 1.0;
         gbc.anchor = GridBagConstraints.WEST;
         mainPanel.add(cbUseSoulsplit, gbc);
-        cbLootCharms = new JCheckBox();
-        cbLootCharms.setText("");
         gbc = new GridBagConstraints();
         gbc.gridx = 4;
         gbc.gridy = 15;
         gbc.weightx = 1.0;
         gbc.anchor = GridBagConstraints.WEST;
-        mainPanel.add(cbLootCharms, gbc);
     }
 
     /**

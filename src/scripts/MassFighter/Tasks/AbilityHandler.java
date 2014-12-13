@@ -18,17 +18,22 @@ public class AbilityHandler extends Task implements Runnable {
 
     @Override
     public void execute() {
+        System.out.println("Ability Handler Activated");
 
         Settings.abilityStatus = "Ability Handler Running";
-
         List<SlotAction> abilities = ActionBar.getActions();
         for (SlotAction a : abilities) {
+            System.out.println("Attempting to activate " + a.getName());
             if (Players.getLocal().getTarget() == null || a.getType() == null)
                 break;
             if (a.getType().equals(SlotAction.Type.ABILITY) && a.isReady()) {
+                System.out.println("Attempting to activate " + a.getName());
                 if (a.activate()) {
-                    Execution.delayUntil(() -> Players.getLocal().getTarget() == null, 1600,2500);
+                    System.out.println("Success! We used - " + a.getName());
+                    Execution.delayUntil(() -> Players.getLocal().getTarget() == null, 1000,1600);
                 }
+            } else {
+                System.out.println("Ability INVALID - " + a.getName());
             }
         }
     }

@@ -17,13 +17,13 @@ import scripts.MassFighter.Tasks.*;
 
 import java.awt.*;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 public class MassFighter extends TaskScript implements PaintListener {
 
-
-    public static Area fightArea;
     public static Npc targetNpc;
+    public static CombatProfile combatProfile;
     private static MassGUI ui;
     public static Boolean requestedShutdown = false;
     private final StopWatch runningTime = new StopWatch();
@@ -31,7 +31,7 @@ public class MassFighter extends TaskScript implements PaintListener {
     private int startExp;
 
     public void onStart(String... args) {
-
+        combatProfile = null;
         // Loop & GUI Setup
         setLoopDelay(400, 600);
         getEventDispatcher().addListener(this);
@@ -61,8 +61,11 @@ public class MassFighter extends TaskScript implements PaintListener {
                     + Skill.CONSTITUTION.getExperience() + Skill.PRAYER.getExperience();
             runningTime.start();
 
-            targetNpc = null;
-            fightArea = new Area.Circular(Players.getLocal().getPosition(), Settings.chosenFightRegion);
+            if (combatProfile == null) {
+                java.util.List<Area> areas = new ArrayList<>();
+                areas.add(new Area.Circular(Players.getLocal().getPosition(), Settings.chosenFightRegion));
+                Settings.fightAreas = areas;
+            }
 
             if (Settings.useSoulsplit && Environment.isRS3()) {
                 add(new PrayerHandler());
@@ -77,6 +80,14 @@ public class MassFighter extends TaskScript implements PaintListener {
                 }
                 new LoopingThread(new AbilityHandler(), 1600, 2000).start();
             }
+            if (MassFighter.combatProfile != null) {
+                System.out.println("You are using profile: " + MassFighter.combatProfile.toString());
+            } else {
+                System.out.println("You are not using a profile");
+            }
+            System.out.println("Loot choices: " + Settings.lootChoices);
+            System.out.println("NPC choices: " + Settings.chosenNpcNames);
+            System.out.println("Area choices: " + Settings.fightAreas);
         }
     }
 
