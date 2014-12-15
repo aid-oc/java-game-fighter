@@ -29,6 +29,7 @@ public class MassFighter extends TaskScript implements PaintListener {
     private final StopWatch runningTime = new StopWatch();
     private final NumberFormat numberFormat = NumberFormat.getNumberInstance();
     private int startExp;
+    private int[] initialLevels;
 
     public void onStart(String... args) {
         combatProfile = null;
@@ -57,6 +58,7 @@ public class MassFighter extends TaskScript implements PaintListener {
                     ActionBar.toggleAutoRetaliation();
                 }
             }
+
             startExp = Skill.STRENGTH.getExperience() + Skill.ATTACK.getExperience() + Skill.DEFENCE.getExperience()
                     + Skill.CONSTITUTION.getExperience() + Skill.PRAYER.getExperience();
             runningTime.start();

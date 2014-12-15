@@ -13,6 +13,7 @@ import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.*;
+import java.util.List;
 
 public class MassGUI extends JFrame {
 
@@ -53,7 +54,7 @@ public class MassGUI extends JFrame {
         cmbProfiles.setSelectedItem(null);
         cmbProfiles.addActionListener(e -> {
             if (cmbProfiles.getSelectedItem() != null) {
-                CombatProfile selectedProfile = (CombatProfile)cmbProfiles.getSelectedItem();
+                CombatProfile selectedProfile = (CombatProfile) cmbProfiles.getSelectedItem();
                 int confResult = JOptionPane.showConfirmDialog(null, "Are you sure you wish to start " + selectedProfile.toString() + "?", "Profile Alert", JOptionPane.YES_NO_OPTION);
                 if (confResult == JOptionPane.YES_OPTION) {
                     MassFighter.combatProfile = selectedProfile;
@@ -174,34 +175,34 @@ public class MassGUI extends JFrame {
 
             } else if (MassFighter.combatProfile == null && listNpcs.getModel().getSize() > 0) {
 
-                    // Assign food
-                    if (cbEating.isSelected()) {
-                        Settings.usingFood = true;
-                        Settings.chosenFood = (Food) cmbFoodType.getSelectedItem();
-                    } else Settings.usingFood = false;
-                    // Assign loot
-                    java.util.List<String> lootItems = new ArrayList<>();
-                    Settings.isLooting = listLoot.getModel().getSize() > 0;
-                    if (listLoot.getModel().getSize() > 0) {
-                        for (int i = 0; i < listLoot.getModel().getSize(); i++) {
-                            lootItems.add(listLoot.getModel().getElementAt(i));
-                        }
+                // Assign food
+                if (cbEating.isSelected()) {
+                    Settings.usingFood = true;
+                    Settings.chosenFood = (Food) cmbFoodType.getSelectedItem();
+                } else Settings.usingFood = false;
+                // Assign loot
+                List<String> lootItems = new ArrayList<>();
+                Settings.isLooting = listLoot.getModel().getSize() > 0;
+                if (listLoot.getModel().getSize() > 0) {
+                    for (int i = 0; i < listLoot.getModel().getSize(); i++) {
+                        lootItems.add(listLoot.getModel().getElementAt(i));
                     }
-                    // Assign options
-                    Settings.lootChoices = lootItems;
-                    java.util.List<String> npcItems = new ArrayList<>();
-                    for (int i = 0; i < listNpcs.getModel().getSize(); i++) {
-                        npcItems.add(listNpcs.getModel().getElementAt(i));
-                    }
-                    Settings.chosenNpcNames = npcItems;
-                    Settings.useAbilities = cbUseAbilities.isSelected();
-                    Settings.useSoulsplit = cbUseSoulsplit.isSelected();
-                    Settings.eatValue = (Integer) eatValueSpinner.getValue();
-                    Settings.chosenFightRegion = (Integer) fightRegionSpinner.getValue();
-                    Settings.startLocation = Players.getLocal().getPosition();
-                    MassGUI.this.setVisible(false);
-
                 }
+                // Assign options
+                Settings.lootChoices = lootItems;
+                List<String> npcItems = new ArrayList<>();
+                for (int i = 0; i < listNpcs.getModel().getSize(); i++) {
+                    npcItems.add(listNpcs.getModel().getElementAt(i));
+                }
+                Settings.chosenNpcNames = npcItems;
+                Settings.useAbilities = cbUseAbilities.isSelected();
+                Settings.useSoulsplit = cbUseSoulsplit.isSelected();
+                Settings.eatValue = (Integer) eatValueSpinner.getValue();
+                Settings.chosenFightRegion = (Integer) fightRegionSpinner.getValue();
+                Settings.startLocation = Players.getLocal().getPosition();
+                MassGUI.this.setVisible(false);
+
+            }
         });
         pack();
     }
@@ -225,152 +226,76 @@ public class MassGUI extends JFrame {
     private void $$$setupUI$$$() {
         createUIComponents();
         mainPanel = new JPanel();
-        mainPanel.setLayout(new GridBagLayout());
+        mainPanel.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(14, 4, new Insets(0, 0, 0, 0), -1, -1));
         mainPanel.setForeground(new Color(-4507801));
-        btnNpcScan = new JButton();
-        btnNpcScan.setText("NPC Scan");
-        GridBagConstraints gbc;
-        gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        gbc.gridwidth = 4;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        mainPanel.add(btnNpcScan, gbc);
-        cmbNpcs.setEnabled(false);
-        gbc = new GridBagConstraints();
-        gbc.gridx = 4;
-        gbc.gridy = 1;
-        gbc.gridwidth = 3;
-        gbc.weightx = 1.0;
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        mainPanel.add(cmbNpcs, gbc);
         cbEating = new JCheckBox();
         cbEating.setText("");
-        gbc = new GridBagConstraints();
-        gbc.gridx = 4;
-        gbc.gridy = 2;
-        gbc.weightx = 1.0;
-        gbc.anchor = GridBagConstraints.WEST;
-        mainPanel.add(cbEating, gbc);
+        mainPanel.add(cbEating, new com.intellij.uiDesigner.core.GridConstraints(4, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label1 = new JLabel();
-        label1.setText("Eat Value? (Script exits if you have no food and you go below this value)");
-        gbc = new GridBagConstraints();
-        gbc.gridx = 1;
-        gbc.gridy = 3;
-        gbc.gridheight = 9;
-        gbc.weighty = 1.0;
-        gbc.anchor = GridBagConstraints.WEST;
-        mainPanel.add(label1, gbc);
+        label1.setText("Fight if I am above this many hitpoints:");
+        mainPanel.add(label1, new com.intellij.uiDesigner.core.GridConstraints(5, 0, 2, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label2 = new JLabel();
         label2.setText("Eating?");
-        gbc = new GridBagConstraints();
-        gbc.gridx = 1;
-        gbc.gridy = 2;
-        gbc.anchor = GridBagConstraints.WEST;
-        mainPanel.add(label2, gbc);
+        mainPanel.add(label2, new com.intellij.uiDesigner.core.GridConstraints(4, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label3 = new JLabel();
         label3.setText("Food Type?");
-        gbc = new GridBagConstraints();
-        gbc.gridx = 1;
-        gbc.gridy = 12;
-        gbc.gridwidth = 3;
-        gbc.anchor = GridBagConstraints.WEST;
-        mainPanel.add(label3, gbc);
-        gbc = new GridBagConstraints();
-        gbc.gridx = 4;
-        gbc.gridy = 12;
-        gbc.gridwidth = 3;
-        gbc.gridheight = 2;
-        gbc.weightx = 1.0;
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        mainPanel.add(cmbFoodType, gbc);
-        eatValueSpinner = new JSpinner();
-        gbc = new GridBagConstraints();
-        gbc.gridx = 4;
-        gbc.gridy = 5;
-        gbc.gridwidth = 3;
-        gbc.gridheight = 4;
-        gbc.weightx = 1.0;
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        mainPanel.add(eatValueSpinner, gbc);
+        mainPanel.add(label3, new com.intellij.uiDesigner.core.GridConstraints(7, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        mainPanel.add(cmbFoodType, new com.intellij.uiDesigner.core.GridConstraints(7, 1, 1, 3, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label4 = new JLabel();
         label4.setText("Size of fight area? (Radius of a circle with the player as the center)");
-        gbc = new GridBagConstraints();
-        gbc.gridx = 1;
-        gbc.gridy = 14;
-        gbc.anchor = GridBagConstraints.WEST;
-        mainPanel.add(label4, gbc);
+        mainPanel.add(label4, new com.intellij.uiDesigner.core.GridConstraints(8, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         fightRegionSpinner = new JSpinner();
-        gbc = new GridBagConstraints();
-        gbc.gridx = 4;
-        gbc.gridy = 14;
-        gbc.gridwidth = 3;
-        gbc.weightx = 1.0;
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        mainPanel.add(fightRegionSpinner, gbc);
+        mainPanel.add(fightRegionSpinner, new com.intellij.uiDesigner.core.GridConstraints(8, 1, 1, 3, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         btnStart = new JButton();
         btnStart.setText("Fight");
-        gbc = new GridBagConstraints();
-        gbc.gridx = 4;
-        gbc.gridy = 18;
-        gbc.weightx = 1.0;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        mainPanel.add(btnStart, gbc);
+        mainPanel.add(btnStart, new com.intellij.uiDesigner.core.GridConstraints(13, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label5 = new JLabel();
         label5.setText("Recommended Settings: OldSchool UI + Full Manual Combat");
-        gbc = new GridBagConstraints();
-        gbc.gridx = 1;
-        gbc.gridy = 0;
-        gbc.anchor = GridBagConstraints.WEST;
-        mainPanel.add(label5, gbc);
+        mainPanel.add(label5, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label6 = new JLabel();
-        label6.setEnabled(true);
-        label6.setText("Loot charms? (Don't have a full inventory)");
-        gbc = new GridBagConstraints();
-        gbc.gridx = 1;
-        gbc.gridy = 15;
-        gbc.anchor = GridBagConstraints.WEST;
-        mainPanel.add(label6, gbc);
-        final JLabel label7 = new JLabel();
-        label7.setText("Use abilities? (ONLY Abilities on the ActionBar sorted Ult->Basic)");
-        gbc = new GridBagConstraints();
-        gbc.gridx = 1;
-        gbc.gridy = 16;
-        gbc.anchor = GridBagConstraints.WEST;
-        mainPanel.add(label7, gbc);
+        label6.setText("Use abilities? (ONLY Abilities on the ActionBar sorted Ult->Basic)");
+        mainPanel.add(label6, new com.intellij.uiDesigner.core.GridConstraints(11, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         cbUseAbilities = new JCheckBox();
         cbUseAbilities.setText("");
-        gbc = new GridBagConstraints();
-        gbc.gridx = 4;
-        gbc.gridy = 16;
-        gbc.weightx = 1.0;
-        gbc.anchor = GridBagConstraints.WEST;
-        mainPanel.add(cbUseAbilities, gbc);
-        final JLabel label8 = new JLabel();
-        label8.setText("Use soulsplit? (Will exit when no pots/flasks left)");
-        gbc = new GridBagConstraints();
-        gbc.gridx = 1;
-        gbc.gridy = 17;
-        gbc.anchor = GridBagConstraints.WEST;
-        mainPanel.add(label8, gbc);
+        mainPanel.add(cbUseAbilities, new com.intellij.uiDesigner.core.GridConstraints(11, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label7 = new JLabel();
+        label7.setText("Use soulsplit? (Will exit when no pots/flasks left)");
+        mainPanel.add(label7, new com.intellij.uiDesigner.core.GridConstraints(12, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         cbUseSoulsplit = new JCheckBox();
         cbUseSoulsplit.setEnabled(true);
         cbUseSoulsplit.setText("");
-        gbc = new GridBagConstraints();
-        gbc.gridx = 4;
-        gbc.gridy = 17;
-        gbc.weightx = 1.0;
-        gbc.anchor = GridBagConstraints.WEST;
-        mainPanel.add(cbUseSoulsplit, gbc);
-        gbc = new GridBagConstraints();
-        gbc.gridx = 4;
-        gbc.gridy = 15;
-        gbc.weightx = 1.0;
-        gbc.anchor = GridBagConstraints.WEST;
+        mainPanel.add(cbUseSoulsplit, new com.intellij.uiDesigner.core.GridConstraints(12, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label8 = new JLabel();
+        label8.setText("What do you want to loot?");
+        mainPanel.add(label8, new com.intellij.uiDesigner.core.GridConstraints(9, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        txtLootInput = new JTextField();
+        mainPanel.add(txtLootInput, new com.intellij.uiDesigner.core.GridConstraints(9, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        btnAddLoot = new JButton();
+        btnAddLoot.setText("Add Loot");
+        mainPanel.add(btnAddLoot, new com.intellij.uiDesigner.core.GridConstraints(9, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        mainPanel.add(listLoot, new com.intellij.uiDesigner.core.GridConstraints(9, 3, 2, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(150, 50), null, 0, false));
+        eatValueSpinner = new JSpinner();
+        mainPanel.add(eatValueSpinner, new com.intellij.uiDesigner.core.GridConstraints(6, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        btnRemoveLoot = new JButton();
+        btnRemoveLoot.setText("Remove Loot");
+        mainPanel.add(btnRemoveLoot, new com.intellij.uiDesigner.core.GridConstraints(10, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        btnNpcScan = new JButton();
+        btnNpcScan.setText("NPC Scan");
+        mainPanel.add(btnNpcScan, new com.intellij.uiDesigner.core.GridConstraints(2, 0, 2, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label9 = new JLabel();
+        label9.setText("Profile: (Coming soon, see thread)");
+        mainPanel.add(label9, new com.intellij.uiDesigner.core.GridConstraints(1, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        cmbProfiles.setEnabled(false);
+        mainPanel.add(cmbProfiles, new com.intellij.uiDesigner.core.GridConstraints(1, 1, 1, 3, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        cmbNpcs.setEnabled(false);
+        mainPanel.add(cmbNpcs, new com.intellij.uiDesigner.core.GridConstraints(2, 1, 2, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        btnAddNpc = new JButton();
+        btnAddNpc.setText("Add NPC");
+        mainPanel.add(btnAddNpc, new com.intellij.uiDesigner.core.GridConstraints(2, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        mainPanel.add(listNpcs, new com.intellij.uiDesigner.core.GridConstraints(2, 3, 2, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(150, 50), null, 0, false));
+        btnRemoveNpc = new JButton();
+        btnRemoveNpc.setText("Remove NPC");
+        mainPanel.add(btnRemoveNpc, new com.intellij.uiDesigner.core.GridConstraints(3, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     /**
