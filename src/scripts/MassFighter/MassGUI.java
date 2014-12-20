@@ -1,18 +1,22 @@
 package scripts.MassFighter;
 
+import com.intellij.uiDesigner.core.GridConstraints;
+import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.entities.Npc;
 import com.runemate.game.api.hybrid.location.Area;
 import com.runemate.game.api.hybrid.region.Npcs;
 import com.runemate.game.api.hybrid.region.Players;
-import scripts.MassFighter.Data.Settings;
 import scripts.MassFighter.Data.Food;
+import scripts.MassFighter.Framework.CombatProfile;
+import scripts.MassFighter.Profiles.Powerfighting;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class MassGUI extends JFrame {
@@ -35,6 +39,7 @@ public class MassGUI extends JFrame {
     private JButton btnAddNpc;
     private JButton btnRemoveNpc;
     private JList<String> listNpcs;
+    private JCheckBox cbBuryBones;
 
     public MassGUI() {
         super("MassFighter - AIO Combat");
@@ -51,23 +56,33 @@ public class MassGUI extends JFrame {
 
 
         CombatProfile.getProfiles().stream().forEach(cmbProfiles::addItem);
-        cmbProfiles.setSelectedItem(null);
         cmbProfiles.addActionListener(e -> {
-            if (cmbProfiles.getSelectedItem() != null) {
-                CombatProfile selectedProfile = (CombatProfile) cmbProfiles.getSelectedItem();
-                int confResult = JOptionPane.showConfirmDialog(null, "Are you sure you wish to start " + selectedProfile.toString() + "?", "Profile Alert", JOptionPane.YES_NO_OPTION);
+            if (!(cmbProfiles.getSelectedItem() instanceof Powerfighting)) {
+                int confResult = JOptionPane.showConfirmDialog(null, "Are you sure you wish to start "
+                        + cmbProfiles.getSelectedItem().toString() + "?", "Profile Alert", JOptionPane.YES_NO_OPTION);
                 if (confResult == JOptionPane.YES_OPTION) {
-                    MassFighter.combatProfile = selectedProfile;
                     cmbNpcs.setEnabled(false);
                     btnNpcScan.setEnabled(false);
+                    btnAddNpc.setEnabled(false);
+                    btnRemoveNpc.setEnabled(false);
                     fightRegionSpinner.setEnabled(false);
                     btnAddLoot.setEnabled(false);
                     btnRemoveLoot.setEnabled(false);
                     listLoot.setEnabled(false);
                     txtLootInput.setEnabled(false);
                 } else {
-                    cmbProfiles.setSelectedItem(null);
+                    cmbProfiles.setSelectedIndex(0);
                 }
+            } else {
+                btnAddNpc.setEnabled(true);
+                btnRemoveNpc.setEnabled(true);
+                cmbNpcs.setEnabled(true);
+                btnNpcScan.setEnabled(true);
+                fightRegionSpinner.setEnabled(true);
+                btnAddLoot.setEnabled(true);
+                btnRemoveLoot.setEnabled(true);
+                listLoot.setEnabled(true);
+                txtLootInput.setEnabled(true);
             }
         });
 
@@ -151,60 +166,48 @@ public class MassGUI extends JFrame {
         });
 
         btnStart.addActionListener(e -> {
+            if (listNpcs.getModel().getSize() > 0 || !(cmbProfiles.getSelectedItem() instanceof Powerfighting)) {
 
-            if (MassFighter.combatProfile != null) {
-
-                // SET UP PROFILE SETTINGS
-                CombatProfile selectedProfile = MassFighter.combatProfile;
-                Settings.lootChoices = Arrays.asList(selectedProfile.getLootNames());
-                Collections.addAll(Settings.chosenNpcNames, selectedProfile.getNpcNames());
-                Settings.fightAreas = selectedProfile.getFightAreas();
-                if (selectedProfile.getBankArea() != null) {
-                    Settings.profileBankArea = selectedProfile.getBankArea();
-                }
-                // SET UP GENERIC FIGHTER SETTINGS
-                Settings.useAbilities = cbUseAbilities.isSelected();
-                Settings.useSoulsplit = cbUseSoulsplit.isSelected();
-                Settings.eatValue = (Integer) eatValueSpinner.getValue();
-                if (cbEating.isSelected()) {
-                    Settings.usingFood = true;
-                    Settings.chosenFood = (Food) cmbFoodType.getSelectedItem();
-                } else Settings.usingFood = false;
-                Settings.isLooting = selectedProfile.getLootNames().length > 0;
+                // Shared settings
+                MassFighter.useFood = cbEating.isSelected();
+                if (cmbFoodType.isEnabled()) MassFighter.food = (Food) cmbFoodType.getSelectedItem();
+                MassFighter.eatValue = (Integer) eatValueSpinner.getValue();
+                MassFighter.useSoulsplit = cbUseSoulsplit.isSelected();
+                MassFighter.useAbilities = cbUseAbilities.isSelected();
+                MassFighter.buryBones = cbBuryBones.isSelected();
+                MassFighter.fightRadius = (Integer) fightRegionSpinner.getValue();
                 MassGUI.this.setVisible(false);
 
-            } else if (MassFighter.combatProfile == null && listNpcs.getModel().getSize() > 0) {
 
-                // Assign food
-                if (cbEating.isSelected()) {
-                    Settings.usingFood = true;
-                    Settings.chosenFood = (Food) cmbFoodType.getSelectedItem();
-                } else Settings.usingFood = false;
-                // Assign loot
-                List<String> lootItems = new ArrayList<>();
-                Settings.isLooting = listLoot.getModel().getSize() > 0;
-                if (listLoot.getModel().getSize() > 0) {
-                    for (int i = 0; i < listLoot.getModel().getSize(); i++) {
-                        lootItems.add(listLoot.getModel().getElementAt(i));
+                CombatProfile profile = (CombatProfile) cmbProfiles.getSelectedItem();
+                if (!(profile instanceof Powerfighting)) {
+                    MassFighter.looting = (profile.getLootNames() != null && profile.getLootNames().length > 0);
+                    MassFighter.combatProfile = profile;
+                } else {
+                    Powerfighting powerProfile = new Powerfighting();
+                    List<String> lootItems = new ArrayList<>();
+                    if (listLoot.getModel().getSize() > 0) {
+                        MassFighter.looting = true;
+                        for (int i = 0; i < listLoot.getModel().getSize(); i++) {
+                            lootItems.add(listLoot.getModel().getElementAt(i));
+                        }
+                        powerProfile.setLootNames(lootItems.toArray(new String[(lootItems.size())]));
                     }
+                    // Assign npcs
+                    List<String> npcItems = new ArrayList<>();
+                    for (int i = 0; i < listNpcs.getModel().getSize(); i++) {
+                        npcItems.add(listNpcs.getModel().getElementAt(i));
+                    }
+                    // Assign fight areas
+                    List<Area> areas = new ArrayList<>();
+                    areas.add(new Area.Circular(Players.getLocal().getPosition(), MassFighter.fightRadius));
+                    powerProfile.setFightAreas(areas);
+                    powerProfile.setNpcNames(npcItems.toArray(new String[(npcItems.size())]));
+                    MassFighter.combatProfile = powerProfile;
                 }
-                // Assign options
-                Settings.lootChoices = lootItems;
-                List<String> npcItems = new ArrayList<>();
-                for (int i = 0; i < listNpcs.getModel().getSize(); i++) {
-                    npcItems.add(listNpcs.getModel().getElementAt(i));
-                }
-                Settings.chosenNpcNames = npcItems;
-                Settings.useAbilities = cbUseAbilities.isSelected();
-                Settings.useSoulsplit = cbUseSoulsplit.isSelected();
-                Settings.eatValue = (Integer) eatValueSpinner.getValue();
-                Settings.chosenFightRegion = (Integer) fightRegionSpinner.getValue();
-                Settings.startLocation = Players.getLocal().getPosition();
-                MassGUI.this.setVisible(false);
-
             }
         });
-        this.setMinimumSize(new Dimension(700, 400));
+        this.pack();
     }
 
 
@@ -226,210 +229,86 @@ public class MassGUI extends JFrame {
     private void $$$setupUI$$$() {
         createUIComponents();
         mainPanel = new JPanel();
-        mainPanel.setLayout(new GridBagLayout());
+        mainPanel.setLayout(new GridLayoutManager(15, 4, new Insets(0, 0, 0, 0), -1, -1));
         mainPanel.setForeground(new Color(-4507801));
         cbEating = new JCheckBox();
         cbEating.setText("");
-        GridBagConstraints gbc;
-        gbc = new GridBagConstraints();
-        gbc.gridx = 1;
-        gbc.gridy = 4;
-        gbc.weightx = 1.0;
-        gbc.anchor = GridBagConstraints.WEST;
-        mainPanel.add(cbEating, gbc);
+        mainPanel.add(cbEating, new GridConstraints(4, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label1 = new JLabel();
         label1.setText("Fight if I am above this many hitpoints:");
-        gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 5;
-        gbc.gridheight = 2;
-        gbc.weighty = 1.0;
-        gbc.anchor = GridBagConstraints.WEST;
-        mainPanel.add(label1, gbc);
+        mainPanel.add(label1, new GridConstraints(6, 0, 2, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label2 = new JLabel();
         label2.setText("Eating?");
-        gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 4;
-        gbc.anchor = GridBagConstraints.WEST;
-        mainPanel.add(label2, gbc);
+        mainPanel.add(label2, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label3 = new JLabel();
         label3.setText("Food Type?");
-        gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 7;
-        gbc.anchor = GridBagConstraints.WEST;
-        mainPanel.add(label3, gbc);
-        gbc = new GridBagConstraints();
-        gbc.gridx = 1;
-        gbc.gridy = 7;
-        gbc.gridwidth = 3;
-        gbc.weightx = 1.0;
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        mainPanel.add(cmbFoodType, gbc);
+        mainPanel.add(label3, new GridConstraints(8, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        mainPanel.add(cmbFoodType, new GridConstraints(8, 1, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label4 = new JLabel();
         label4.setText("Size of fight area? (Radius of a circle with the player as the center)");
-        gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 8;
-        gbc.anchor = GridBagConstraints.WEST;
-        mainPanel.add(label4, gbc);
+        mainPanel.add(label4, new GridConstraints(9, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         fightRegionSpinner = new JSpinner();
-        gbc = new GridBagConstraints();
-        gbc.gridx = 1;
-        gbc.gridy = 8;
-        gbc.gridwidth = 3;
-        gbc.weightx = 1.0;
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        mainPanel.add(fightRegionSpinner, gbc);
+        mainPanel.add(fightRegionSpinner, new GridConstraints(9, 1, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         btnStart = new JButton();
         btnStart.setText("Fight");
-        gbc = new GridBagConstraints();
-        gbc.gridx = 1;
-        gbc.gridy = 13;
-        gbc.weightx = 1.0;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        mainPanel.add(btnStart, gbc);
+        mainPanel.add(btnStart, new GridConstraints(14, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label5 = new JLabel();
         label5.setText("Recommended Settings: OldSchool UI + Full Manual Combat");
-        gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.anchor = GridBagConstraints.WEST;
-        mainPanel.add(label5, gbc);
+        mainPanel.add(label5, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label6 = new JLabel();
         label6.setText("Use abilities? (ONLY Abilities on the ActionBar sorted Ult->Basic)");
-        gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 11;
-        gbc.anchor = GridBagConstraints.WEST;
-        mainPanel.add(label6, gbc);
+        mainPanel.add(label6, new GridConstraints(12, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         cbUseAbilities = new JCheckBox();
         cbUseAbilities.setText("");
-        gbc = new GridBagConstraints();
-        gbc.gridx = 1;
-        gbc.gridy = 11;
-        gbc.weightx = 1.0;
-        gbc.anchor = GridBagConstraints.WEST;
-        mainPanel.add(cbUseAbilities, gbc);
+        mainPanel.add(cbUseAbilities, new GridConstraints(12, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label7 = new JLabel();
         label7.setText("Use soulsplit? (Will exit when no pots/flasks left)");
-        gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 12;
-        gbc.anchor = GridBagConstraints.WEST;
-        mainPanel.add(label7, gbc);
+        mainPanel.add(label7, new GridConstraints(13, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         cbUseSoulsplit = new JCheckBox();
         cbUseSoulsplit.setEnabled(true);
         cbUseSoulsplit.setText("");
-        gbc = new GridBagConstraints();
-        gbc.gridx = 1;
-        gbc.gridy = 12;
-        gbc.weightx = 1.0;
-        gbc.anchor = GridBagConstraints.WEST;
-        mainPanel.add(cbUseSoulsplit, gbc);
+        mainPanel.add(cbUseSoulsplit, new GridConstraints(13, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label8 = new JLabel();
         label8.setText("What do you want to loot?");
-        gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 9;
-        gbc.anchor = GridBagConstraints.WEST;
-        mainPanel.add(label8, gbc);
+        mainPanel.add(label8, new GridConstraints(10, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         txtLootInput = new JTextField();
-        gbc = new GridBagConstraints();
-        gbc.gridx = 1;
-        gbc.gridy = 9;
-        gbc.weightx = 1.0;
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        mainPanel.add(txtLootInput, gbc);
+        mainPanel.add(txtLootInput, new GridConstraints(10, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
         btnAddLoot = new JButton();
         btnAddLoot.setText("Add Loot");
-        gbc = new GridBagConstraints();
-        gbc.gridx = 2;
-        gbc.gridy = 9;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        mainPanel.add(btnAddLoot, gbc);
+        mainPanel.add(btnAddLoot, new GridConstraints(10, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         listLoot.setLayoutOrientation(0);
-        gbc = new GridBagConstraints();
-        gbc.gridx = 3;
-        gbc.gridy = 9;
-        gbc.gridheight = 2;
-        gbc.weightx = 10.0;
-        gbc.fill = GridBagConstraints.BOTH;
-        mainPanel.add(listLoot, gbc);
+        mainPanel.add(listLoot, new GridConstraints(10, 3, 2, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(150, 50), null, 0, false));
         eatValueSpinner = new JSpinner();
-        gbc = new GridBagConstraints();
-        gbc.gridx = 1;
-        gbc.gridy = 6;
-        gbc.weightx = 1.0;
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        mainPanel.add(eatValueSpinner, gbc);
+        mainPanel.add(eatValueSpinner, new GridConstraints(7, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         btnRemoveLoot = new JButton();
         btnRemoveLoot.setText("Remove Loot");
-        gbc = new GridBagConstraints();
-        gbc.gridx = 2;
-        gbc.gridy = 10;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        mainPanel.add(btnRemoveLoot, gbc);
+        mainPanel.add(btnRemoveLoot, new GridConstraints(11, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         btnNpcScan = new JButton();
         btnNpcScan.setText("NPC Scan");
-        gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        gbc.gridheight = 2;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        mainPanel.add(btnNpcScan, gbc);
+        mainPanel.add(btnNpcScan, new GridConstraints(2, 0, 2, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label9 = new JLabel();
-        label9.setText("Profile: (Coming soon, see thread)");
-        gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        gbc.anchor = GridBagConstraints.WEST;
-        mainPanel.add(label9, gbc);
-        cmbProfiles.setEnabled(false);
-        gbc = new GridBagConstraints();
-        gbc.gridx = 1;
-        gbc.gridy = 1;
-        gbc.gridwidth = 3;
-        gbc.weightx = 1.0;
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        mainPanel.add(cmbProfiles, gbc);
+        label9.setBackground(new Color(-1564368));
+        label9.setEnabled(true);
+        label9.setText("Choose a profile: (Fighting Mode)");
+        mainPanel.add(label9, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        cmbProfiles.setEnabled(true);
+        mainPanel.add(cmbProfiles, new GridConstraints(1, 1, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         cmbNpcs.setEnabled(false);
-        gbc = new GridBagConstraints();
-        gbc.gridx = 1;
-        gbc.gridy = 2;
-        gbc.gridheight = 2;
-        gbc.weightx = 1.0;
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        mainPanel.add(cmbNpcs, gbc);
+        mainPanel.add(cmbNpcs, new GridConstraints(2, 1, 2, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         btnAddNpc = new JButton();
         btnAddNpc.setText("Add NPC");
-        gbc = new GridBagConstraints();
-        gbc.gridx = 2;
-        gbc.gridy = 2;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        mainPanel.add(btnAddNpc, gbc);
+        mainPanel.add(btnAddNpc, new GridConstraints(2, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         listNpcs.setLayoutOrientation(0);
-        gbc = new GridBagConstraints();
-        gbc.gridx = 3;
-        gbc.gridy = 2;
-        gbc.gridheight = 2;
-        gbc.weightx = 10.0;
-        gbc.fill = GridBagConstraints.BOTH;
-        mainPanel.add(listNpcs, gbc);
+        mainPanel.add(listNpcs, new GridConstraints(2, 3, 2, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(150, 50), null, 0, false));
         btnRemoveNpc = new JButton();
         btnRemoveNpc.setText("Remove NPC");
-        gbc = new GridBagConstraints();
-        gbc.gridx = 2;
-        gbc.gridy = 3;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        mainPanel.add(btnRemoveNpc, gbc);
+        mainPanel.add(btnRemoveNpc, new GridConstraints(3, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label10 = new JLabel();
+        label10.setText("Loot and bury Bones?");
+        mainPanel.add(label10, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        cbBuryBones = new JCheckBox();
+        cbBuryBones.setText("");
+        mainPanel.add(cbBuryBones, new GridConstraints(5, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     /**

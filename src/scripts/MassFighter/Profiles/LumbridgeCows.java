@@ -1,14 +1,16 @@
 package scripts.MassFighter.Profiles;
 
 import com.runemate.game.api.hybrid.location.Area;
+import com.runemate.game.api.hybrid.location.Coordinate;
 import com.runemate.game.api.hybrid.location.navigation.basic.PredefinedPath;
-import com.runemate.game.api.hybrid.region.Players;
-import scripts.MassFighter.CombatProfile;
+import scripts.MassFighter.Framework.BankingProfile;
+import scripts.MassFighter.Framework.CombatProfile;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class LumbridgeCows extends CombatProfile {
+public class LumbridgeCows extends CombatProfile implements BankingProfile {
+
     @Override
     public String[] getNpcNames() {
         return new String[]{"Cow", "Cow calf"};
@@ -22,13 +24,18 @@ public class LumbridgeCows extends CombatProfile {
     @Override
     public List<Area> getFightAreas() {
         List<Area> areas = new ArrayList<>();
-        areas.add(new Area.Circular(Players.getLocal().getPosition(), 12));
+        areas.add(new Area.Polygonal(new Coordinate(3253, 3254, 0), new Coordinate(3252, 3271, 0), new Coordinate(3250, 3274, 0), new Coordinate(3248, 3277, 0), new Coordinate(3245, 3278, 0), new Coordinate(3243, 3280, 0), new Coordinate(3239, 3286, 0), new Coordinate(3241, 3289, 0), new Coordinate(3241, 3293, 0), new Coordinate(3239, 3296, 0), new Coordinate(3240, 3298, 0), new Coordinate(3268, 3299, 0), new Coordinate(3266, 3254, 0)));
         return areas;
     }
 
     @Override
+    public String toString() {
+        return "Lumbridge Cows - loots and banks cowhides";
+    }
+
+    @Override
     public Area getBankArea() {
-        return null;
+        return new Area.Polygonal(new Coordinate(3211, 3260, 0), new Coordinate(3212, 3254, 0), new Coordinate(3217, 3257, 0));
     }
 
     @Override
@@ -36,9 +43,5 @@ public class LumbridgeCows extends CombatProfile {
         return null;
     }
 
-    @Override
-    public String toString() {
-        return "Lumbridge cows - banks cowhides!";
-    }
 
 }

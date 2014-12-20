@@ -6,12 +6,12 @@ import com.runemate.game.api.hybrid.local.Camera;
 import com.runemate.game.api.hybrid.local.hud.Menu;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Health;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
+import com.runemate.game.api.hybrid.local.hud.interfaces.SpriteItem;
 import com.runemate.game.api.hybrid.location.Area;
-import com.runemate.game.api.hybrid.location.navigation.Traversal;
 import com.runemate.game.api.hybrid.location.navigation.basic.BresenhamPath;
-import com.runemate.game.api.hybrid.location.navigation.web.WebPath;
 import com.runemate.game.api.hybrid.queries.GroundItemQueryBuilder;
 import com.runemate.game.api.hybrid.queries.NpcQueryBuilder;
+import com.runemate.game.api.hybrid.queries.SpriteItemQueryBuilder;
 import com.runemate.game.api.hybrid.queries.results.QueryResults;
 import com.runemate.game.api.hybrid.region.GroundItems;
 import com.runemate.game.api.hybrid.region.Npcs;
@@ -21,93 +21,126 @@ import com.runemate.game.api.hybrid.util.calculations.Distance;
 import com.runemate.game.api.rs3.local.hud.Powers;
 import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.task.Task;
-import scripts.MassFighter.CombatProfile;
-import scripts.MassFighter.Data.Settings;
+import scripts.MassFighter.Framework.BankingProfile;
+import scripts.MassFighter.Framework.CombatProfile;
 import scripts.MassFighter.MassFighter;
-import util.Functions;
-
 
 public class CombatHandler extends Task {
 
-    private final NpcQueryBuilder validTargetQuery = Npcs.newQuery().within(Settings.fightAreas.toArray(new Area[Settings.fightAreas.size()]))
-            .names(Settings.chosenNpcNames.toArray(new String[Settings.chosenNpcNames.size()])).filter(new Filter<Npc>() {
+    private final CombatProfile combatProfile = MassFighter.combatProfile;
+    private final Area[] fightAreas = combatProfile.getFightAreas().toArray(new Area[combatProfile.getFightAreas().size()]);
+    private final NpcQueryBuilder validTargetQuery = Npcs.newQuery().within(fightAreas).names(combatProfile.getNpcNames()).filter(new Filter<Npc>() {
         @Override
         public boolean accepts(Npc npc) {
             return npc.getHealthGauge() == null && npc.isValid() && npc.getAnimationId() == -1;
-        }}).reachable();
+        }
+    }).reachable();
 
     public boolean validate() {
-        if (MassFighter.combatProfile == null || MassFighter.combatProfile.getBankArea() == null) {
-            return !isInCombat() && readyToFight();
+        if (combatProfile instanceof BankingProfile) {
+            return Players.getLocal().getTarget() == null && readyToFight() && !Inventory.isFull();
         } else {
-            return !isInCombat() && readyToFight() && !Inventory.isFull();
+            return Players.getLocal().getTarget() == null && readyToFight();
         }
     }
 
     @Override
     public void execute() {
 
-        final GroundItemQueryBuilder validLoot = GroundItems.newQuery().within(Settings.fightAreas.toArray(new Area[Settings.fightAreas.size()]))
-                .names(Settings.lootChoices.toArray(new String[Settings.lootChoices.size()]));
-        if (Settings.isLooting && !validLoot.results().isEmpty() && !Inventory.isFull()) {
-            Settings.status = "LootHandler is Active";
-            GroundItem targetLoot = validLoot.results().nearest();
-            if (targetLoot != null) {
-                if (targetLoot.isVisible()) {
-                    if (targetLoot.interact("Take", targetLoot.getDefinition().getName())) {
-                        Execution.delayUntil(() -> !targetLoot.isValid(), 1500,1600);
-                    } else if (Menu.isOpen()) {
-                        Menu.close();
+        final GroundItemQueryBuilder validLoot = GroundItems.newQuery().within(fightAreas)
+                .names(combatProfile.getLootNames());
+        final GroundItemQueryBuilder validBones = GroundItems.newQuery().within(fightAreas).filter(new Filter<GroundItem>() {
+            @Override
+            public boolean accepts(GroundItem groundItem) {
+                String name = groundItem.getDefinition().getName();
+                return name.contains("Bones") || name.contains("bones") || name.contains("ashes");
+            }
+        });
+        final SpriteItemQueryBuilder buryItems = Inventory.newQuery().actions("Bury", "Scatter");
+
+        if (MassFighter.buryBones) {
+            System.out.println("Bury Bones Activated");
+            if (!buryItems.results().isEmpty()) {
+                SpriteItem buryItem = buryItems.results().first();
+                if (buryItem != null) {
+                    if (buryItem.getDefinition().getName().contains("ones")) {
+                        if (buryItem.interact("Bury")) {
+                            Execution.delayUntil(() -> !buryItem.isValid(), 600, 1000);
+                        }
+                    } else if (buryItem.getDefinition().getName().contains("ashes")) {
+                        if (buryItem.interact("Scatter")) {
+                            Execution.delayUntil(() -> !buryItem.isValid(), 600,1000);
+                        }
                     }
-                } else if (Distance.to(targetLoot) > 2) {
-                    BresenhamPath.buildTo(targetLoot).step(true);
-                } else {
-                    Camera.turnTo(targetLoot);
+                }
+            } else if (!validBones.results().isEmpty() && !Inventory.isFull()) {
+                pickupLoot(validBones.results().nearest());
+            }
+        }
+        if (MassFighter.looting && !validLoot.results().isEmpty() && !Inventory.isFull()) {
+            MassFighter.status = "LootHandler is Active";
+             pickupLoot(validLoot.results().nearest());
+        } else {
+            MassFighter.status = "Combat Handler is Active";
+            if (isInCombat()) {
+                NpcQueryBuilder opponents = Npcs.newQuery().within(fightAreas).reachable().filter(new Filter<Npc>() {
+                    @Override
+                    public boolean accepts(Npc npc) {
+                        return npc.getTarget() != null && npc.getTarget().equals(Players.getLocal());
+                    }
+                });
+                if (!opponents.results().isEmpty()) {
+                    Npc targetNpc = opponents.results().limit(2).random();
+                    if (targetNpc != null) {
+                        attackTarget(targetNpc);
+                    }
+                }
+            } else {
+                QueryResults suitableTargets = validTargetQuery.results();
+                if (!suitableTargets.isEmpty()) {
+                    final Npc targetNpc = validTargetQuery.results().limit(2).random();
+                    if (targetNpc != null) {
+                        attackTarget(targetNpc);
+                    }
                 }
             }
-        } else {
-            Settings.status = "Combat Handler is Active";
+        }
+    }
 
-            QueryResults suitableTargets = validTargetQuery.results();
-            if (!suitableTargets.isEmpty()) {
-                final Npc targetNpc = validTargetQuery.results().limit(2).random();
-                if (targetNpc != null) {
-                    MassFighter.targetNpc = targetNpc;
-                    if (targetNpc.isVisible()) {
-                        if (targetNpc.interact("Attack", targetNpc.getName())) {
-                            Execution.delayUntil(this::isInCombat, 2000, 3000);
-                        }
-                    } else if (Distance.to(targetNpc) < 4) {
-                        Camera.turnTo(targetNpc);
-                    } else {
-                        BresenhamPath.buildTo(targetNpc).step(true);
-                        Camera.turnTo(targetNpc);
-                    }
+    private void attackTarget(final Npc targetNpc) {
+        if (targetNpc != null) {
+            MassFighter.targetNpc = targetNpc;
+            if (targetNpc.isVisible()) {
+                if (targetNpc.interact("Attack", targetNpc.getName())) {
+                    Execution.delayUntil(this::isInCombat, 2000, 3000);
                 }
-            } else if (MassFighter.combatProfile != null) {
-                CombatProfile selectedProfile = MassFighter.combatProfile;
-                if (selectedProfile.getFightAreas() != null) {
-                    System.out.println("No valid mobs, going to try a new area in your profile");
-                    for (Area a : selectedProfile.getFightAreas()) {
-                        if (!a.contains(Players.getLocal())) {
-                            WebPath routeToNextArea = Traversal.getDefaultWeb().getPathBuilder().buildTo(a);
-                            if (routeToNextArea != null) {
-                                System.out.println("Traversing WebPath to the next profile area");
-                                routeToNextArea.step(true);
-                            } else {
-                                System.out.println("Traversing BresenhamPath to the next profile area");
-                                BresenhamPath.buildTo(a).step(true);
-                            }
-                        }
-                    }
-                }
+            } else if (Distance.to(targetNpc) < 4) {
+                Camera.turnTo(targetNpc);
+            } else {
+                BresenhamPath.buildTo(targetNpc).step(true);
+                Camera.turnTo(targetNpc);
+            }
+        }
+    }
 
+    private void pickupLoot(final GroundItem targetLoot) {
+        if (targetLoot != null) {
+            if (targetLoot.isVisible()) {
+                if (targetLoot.interact("Take", targetLoot.getDefinition().getName())) {
+                    Execution.delayUntil(() -> !targetLoot.isValid(), 1500,1600);
+                } else if (Menu.isOpen()) {
+                    Menu.close();
+                }
+            } else if (Distance.to(targetLoot) > 2) {
+                BresenhamPath.buildTo(targetLoot).step(true);
+            } else {
+                Camera.turnTo(targetLoot);
             }
         }
     }
 
     private Boolean isInCombat() {
-        return Players.getLocal().getTarget() != null || !Npcs.newQuery().within(Settings.fightAreas.toArray(new Area[Settings.fightAreas.size()])).filter(new Filter<Npc>() {
+        return Players.getLocal().getTarget() != null || !Npcs.newQuery().within(fightAreas).reachable().filter(new Filter<Npc>() {
             @Override
             public boolean accepts(Npc npc) {
                 return npc.getTarget() != null && npc.getTarget().equals(Players.getLocal());
@@ -115,11 +148,11 @@ public class CombatHandler extends Task {
         }).results().isEmpty();
     }
 
-    private Boolean readyToFight() {
-        if (Settings.useSoulsplit) {
-            return Powers.Prayer.getPoints() > Powers.Prayer.getMaximumPoints() / 2 && Functions.isSoulsplitActive();
-        } else return Health.getCurrent() >= Settings.eatValue;
+    public static Boolean readyToFight() {
+        if (MassFighter.useSoulsplit) {
+            return Powers.Prayer.getPoints() > Powers.Prayer.getMaximumPoints() / 2
+                    && Powers.Prayer.Curse.SOUL_SPLIT.isActivated();
+        } else return Health.getCurrent() >= MassFighter.eatValue;
     }
-
 }
 

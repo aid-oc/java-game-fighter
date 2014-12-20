@@ -10,8 +10,7 @@ import com.runemate.game.api.hybrid.util.calculations.Random;
 import com.runemate.game.api.rs3.local.hud.Powers;
 import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.task.Task;
-import scripts.MassFighter.Data.Settings;
-import util.Functions;
+import scripts.MassFighter.MassFighter;
 
 public class PrayerHandler extends Task {
 
@@ -23,21 +22,19 @@ public class PrayerHandler extends Task {
                     name.contains("Prayer flask");
         }
     });
-
-    @Override
     public boolean validate() {
-        return Settings.useSoulsplit && Powers.Prayer.getPoints() < Powers.Prayer.getMaximumPoints() / 2
-                || !Functions.isSoulsplitActive();
+        return MassFighter.useSoulsplit && Powers.Prayer.getPoints() < Powers.Prayer.getMaximumPoints() / 2
+                || !Powers.Prayer.Curse.SOUL_SPLIT.isActivated();
     }
 
     @Override
     public void execute() {
-        Settings.status = "Prayer Handler is Active";
+        MassFighter.status = "Prayer Handler is Active";
 
         // Enable soulsplit if it is not active
-        if (!Functions.isSoulsplitActive()) {
+        if (!Powers.Prayer.Curse.SOUL_SPLIT.isActivated()) {
             if (Powers.Prayer.Curse.SOUL_SPLIT.toggle()) {
-                Execution.delayUntil(Functions::isSoulsplitActive, 1600,2000);
+                Execution.delayUntil(Powers.Prayer.Curse.SOUL_SPLIT::isActivated, 1600,2000);
             }
         }
 
@@ -46,7 +43,7 @@ public class PrayerHandler extends Task {
         // Delays until prayer points have increased or 2s pass
         if (Powers.Prayer.getPoints() < Powers.Prayer.getMaximumPoints()/2) {
             if (validPrayerItems.results().isEmpty()) {
-                Settings.status = "Paused: out of prayer pots/flasks";
+                MassFighter.status = "Paused: out of prayer pots/flasks";
                 RuneScape.logout();
                 Environment.getScript().pause();
             } else {
