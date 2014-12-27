@@ -3,6 +3,7 @@ package scripts.MassFighter.Profiles;
 import com.runemate.game.api.hybrid.location.Area;
 import com.runemate.game.api.hybrid.location.Coordinate;
 import com.runemate.game.api.hybrid.location.navigation.basic.PredefinedPath;
+import com.runemate.game.api.hybrid.util.collections.Pair;
 import scripts.MassFighter.Framework.BankingProfile;
 import scripts.MassFighter.Framework.CombatProfile;
 
@@ -10,6 +11,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LumbridgeCows extends CombatProfile implements BankingProfile {
+
+    @Override
+    public Pair<int[], int[]> getForcedModel() {
+        return null;
+    }
 
     @Override
     public String[] getNpcNames() {

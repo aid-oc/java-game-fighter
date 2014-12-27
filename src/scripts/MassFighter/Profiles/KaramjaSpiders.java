@@ -6,8 +6,7 @@ import scripts.MassFighter.Framework.CombatProfile;
 
 import java.util.List;
 
-public class RockCrabs extends CombatProfile {
-
+public class KaramjaSpiders extends CombatProfile {
     @Override
     public Pair<int[], int[]> getForcedModel() {
         return null;
@@ -15,12 +14,12 @@ public class RockCrabs extends CombatProfile {
 
     @Override
     public String[] getNpcNames() {
-        return new String[]{"Rock Crab", "Rock crab"};
+        return new String[0];
     }
 
     @Override
     public String[] getLootNames() {
-        return new String[]{"Coins"};
+        return new String[0];
     }
 
     @Override
@@ -30,6 +29,6 @@ public class RockCrabs extends CombatProfile {
 
     @Override
     public String toString() {
-        return "Rock Crabs";
+        return null;
     }
 }

@@ -1,7 +1,5 @@
 package scripts.MassFighter.Tasks;
 
-import com.runemate.game.api.hybrid.Environment;
-import com.runemate.game.api.hybrid.RuneScape;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
 import com.runemate.game.api.hybrid.local.hud.interfaces.SpriteItem;
 import com.runemate.game.api.hybrid.queries.SpriteItemQueryBuilder;
@@ -23,13 +21,13 @@ public class PrayerHandler extends Task {
         }
     });
     public boolean validate() {
-        return MassFighter.useSoulsplit && Powers.Prayer.getPoints() < Powers.Prayer.getMaximumPoints() / 2
-                || !Powers.Prayer.Curse.SOUL_SPLIT.isActivated();
+        return MassFighter.useSoulsplit && (Powers.Prayer.getPoints() < Powers.Prayer.getMaximumPoints() / 2
+                || !Powers.Prayer.Curse.SOUL_SPLIT.isActivated()) && !validPrayerItems.results().isEmpty() ;
     }
 
     @Override
     public void execute() {
-        MassFighter.status = "Prayer Handler is Active";
+        MassFighter.status = "Drinking prayer pots";
 
         // Enable soulsplit if it is not active
         if (!Powers.Prayer.Curse.SOUL_SPLIT.isActivated()) {
@@ -42,10 +40,8 @@ public class PrayerHandler extends Task {
         // At the moment this occurs if prayer points fall below 50% of the maximum possible amount of points
         // Delays until prayer points have increased or 2s pass
         if (Powers.Prayer.getPoints() < Powers.Prayer.getMaximumPoints()/2) {
-            if (validPrayerItems.results().isEmpty()) {
-                MassFighter.status = "Paused: out of prayer pots/flasks";
-                RuneScape.logout();
-                Environment.getScript().pause();
+            if (validPrayerItems.results().isEmpty() && !(MassFighter.useFood && Inventory.contains(MassFighter.food.getName()))) {
+                MassFighter.methods.logout();
             } else {
                 final int startPP = Powers.Prayer.getPoints();
                 final SpriteItem targetPrayerFuel = validPrayerItems.results().random();

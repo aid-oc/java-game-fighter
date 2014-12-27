@@ -1,6 +1,7 @@
 package scripts.MassFighter.Profiles;
 
 import com.runemate.game.api.hybrid.location.Area;
+import com.runemate.game.api.hybrid.util.collections.Pair;
 import scripts.MassFighter.Framework.CombatProfile;
 
 import java.util.List;
@@ -13,6 +14,11 @@ public class Powerfighting extends CombatProfile {
 
     public void setNpcNames(String[] names) {
         npcNames = names;
+    }
+
+    @Override
+    public Pair<int[], int[]> getForcedModel() {
+        return null;
     }
 
     @Override

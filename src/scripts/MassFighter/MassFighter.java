@@ -2,6 +2,7 @@ package scripts.MassFighter;
 
 import com.runemate.game.api.client.paint.PaintListener;
 import com.runemate.game.api.hybrid.Environment;
+import com.runemate.game.api.hybrid.RuneScape;
 import com.runemate.game.api.hybrid.entities.Npc;
 import com.runemate.game.api.hybrid.local.Skill;
 import com.runemate.game.api.hybrid.util.StopWatch;
@@ -13,10 +14,14 @@ import com.runemate.game.api.script.framework.task.TaskScript;
 import scripts.MassFighter.Data.Food;
 import scripts.MassFighter.Framework.BankingProfile;
 import scripts.MassFighter.Framework.CombatProfile;
+import scripts.MassFighter.Methods.Methods;
+import scripts.MassFighter.ProfileTasks.HillGiantsRoute;
 import scripts.MassFighter.ProfileTasks.LumbridgeCowsRoute;
+import scripts.MassFighter.Profiles.HillGiants;
 import scripts.MassFighter.Profiles.LumbridgeCows;
 import scripts.MassFighter.Tasks.*;
 
+import javax.swing.*;
 import java.awt.*;
 import java.text.NumberFormat;
 import java.util.Arrays;
@@ -24,7 +29,9 @@ import java.util.concurrent.TimeUnit;
 
 public class MassFighter extends TaskScript implements PaintListener {
 
+    public static Methods methods;
     public static Npc targetNpc;
+    public static int targetSelection;
     public static CombatProfile combatProfile;
     public static Boolean requestedShutdown;
     public static String status;
@@ -44,72 +51,80 @@ public class MassFighter extends TaskScript implements PaintListener {
 
     public void onStart(String... args) {
 
-        food = null;
-        fightRadius = eatValue = 0;
-        requestedShutdown = useFood = useAbilities = useSoulsplit = looting = buryBones = false;
-        targetNpc = null;
-        combatProfile = null;
-        ui = null;
-        status = "Setting up";
+        if (RuneScape.isLoggedIn()) {
+            food = null;
+            fightRadius = eatValue = targetSelection = 0;
+            requestedShutdown = useFood = useAbilities = useSoulsplit = looting = buryBones = false;
+            targetNpc = null;
+            combatProfile = null;
+            ui = null;
+            status = "Setting up";
 
-        // Loop & GUI Setup
-        setLoopDelay(400, 600);
-        getEventDispatcher().addListener(this);
-        try {
-            EventQueue.invokeAndWait(() -> {
-                ui = new MassGUI();
-                ui.setVisible(true);
-            });
-            if (ui != null) {
-                while (ui.isVisible()) {
-                    Execution.delay(100);
+            // Loop & GUI Setup
+            setLoopDelay(400, 600);
+            getEventDispatcher().addListener(this);
+            try {
+                EventQueue.invokeAndWait(() -> {
+                    ui = new MassGUI();
+                    ui.setVisible(true);
+                });
+                if (ui != null) {
+                    while (ui.isVisible()) {
+                        Execution.delay(100);
+                    }
                 }
+            } catch (final Throwable t) {
+                t.printStackTrace();
             }
-        } catch (final Throwable t) {
-            t.printStackTrace();
-        }
+            if (requestedShutdown) {
+                System.out.println("Shutdown!");
+                this.stop();
+            } else {
+                methods = new Methods();
+                if (Environment.isRS3()) {
+                    if (!ActionBar.isAutoRetaliating()) {
+                        ActionBar.toggleAutoRetaliation();
+                    }
+                }
+                startExp = Skill.STRENGTH.getExperience() + Skill.ATTACK.getExperience() + Skill.DEFENCE.getExperience()
+                        + Skill.CONSTITUTION.getExperience() + Skill.PRAYER.getExperience();
+                runningTime.start();
 
-        if (requestedShutdown) {
-            System.out.println("Shutdown!");
-            this.stop();
+                if (combatProfile instanceof LumbridgeCows) {
+                    add(new LumbridgeCowsRoute());
+                } else if (combatProfile instanceof HillGiants) {
+                    add(new HillGiantsRoute());
+                } else if (combatProfile instanceof BankingProfile) {
+                    add(new BankHandler());
+                }
+                if (useSoulsplit && Environment.isRS3()) {
+                    add(new PrayerHandler());
+                }
+                if (useFood) {
+                    add(new FoodHandler());
+                }
+                if (buryBones || looting || combatProfile.getLootNames().length > 0) {
+                    add(new LootHandler());
+                }
+                add(new CombatHandler());
+                if (useAbilities && Environment.isRS3()) {
+                    if (!ActionBar.isExpanded()) {
+                        ActionBar.toggleExpansion();
+                    }
+                    new LoopingThread(new AbilityHandler(), 1600, 2000).start();
+                }
+
+                System.out.println("You are using profile: " + combatProfile.toString());
+                System.out.println("Fight Areas: " + combatProfile.getFightAreas());
+                System.out.println("NPCs: " + Arrays.toString(combatProfile.getNpcNames()));
+                System.out.println("Loot: " + Arrays.toString(combatProfile.getLootNames()));
+            }
         } else {
-            if (Environment.isRS3()) {
-                if (!ActionBar.isAutoRetaliating()) {
-                    ActionBar.toggleAutoRetaliation();
-                }
-            }
-
-            startExp = Skill.STRENGTH.getExperience() + Skill.ATTACK.getExperience() + Skill.DEFENCE.getExperience()
-                    + Skill.CONSTITUTION.getExperience() + Skill.PRAYER.getExperience();
-            runningTime.start();
-
-            if (combatProfile instanceof LumbridgeCows) {
-                add(new LumbridgeCowsRoute());
-            } else if (combatProfile instanceof BankingProfile) {
-                add(new BankHandler());
-            }
-
-            if (useSoulsplit && Environment.isRS3()) {
-                add(new PrayerHandler());
-            }
-            if (useFood) {
-                add(new FoodHandler());
-            }
-            add(new CombatHandler());
-            if (useAbilities && Environment.isRS3()) {
-                if (!ActionBar.isExpanded()) {
-                    ActionBar.toggleExpansion();
-                }
-                new LoopingThread(new AbilityHandler(), 1600, 2000).start();
-            }
-
-            System.out.println("You are using profile: " + combatProfile.toString());
-            System.out.println("Fight Areas: " + combatProfile.getFightAreas());
-            System.out.println("NPCs: " + Arrays.toString(combatProfile.getNpcNames()));
-            System.out.println("Loot: " + Arrays.toString(combatProfile.getLootNames()));
+            JOptionPane.showMessageDialog(null, "Please start the script logged in", "MassFighter", JOptionPane.WARNING_MESSAGE);
+            this.stop();
         }
     }
-
+    
     @Override
     public void onPaint(Graphics2D g2d) {
         g2d.setFont(new Font("Arial", Font.BOLD, 11));

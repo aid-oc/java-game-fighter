@@ -7,6 +7,7 @@ import com.runemate.game.api.hybrid.local.Camera;
 import com.runemate.game.api.hybrid.local.hud.Menu;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Bank;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
+import com.runemate.game.api.hybrid.local.hud.interfaces.SpriteItem;
 import com.runemate.game.api.hybrid.location.Area;
 import com.runemate.game.api.hybrid.location.Coordinate;
 import com.runemate.game.api.hybrid.location.navigation.Traversal;
@@ -16,19 +17,19 @@ import com.runemate.game.api.hybrid.queries.GameObjectQueryBuilder;
 import com.runemate.game.api.hybrid.region.Banks;
 import com.runemate.game.api.hybrid.region.GameObjects;
 import com.runemate.game.api.hybrid.region.Players;
+import com.runemate.game.api.hybrid.util.Filter;
 import com.runemate.game.api.hybrid.util.calculations.Distance;
+import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.task.Task;
 import scripts.MassFighter.Framework.BankingProfile;
 import scripts.MassFighter.MassFighter;
 import scripts.MassFighter.Profiles.LumbridgeCows;
 
-import java.util.List;
-
 public class LumbridgeCowsRoute extends Task {
 
     @Override
     public boolean validate() {
-        return MassFighter.combatProfile instanceof LumbridgeCows && Inventory.isFull() || !inFightAreas() && !Inventory.isFull();
+        return MassFighter.combatProfile instanceof LumbridgeCows && Inventory.isFull() || !MassFighter.methods.inFightAreas(Players.getLocal()) && !Inventory.isFull();
     }
 
     @Override
@@ -42,7 +43,7 @@ public class LumbridgeCowsRoute extends Task {
         if (Menu.isOpen()) {
             Menu.close();
         }
-        if (!Inventory.isFull() && !inFightAreas()) {
+        if (!Inventory.isFull() && !MassFighter.methods.inFightAreas(Players.getLocal())) {
             if (Bank.isOpen()) {
                 Bank.close();
             }
@@ -70,7 +71,7 @@ public class LumbridgeCowsRoute extends Task {
                 }
             }
         } else if (Inventory.isFull()) {
-            if (!obstacleQuery.results().isEmpty() && inFightAreas()) {
+            if (!obstacleQuery.results().isEmpty() && MassFighter.methods.inFightAreas(Players.getLocal())) {
                 GameObject obstacle = obstacleQuery.results().nearest();
                 if (obstacle != null) {
                     if (Distance.to(obstacle) > 4) {
@@ -84,37 +85,38 @@ public class LumbridgeCowsRoute extends Task {
                     }
                 }
             } else {
-                if (!profile.getBankArea().contains(player)) {
-                    WebPath routeToBank = Traversal.getDefaultWeb().getPathBuilder().buildTo(profile.getBankArea());
+                final Area bankArea = profile.getBankArea();
+                if (!bankArea.contains(player)) {
+                    WebPath routeToBank = Traversal.getDefaultWeb().getPathBuilder().buildTo(bankArea);
                     if (routeToBank != null) {
                         routeToBank.step(true);
+                    } else {
+                        BresenhamPath.buildTo(bankArea).step(true);
                     }
                 } else {
                     LocatableEntity bank = Banks.getLoaded().nearest();
-                    if (bank.isVisible()) {
-                        if (Bank.open()) {
-                            for (String lootName : MassFighter.combatProfile.getLootNames()) {
-                                if (Inventory.contains(lootName)) {
-                                    Bank.deposit(lootName, Inventory.getQuantity(lootName));
+                    if (bank != null) {
+                        if (bank.isVisible()) {
+                            if (Bank.open()) {
+                                Bank.depositAllExcept(new Filter<SpriteItem>() {
+                                    @Override
+                                    public boolean accepts(SpriteItem spriteItem) {
+                                        String name = spriteItem.getDefinition().getName();
+                                        return (MassFighter.food != null && (MassFighter.food.getName().equals(name)));
+                                    }
+                                });
+                                if (MassFighter.useFood && MassFighter.food != null && Inventory.getQuantity(MassFighter.food.getName()) < 10) {
+                                    System.out.println("Withdrawing food");
+                                    if (Bank.withdraw(MassFighter.food.getName(), 10)) {
+                                        Execution.delayUntil(() -> Inventory.contains(MassFighter.food.getName()));
+                                    }
                                 }
+                                Bank.close();
                             }
                         }
-                    } else {
-                        Camera.turnTo(bank);
                     }
                 }
             }
         }
-    }
-
-
-    private Boolean inFightAreas() {
-        List<Area> areas = MassFighter.combatProfile.getFightAreas();
-        for (Area a : areas) {
-            if (a.contains(Players.getLocal())) {
-                return true;
-            }
-        }
-        return false;
     }
 }

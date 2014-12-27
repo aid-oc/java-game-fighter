@@ -38,6 +38,8 @@ public class MassGUI extends JFrame {
     private JButton btnRemoveNpc;
     private JList<String> listNpcs;
     private JCheckBox cbBuryBones;
+    private JCheckBox cbTargetNearest;
+    private JSlider targetNumSlider;
 
     public MassGUI() {
         super("MassFighter - AIO Combat");
@@ -83,6 +85,15 @@ public class MassGUI extends JFrame {
                 txtLootInput.setEnabled(true);
             }
         });
+
+        targetNumSlider.addChangeListener(e -> {
+            if (targetNumSlider.getValue() == 0) {
+                cbTargetNearest.setSelected(true);
+            } else {
+                cbTargetNearest.setSelected(false);
+            }
+        });
+
 
         cmbNpcs.addItem("Please perform a scan");
         cmbNpcs.setEnabled(false);
@@ -140,8 +151,6 @@ public class MassGUI extends JFrame {
             }
         });
 
-        //
-
         DefaultListModel<String> lootModel = new DefaultListModel<>();
         listLoot.setModel(lootModel);
 
@@ -174,8 +183,7 @@ public class MassGUI extends JFrame {
                 MassFighter.useAbilities = cbUseAbilities.isSelected();
                 MassFighter.buryBones = cbBuryBones.isSelected();
                 MassFighter.fightRadius = (Integer) fightRegionSpinner.getValue();
-                MassGUI.this.setVisible(false);
-
+                MassFighter.targetSelection = targetNumSlider.getValue();
 
                 CombatProfile profile = (CombatProfile) cmbProfiles.getSelectedItem();
                 if (!(profile instanceof Powerfighting)) {
@@ -203,9 +211,12 @@ public class MassGUI extends JFrame {
                     powerProfile.setNpcNames(npcItems.toArray(new String[(npcItems.size())]));
                     MassFighter.combatProfile = powerProfile;
                 }
+                MassGUI.this.setVisible(false);
             }
         });
-        this.setSize(new Dimension(800, 450));
+        listLoot.setPrototypeCellValue("Chosen Loot: ");
+        listNpcs.setPrototypeCellValue("Chosen NPCs: ");
+        this.setSize(new Dimension(800, 350));
     }
 
 
@@ -234,15 +245,18 @@ public class MassGUI extends JFrame {
         GridBagConstraints gbc;
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
-        gbc.gridy = 4;
+        gbc.gridy = 5;
+        gbc.gridwidth = 2;
         gbc.weightx = 1.0;
         gbc.anchor = GridBagConstraints.WEST;
         mainPanel.add(cbEating, gbc);
         final JLabel label1 = new JLabel();
+        label1.setFont(new Font(label1.getFont().getName(), Font.BOLD, label1.getFont().getSize()));
+        label1.setForeground(new Color(-10415835));
         label1.setText("Fight if I am above this many hitpoints:");
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
-        gbc.gridy = 6;
+        gbc.gridy = 7;
         gbc.gridheight = 2;
         gbc.weighty = 1.0;
         gbc.anchor = GridBagConstraints.WEST;
@@ -251,36 +265,21 @@ public class MassGUI extends JFrame {
         label2.setText("Eating?");
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
-        gbc.gridy = 4;
+        gbc.gridy = 5;
         gbc.anchor = GridBagConstraints.WEST;
         mainPanel.add(label2, gbc);
         final JLabel label3 = new JLabel();
-        label3.setText("Food Type?");
+        label3.setText("Size of fight area? (Radius of a circle with the player as the center)");
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
-        gbc.gridy = 8;
+        gbc.gridy = 10;
         gbc.anchor = GridBagConstraints.WEST;
         mainPanel.add(label3, gbc);
-        gbc = new GridBagConstraints();
-        gbc.gridx = 1;
-        gbc.gridy = 8;
-        gbc.gridwidth = 3;
-        gbc.weightx = 1.0;
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        mainPanel.add(cmbFoodType, gbc);
-        final JLabel label4 = new JLabel();
-        label4.setText("Size of fight area? (Radius of a circle with the player as the center)");
-        gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 9;
-        gbc.anchor = GridBagConstraints.WEST;
-        mainPanel.add(label4, gbc);
         fightRegionSpinner = new JSpinner();
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
-        gbc.gridy = 9;
-        gbc.gridwidth = 3;
+        gbc.gridy = 10;
+        gbc.gridwidth = 4;
         gbc.weightx = 1.0;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -289,59 +288,63 @@ public class MassGUI extends JFrame {
         btnStart.setText("Fight");
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
-        gbc.gridy = 14;
+        gbc.gridy = 15;
+        gbc.gridwidth = 2;
         gbc.weightx = 1.0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         mainPanel.add(btnStart, gbc);
-        final JLabel label5 = new JLabel();
-        label5.setText("Recommended Settings: OldSchool UI + Full Manual Combat");
+        final JLabel label4 = new JLabel();
+        label4.setText("Recommended Settings: OldSchool UI + Full Manual Combat");
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.anchor = GridBagConstraints.WEST;
-        mainPanel.add(label5, gbc);
-        final JLabel label6 = new JLabel();
-        label6.setText("Use abilities? (ONLY Abilities on the ActionBar sorted Ult->Basic)");
-        gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 12;
-        gbc.anchor = GridBagConstraints.WEST;
-        mainPanel.add(label6, gbc);
-        cbUseAbilities = new JCheckBox();
-        cbUseAbilities.setText("");
-        gbc = new GridBagConstraints();
-        gbc.gridx = 1;
-        gbc.gridy = 12;
-        gbc.weightx = 1.0;
-        gbc.anchor = GridBagConstraints.WEST;
-        mainPanel.add(cbUseAbilities, gbc);
-        final JLabel label7 = new JLabel();
-        label7.setText("Use soulsplit? (Will exit when no pots/flasks left)");
+        mainPanel.add(label4, gbc);
+        final JLabel label5 = new JLabel();
+        label5.setText("Use abilities? (ONLY Abilities on the ActionBar sorted Ult->Basic)");
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 13;
         gbc.anchor = GridBagConstraints.WEST;
-        mainPanel.add(label7, gbc);
+        mainPanel.add(label5, gbc);
+        cbUseAbilities = new JCheckBox();
+        cbUseAbilities.setText("");
+        gbc = new GridBagConstraints();
+        gbc.gridx = 1;
+        gbc.gridy = 13;
+        gbc.gridwidth = 2;
+        gbc.weightx = 1.0;
+        gbc.anchor = GridBagConstraints.WEST;
+        mainPanel.add(cbUseAbilities, gbc);
+        final JLabel label6 = new JLabel();
+        label6.setText("Use soulsplit? (Will exit when no pots/flasks left)");
+        gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 14;
+        gbc.anchor = GridBagConstraints.WEST;
+        mainPanel.add(label6, gbc);
         cbUseSoulsplit = new JCheckBox();
         cbUseSoulsplit.setEnabled(true);
         cbUseSoulsplit.setText("");
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
-        gbc.gridy = 13;
+        gbc.gridy = 14;
+        gbc.gridwidth = 2;
         gbc.weightx = 1.0;
         gbc.anchor = GridBagConstraints.WEST;
         mainPanel.add(cbUseSoulsplit, gbc);
-        final JLabel label8 = new JLabel();
-        label8.setText("What do you want to loot?");
+        final JLabel label7 = new JLabel();
+        label7.setText("What do you want to loot?");
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
-        gbc.gridy = 10;
+        gbc.gridy = 11;
         gbc.anchor = GridBagConstraints.WEST;
-        mainPanel.add(label8, gbc);
+        mainPanel.add(label7, gbc);
         txtLootInput = new JTextField();
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
-        gbc.gridy = 10;
+        gbc.gridy = 11;
+        gbc.gridwidth = 2;
         gbc.weightx = 1.0;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -349,21 +352,22 @@ public class MassGUI extends JFrame {
         btnAddLoot = new JButton();
         btnAddLoot.setText("Add Loot");
         gbc = new GridBagConstraints();
-        gbc.gridx = 2;
-        gbc.gridy = 10;
+        gbc.gridx = 3;
+        gbc.gridy = 11;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         mainPanel.add(btnAddLoot, gbc);
         listLoot.setLayoutOrientation(0);
         gbc = new GridBagConstraints();
-        gbc.gridx = 3;
-        gbc.gridy = 10;
+        gbc.gridx = 4;
+        gbc.gridy = 11;
         gbc.gridheight = 2;
         gbc.fill = GridBagConstraints.BOTH;
         mainPanel.add(listLoot, gbc);
         eatValueSpinner = new JSpinner();
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
-        gbc.gridy = 7;
+        gbc.gridy = 8;
+        gbc.gridwidth = 2;
         gbc.weightx = 1.0;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -371,8 +375,8 @@ public class MassGUI extends JFrame {
         btnRemoveLoot = new JButton();
         btnRemoveLoot.setText("Remove Loot");
         gbc = new GridBagConstraints();
-        gbc.gridx = 2;
-        gbc.gridy = 11;
+        gbc.gridx = 3;
+        gbc.gridy = 12;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         mainPanel.add(btnRemoveLoot, gbc);
         btnNpcScan = new JButton();
@@ -383,20 +387,20 @@ public class MassGUI extends JFrame {
         gbc.gridheight = 2;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         mainPanel.add(btnNpcScan, gbc);
-        final JLabel label9 = new JLabel();
-        label9.setBackground(new Color(-1564368));
-        label9.setEnabled(true);
-        label9.setText("Choose a profile: (Fighting Mode)");
+        final JLabel label8 = new JLabel();
+        label8.setBackground(new Color(-1564368));
+        label8.setEnabled(true);
+        label8.setText("Choose a profile: (Fighting Mode)");
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.anchor = GridBagConstraints.WEST;
-        mainPanel.add(label9, gbc);
+        mainPanel.add(label8, gbc);
         cmbProfiles.setEnabled(true);
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
         gbc.gridy = 1;
-        gbc.gridwidth = 3;
+        gbc.gridwidth = 4;
         gbc.weightx = 1.0;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -405,6 +409,7 @@ public class MassGUI extends JFrame {
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
         gbc.gridy = 2;
+        gbc.gridwidth = 2;
         gbc.gridheight = 2;
         gbc.weightx = 1.0;
         gbc.anchor = GridBagConstraints.WEST;
@@ -413,13 +418,13 @@ public class MassGUI extends JFrame {
         btnAddNpc = new JButton();
         btnAddNpc.setText("Add NPC");
         gbc = new GridBagConstraints();
-        gbc.gridx = 2;
+        gbc.gridx = 3;
         gbc.gridy = 2;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         mainPanel.add(btnAddNpc, gbc);
         listNpcs.setLayoutOrientation(0);
         gbc = new GridBagConstraints();
-        gbc.gridx = 3;
+        gbc.gridx = 4;
         gbc.gridy = 2;
         gbc.gridheight = 2;
         gbc.fill = GridBagConstraints.BOTH;
@@ -427,25 +432,71 @@ public class MassGUI extends JFrame {
         btnRemoveNpc = new JButton();
         btnRemoveNpc.setText("Remove NPC");
         gbc = new GridBagConstraints();
-        gbc.gridx = 2;
+        gbc.gridx = 3;
         gbc.gridy = 3;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         mainPanel.add(btnRemoveNpc, gbc);
+        final JLabel label9 = new JLabel();
+        label9.setText("Food Type?");
+        gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 6;
+        gbc.anchor = GridBagConstraints.WEST;
+        mainPanel.add(label9, gbc);
+        gbc = new GridBagConstraints();
+        gbc.gridx = 1;
+        gbc.gridy = 6;
+        gbc.gridwidth = 4;
+        gbc.weightx = 1.0;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        mainPanel.add(cmbFoodType, gbc);
         final JLabel label10 = new JLabel();
         label10.setText("Loot and bury Bones?");
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
-        gbc.gridy = 5;
+        gbc.gridy = 9;
         gbc.anchor = GridBagConstraints.WEST;
         mainPanel.add(label10, gbc);
         cbBuryBones = new JCheckBox();
         cbBuryBones.setText("");
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
-        gbc.gridy = 5;
+        gbc.gridy = 9;
+        gbc.gridwidth = 2;
         gbc.weightx = 1.0;
         gbc.anchor = GridBagConstraints.WEST;
         mainPanel.add(cbBuryBones, gbc);
+        final JLabel label11 = new JLabel();
+        label11.setText("Target Setting:");
+        gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        gbc.anchor = GridBagConstraints.WEST;
+        mainPanel.add(label11, gbc);
+        targetNumSlider = new JSlider();
+        targetNumSlider.setMajorTickSpacing(1);
+        targetNumSlider.setMaximum(5);
+        targetNumSlider.setMinimum(1);
+        targetNumSlider.setMinorTickSpacing(1);
+        targetNumSlider.setPaintLabels(true);
+        targetNumSlider.setPaintTicks(true);
+        targetNumSlider.setSnapToTicks(true);
+        targetNumSlider.setToolTipText("0 = Disabled (Always Nearest)");
+        targetNumSlider.setValue(1);
+        gbc = new GridBagConstraints();
+        gbc.gridx = 2;
+        gbc.gridy = 4;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        mainPanel.add(targetNumSlider, gbc);
+        final JLabel label12 = new JLabel();
+        label12.setText("Choose from the nearest (NPCs):");
+        gbc = new GridBagConstraints();
+        gbc.gridx = 1;
+        gbc.gridy = 4;
+        gbc.anchor = GridBagConstraints.WEST;
+        mainPanel.add(label12, gbc);
     }
 
     /**
