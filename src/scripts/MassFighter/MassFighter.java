@@ -103,7 +103,7 @@ public class MassFighter extends TaskScript implements PaintListener {
                 if (useFood) {
                     add(new FoodHandler());
                 }
-                if (buryBones || looting || combatProfile.getLootNames().length > 0) {
+                if (buryBones || looting) {
                     add(new LootHandler());
                 }
                 add(new CombatHandler());

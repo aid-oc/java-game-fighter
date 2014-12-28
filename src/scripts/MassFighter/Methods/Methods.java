@@ -96,6 +96,6 @@ public class Methods  {
     });
 
     public boolean lootAvailable() {
-        return (MassFighter.buryBones || MassFighter.looting || MassFighter.combatProfile.getLootNames().length > 0) && !validLoot.results().isEmpty();
+        return !Inventory.isFull() && (MassFighter.buryBones || MassFighter.looting) && !validLoot.results().isEmpty();
     }
 }
