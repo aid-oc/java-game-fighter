@@ -16,7 +16,6 @@ import javafx.stage.Stage;
 import scripts.MassFighter.Data.Food;
 import scripts.MassFighter.Framework.BankingProfile;
 import scripts.MassFighter.Framework.CombatProfile;
-import scripts.MassFighter.GUI.Main;
 import scripts.MassFighter.Methods.Methods;
 import scripts.MassFighter.ProfileTasks.HillGiantsRoute;
 import scripts.MassFighter.ProfileTasks.LumbridgeCowsRoute;

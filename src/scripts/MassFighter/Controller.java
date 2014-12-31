@@ -1,4 +1,4 @@
-package scripts.MassFighter.GUI;
+package scripts.MassFighter;
 
 import com.runemate.game.api.hybrid.entities.Npc;
 import com.runemate.game.api.hybrid.entities.Player;
