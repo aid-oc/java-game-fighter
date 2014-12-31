@@ -16,7 +16,7 @@ public abstract class CombatProfile {
     abstract public String toString();
 
     public static List<CombatProfile> getProfiles() {
-        return Arrays.asList(new Powerfighting(), new CaveHorrors(), new LumbridgeCows(), new HillGiants());
+        return Arrays.asList(new Powerfighting(), new CaveHorrors(), new LumbridgeCows(), new TaverlyWolves(), new HillGiants());
     }
 
 }

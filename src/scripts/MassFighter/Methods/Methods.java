@@ -23,6 +23,10 @@ import static scripts.MassFighter.MassFighter.combatProfile;
 
 public class Methods  {
 
+    public Methods() {
+
+    }
+
     public Boolean inFightAreas(Actor actor) {
         List<Area> areas = combatProfile.getFightAreas();
         for (Area a : areas) {
@@ -90,4 +94,8 @@ public class Methods  {
             return false;
         }
     });
+
+    public boolean lootAvailable() {
+        return !Inventory.isFull() && (MassFighter.buryBones || MassFighter.looting) && !validLoot.results().isEmpty();
+    }
 }
