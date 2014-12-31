@@ -24,4 +24,7 @@
         <tag>Banking</tag>
         <tag>Moneymaking</tag>
     </tags>
+    <resources>
+        <resource>scripts/MassFighter/GUI/FighterV1.fxml</resource>
+    </resources>
 </manifest>
