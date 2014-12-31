@@ -26,8 +26,12 @@ public class FoodHandler extends Task {
                     Execution.delayUntil(() -> Health.getCurrent() != startHealth, 1600,2000);
                 }
             }
-        } else {
+        } else if (MassFighter.exitOutFood) {
+            System.out.println("Food: We're out - exiting");
             MassFighter.methods.logout();
+        } else {
+            System.out.println("Food: We're out - no longer using food");
+            MassFighter.useFood = false;
         }
     }
 }

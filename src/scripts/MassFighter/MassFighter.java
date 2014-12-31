@@ -11,9 +11,12 @@ import com.runemate.game.api.rs3.local.hud.interfaces.eoc.ActionBar;
 import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.core.LoopingThread;
 import com.runemate.game.api.script.framework.task.TaskScript;
+import javafx.application.Platform;
+import javafx.stage.Stage;
 import scripts.MassFighter.Data.Food;
 import scripts.MassFighter.Framework.BankingProfile;
 import scripts.MassFighter.Framework.CombatProfile;
+import scripts.MassFighter.GUI.Main;
 import scripts.MassFighter.Methods.Methods;
 import scripts.MassFighter.ProfileTasks.HillGiantsRoute;
 import scripts.MassFighter.ProfileTasks.LumbridgeCowsRoute;
@@ -36,14 +39,18 @@ public class MassFighter extends TaskScript implements PaintListener {
     public static Boolean requestedShutdown;
     public static String status;
     public static Boolean useFood;
+    public static Boolean exitOutFood;
+    public static Boolean lootInCombat;
     public static Boolean useAbilities;
     public static Boolean useSoulsplit;
+    public static Boolean waitForLoot;
     public static Boolean looting;
     public static Boolean buryBones;
     public static Food food;
     public static int fightRadius;
     public static int eatValue;
-    private static MassGUI ui;
+    private static Main ui;
+    public static Boolean setupRunning;
 
     private final StopWatch runningTime = new StopWatch();
     private final NumberFormat numberFormat = NumberFormat.getNumberInstance();
@@ -54,28 +61,16 @@ public class MassFighter extends TaskScript implements PaintListener {
         if (RuneScape.isLoggedIn()) {
             food = null;
             fightRadius = eatValue = targetSelection = 0;
-            requestedShutdown = useFood = useAbilities = useSoulsplit = looting = buryBones = false;
+            requestedShutdown = useFood = useAbilities = useSoulsplit = looting = buryBones = lootInCombat = exitOutFood = waitForLoot = false;
+            setupRunning = true;
             targetNpc = null;
             combatProfile = null;
-            ui = null;
             status = "Setting up";
 
             // Loop & GUI Setup
             setLoopDelay(400, 600);
             getEventDispatcher().addListener(this);
-            try {
-                EventQueue.invokeAndWait(() -> {
-                    ui = new MassGUI();
-                    ui.setVisible(true);
-                });
-                if (ui != null) {
-                    while (ui.isVisible()) {
-                        Execution.delay(100);
-                    }
-                }
-            } catch (final Throwable t) {
-                t.printStackTrace();
-            }
+            showAndWaitGUI();
             if (requestedShutdown) {
                 System.out.println("Shutdown!");
                 this.stop();
@@ -103,9 +98,6 @@ public class MassFighter extends TaskScript implements PaintListener {
                 if (useFood) {
                     add(new FoodHandler());
                 }
-                if (buryBones || looting) {
-                    add(new LootHandler());
-                }
                 add(new CombatHandler());
                 if (useAbilities && Environment.isRS3()) {
                     if (!ActionBar.isExpanded()) {
@@ -124,7 +116,22 @@ public class MassFighter extends TaskScript implements PaintListener {
             this.stop();
         }
     }
-    
+
+    private void showAndWaitGUI() {
+        ui = new Main();
+        Platform.runLater(() -> {
+            try {
+                ui.start(new Stage());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        while (setupRunning) {
+            Execution.delay(100);
+        }
+        Platform.runLater(ui::close);
+    }
+
     @Override
     public void onPaint(Graphics2D g2d) {
         g2d.setFont(new Font("Arial", Font.BOLD, 11));
@@ -137,4 +144,5 @@ public class MassFighter extends TaskScript implements PaintListener {
         g2d.drawString("Exp Gained: " + expGained + " (" + numberFormat.format((int) CommonMath.rate(TimeUnit.HOURS, runningTime.getRuntime(), expGained)) + " p/h)", 36, 235);
         g2d.drawString("Script Runtime: " + runningTime.getRuntimeAsString(), 36, 258);
     }
+
 }

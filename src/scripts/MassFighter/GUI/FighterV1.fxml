@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" opacity="0.89" prefHeight="399.0" prefWidth="672.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="scripts.MassFighter.GUI.Controller">
+   <children>
+      <TabPane layoutX="7.0" layoutY="7.0" prefHeight="350.0" prefWidth="661.0" tabClosingPolicy="UNAVAILABLE">
+        <tabs>
+          <Tab closable="false" text="Combat">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="271.0" prefWidth="661.0">
+                     <children>
+                        <Label layoutX="14.0" layoutY="14.0" text="Profile:" />
+                        <Button fx:id="refreshButton" layoutX="315.0" layoutY="73.0" mnemonicParsing="false" onAction="#monstersRefreshed" prefHeight="25.0" prefWidth="64.0" text="Refresh" />
+                        <Label layoutX="122.0" layoutY="36.0" text="Available Monsters" />
+                        <ListView fx:id="availableMonsters" layoutX="73.0" layoutY="54.0" prefHeight="150.0" prefWidth="201.0" />
+                        <Button fx:id="npcButton" layoutX="291.0" layoutY="104.0" mnemonicParsing="false" onAction="#npcChange" text="Add/Remove NPC" />
+                        <Label layoutX="478.0" layoutY="36.0" text="Selected Monsters" />
+                        <ListView fx:id="selectedMonsters" layoutX="425.0" layoutY="54.0" prefHeight="150.0" prefWidth="201.0" />
+                        <CheckBox fx:id="abilities" layoutX="316.0" layoutY="262.0" mnemonicParsing="false" text="Abilities" />
+                        <CheckBox fx:id="soulsplit" layoutX="316.0" layoutY="290.0" mnemonicParsing="false" text="Soulsplit" />
+                        <TextField fx:id="tileRange" layoutX="348.0" layoutY="149.0" prefHeight="25.0" prefWidth="33.0" promptText="10" />
+                        <Label layoutX="283.0" layoutY="153.0" text="Fight within:" />
+                        <Label layoutX="381.0" layoutY="153.0" text="tiles" />
+                        <Slider fx:id="targetSlider" blockIncrement="1.0" layoutX="280.0" layoutY="213.0" majorTickUnit="1.0" max="5.0" min="1.0" minorTickCount="0" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="1.0" />
+                        <Label layoutX="175.0" layoutY="212.0" text="Target the nearest" />
+                        <Label layoutX="425.0" layoutY="212.0" text="NPCs" />
+                        <ChoiceBox fx:id="profileSelector" layoutX="73.0" layoutY="10.0" prefWidth="150.0" />
+                     </children>
+                  </AnchorPane>
+            </content>
+          </Tab>
+          <Tab closable="false" text="Food">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="278.0" prefWidth="661.0">
+                     <children>
+                        <Label layoutX="14.0" layoutY="14.0" text="Food Selection:" />
+                        <ListView fx:id="foodSelection" editable="true" layoutX="105.0" layoutY="14.0" prefHeight="202.0" prefWidth="200.0" />
+                        <CheckBox fx:id="stopWhenOutOfFood" layoutX="14.0" layoutY="252.0" mnemonicParsing="false" text="Stop when out of food" />
+                        <Label layoutX="14.0" layoutY="222.0" text="Eat at" />
+                        <TextField fx:id="eatValue" layoutX="55.0" layoutY="218.0" prefHeight="25.0" prefWidth="29.0" />
+                        <Label layoutX="96.0" layoutY="222.0" text="hitpoints" />
+                     </children>
+                  </AnchorPane>
+            </content>
+          </Tab>
+            <Tab closable="false" text="Loot">
+              <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <Label layoutX="14.0" layoutY="14.0" text="Loot Name:" />
+                        <TextField fx:id="lootName" layoutX="84.0" layoutY="10.0" />
+                        <Button fx:id="addLoot" layoutX="249.0" layoutY="10.0" mnemonicParsing="false" onAction="#lootChange" prefHeight="25.0" prefWidth="97.0" text="Add" />
+                        <ListView fx:id="selectedLoot" layoutX="398.0" layoutY="31.0" prefHeight="200.0" prefWidth="200.0" />
+                        <Label layoutX="462.0" layoutY="14.0" text="Selected Loot" />
+                        <Button fx:id="removeLoot" layoutX="605.0" layoutY="106.0" mnemonicParsing="false" onAction="#lootChange" prefHeight="25.0" prefWidth="42.0" text="-" />
+                        <CheckBox fx:id="lootCharms" layoutX="14.0" layoutY="45.0" mnemonicParsing="false" onAction="#lootChange" text="Loot Charms" />
+                        <CheckBox fx:id="lootInCombat" disable="true" layoutX="14.0" layoutY="71.0" mnemonicParsing="false" onAction="#lootChange" text="Loot in combat (Need help testing)" />
+                        <CheckBox fx:id="buryBones" layoutX="14.0" layoutY="98.0" mnemonicParsing="false" onAction="#lootChange" text="Loot and bury bones" />
+                        <CheckBox fx:id="waitLoot" disable="true" layoutX="14.0" layoutY="123.0" mnemonicParsing="false" onAction="#lootChange" text="Wait for loot after kills (Still testing)" />
+                     </children>
+                  </AnchorPane>
+              </content>
+            </Tab>
+        </tabs>
+      </TabPane>
+      <Button layoutX="302.0" layoutY="360.0" mnemonicParsing="false" onAction="#start" prefHeight="25.0" prefWidth="111.0" text="Start" />
+   </children>
+   <effect>
+      <Blend />
+   </effect>
+</Pane>
