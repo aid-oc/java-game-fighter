@@ -14,9 +14,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("FighterV1.fxml"));
-        JOptionPane.showMessageDialog(null, "Found in location: " + getClass().getResource("FighterV1.fxml"), "MassFighter", JOptionPane.WARNING_MESSAGE);
+        FXMLLoader loader = new FXMLLoader(scripts.MassFighter.MassFighter.class.getResource("FighterV1.fxml"));
         Parent root = loader.load();
         primaryStage.setTitle("MassFighter V4");
         primaryStage.setScene(new Scene(root));
