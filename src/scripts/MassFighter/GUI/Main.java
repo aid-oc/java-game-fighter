@@ -16,22 +16,25 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-
         InputStream in = MassFighter.class.getResourceAsStream("/scripts/MassFighter/GUI/FighterV1.fxml");
-        FXMLLoader loader = new FXMLLoader();
-        Parent root = loader.load(in);
-        primaryStage.setTitle("MassFighter V4");
-        primaryStage.setScene(new Scene(root));
-        controller = loader.getController();
-        controller.initialize();
-        primaryStage.setOnCloseRequest(event -> {
-            System.out.println("UI Closed - Stopping Script");
-            if (Environment.getScript().isRunning()) {
-                Environment.getScript().stop();
-            }
-            close();
-        });
-        primaryStage.show();
+        if (in != null) {
+            FXMLLoader loader = new FXMLLoader();
+            Parent root = loader.load(in);
+            primaryStage.setTitle("MassFighter V4");
+            primaryStage.setScene(new Scene(root));
+            controller = loader.getController();
+            controller.initialize();
+            primaryStage.setOnCloseRequest(event -> {
+                System.out.println("UI Closed - Stopping Script");
+                if (Environment.getScript().isRunning()) {
+                    Environment.getScript().stop();
+                }
+                close();
+            });
+            primaryStage.show();
+        } else {
+            MassFighter.status = "Input Stream Unavailable";
+        }
     }
 
     public void close() {

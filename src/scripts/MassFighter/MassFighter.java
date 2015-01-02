@@ -113,7 +113,6 @@ public class MassFighter extends TaskScript implements PaintListener {
             try {
                 ui.start(new Stage());
             } catch (Exception e) {
-                MassFighter.status = "Failed to load FXML";
                 e.printStackTrace();
             }
         });
