@@ -23,10 +23,6 @@ import static scripts.MassFighter.MassFighter.combatProfile;
 
 public class Methods  {
 
-    public Methods() {
-
-    }
-
     public Boolean inFightAreas(Actor actor) {
         List<Area> areas = combatProfile.getFightAreas();
         for (Area a : areas) {
@@ -73,12 +69,11 @@ public class Methods  {
 
     public Boolean readyToFight() {
         if (MassFighter.useSoulsplit) {
-            return Powers.Prayer.getPoints() > Powers.Prayer.getMaximumPoints() / 2
-                    && Powers.Prayer.Curse.SOUL_SPLIT.isActivated();
+            return Powers.Prayer.getPoints() > Powers.Prayer.getMaximumPoints() / 2;
         } else if (MassFighter.useFood) {
             return Inventory.contains(MassFighter.food.getName()) && Health.getCurrent() >= MassFighter.eatValue;
         }
-        return Health.getCurrent() >= MassFighter.eatValue;
+        return Health.getCurrent() >= MassFighter.criticalHitpoints;
     }
 
     public GroundItemQueryBuilder validLoot = GroundItems.newQuery().within(MassFighter.combatProfile.getFightAreas().toArray(new Area[(MassFighter.combatProfile.getFightAreas().size())])).filter(new Filter<GroundItem>() {
@@ -94,8 +89,4 @@ public class Methods  {
             return false;
         }
     });
-
-    public boolean lootAvailable() {
-        return !Inventory.isFull() && (MassFighter.buryBones || MassFighter.looting) && !validLoot.results().isEmpty();
-    }
 }

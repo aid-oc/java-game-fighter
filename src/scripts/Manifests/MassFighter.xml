@@ -2,7 +2,7 @@
     <main-class>scripts.MassFighter.MassFighter</main-class>
     <name>MassFighter</name>
     <description>AIO Fighter for RS3 - Profiles for Banking, Moneymaking etc.</description>
-    <version>1.3</version>
+    <version>1.4</version>
     <compatibility>
         <game-type>OSRS</game-type>
         <game-type>RS3</game-type>
@@ -24,4 +24,7 @@
         <tag>Banking</tag>
         <tag>Moneymaking</tag>
     </tags>
+    <resources>
+        <resource>scripts/MassFighter/GUI/FighterV1.fxml</resource>
+    </resources>
 </manifest>
