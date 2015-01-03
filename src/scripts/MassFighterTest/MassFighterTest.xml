@@ -1,0 +1,25 @@
+<manifest>
+    <main-class>scripts.MassFighterTest.MassFighterTest</main-class>
+    <name>MassFighter-Test</name>
+    <description>MassFighter FXML Test</description>
+    <version>1.0</version>
+    <compatibility>
+        <game-type>OSRS</game-type>
+        <game-type>RS3</game-type>
+    </compatibility>
+    <categories>
+        <category>COMBAT</category>
+    </categories>
+    <!--Required to publish on the bot store-->
+    <internal-id>Ozzy-MassFighterTest</internal-id>
+    <!--The rest are optional-->
+    <open-source>true</open-source>
+    <hidden>true</hidden>
+    <access>public</access>
+    <tags>
+        <tag>Test</tag>
+    </tags>
+    <resources>
+        <resource>GUI/FighterDesign.fxml</resource>
+    </resources>
+</manifest>
