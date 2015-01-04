@@ -34,6 +34,7 @@ public class HillGiantsRoute extends Task{
 
     @Override
     public void execute() {
+        MassFighter.status = "Hill Giants: Following Route";
         if (Inventory.contains("Brass key")) {
 
             final Area fightArea = MassFighter.combatProfile.getFightAreas().get(0);

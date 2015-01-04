@@ -1,5 +1,6 @@
 package scripts.MassFighter.Tasks;
 
+import com.runemate.game.api.hybrid.local.hud.interfaces.Health;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
 import com.runemate.game.api.hybrid.local.hud.interfaces.SpriteItem;
 import com.runemate.game.api.hybrid.queries.SpriteItemQueryBuilder;
@@ -21,16 +22,30 @@ public class PrayerHandler extends Task {
         }
     });
     public boolean validate() {
-        return MassFighter.useSoulsplit && (Powers.Prayer.getPoints() < Powers.Prayer.getMaximumPoints() / 2
-                || !Powers.Prayer.Curse.SOUL_SPLIT.isActivated()) && !validPrayerItems.results().isEmpty() ;
+        if (!MassFighter.useSoulsplit) return false;
+        return
+                // We need to get more prayer points and we have pots/flasks remaining
+                (Powers.Prayer.getPoints() < Powers.Prayer.getMaximumPoints() / 2 && !validPrayerItems.results().isEmpty())
+                // We need to turn soulsplit off as we have enough health now
+                || (Powers.Prayer.Curse.SOUL_SPLIT.isActivated() && Health.getCurrentPercent() > 80)
+                // We need to turn soulsplit on as we are losing health
+                || (!Powers.Prayer.Curse.SOUL_SPLIT.isActivated() && Health.getCurrentPercent() < 65 && Powers.Prayer.getPoints() > Powers.Prayer.getMaximumPoints() / 2);
     }
 
     @Override
     public void execute() {
-        MassFighter.status = "Drinking prayer pots";
 
-        // Enable soulsplit if it is not active
-        if (!Powers.Prayer.Curse.SOUL_SPLIT.isActivated()) {
+        // Disable soulsplit if necessary
+        if (Powers.Prayer.Curse.SOUL_SPLIT.isActivated() && Health.getCurrentPercent() > 80) {
+            MassFighter.status = "Turning off Soulsplit";
+            if (Powers.Prayer.Curse.SOUL_SPLIT.toggle()) {
+                Execution.delayUntil(() -> !Powers.Prayer.Curse.SOUL_SPLIT.isActivated(), 1600,2000);
+            }
+        }
+
+        // Enable soulsplit if necessary
+        if (!Powers.Prayer.Curse.SOUL_SPLIT.isActivated() && Health.getCurrentPercent() < 65 && Powers.Prayer.getPoints() > Powers.Prayer.getMaximumPoints() / 2) {
+            MassFighter.status = "Turning on Soulsplit";
             if (Powers.Prayer.Curse.SOUL_SPLIT.toggle()) {
                 Execution.delayUntil(Powers.Prayer.Curse.SOUL_SPLIT::isActivated, 1600,2000);
             }
@@ -43,6 +58,7 @@ public class PrayerHandler extends Task {
             if (validPrayerItems.results().isEmpty() && !(MassFighter.useFood && Inventory.contains(MassFighter.food.getName()))) {
                 MassFighter.methods.logout();
             } else {
+                MassFighter.status = "Drinking prayer pots/flasks";
                 final int startPP = Powers.Prayer.getPoints();
                 final SpriteItem targetPrayerFuel = validPrayerItems.results().random();
                 if (targetPrayerFuel != null) {

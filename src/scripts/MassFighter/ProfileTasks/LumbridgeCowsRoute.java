@@ -34,6 +34,7 @@ public class LumbridgeCowsRoute extends Task {
 
     @Override
     public void execute() {
+        MassFighter.status = "Lumbridge Cows: Following Route";
 
         final Area gateArea = new Area.Polygonal(new Coordinate(3251, 3265, 0), new Coordinate(3254, 3265, 0), new Coordinate(3254, 3268, 0), new Coordinate(3251, 3268, 0));
         final Player player = Players.getLocal();
