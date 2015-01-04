@@ -15,7 +15,7 @@
     <!--The rest are optional-->
     <open-source>true</open-source>
     <hidden>true</hidden>
-    <access>public</access>
+    <access>private</access>
     <tags>
         <tag>Test</tag>
     </tags>
