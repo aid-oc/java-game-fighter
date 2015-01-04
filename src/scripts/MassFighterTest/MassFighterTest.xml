@@ -1,6 +1,6 @@
 <manifest>
     <main-class>scripts.MassFighterTest.MassFighterTest</main-class>
-    <name>MassFighter-Test</name>
+    <name>DoNotUse-Test</name>
     <description>MassFighter FXML Test</description>
     <version>1.0</version>
     <compatibility>
@@ -15,7 +15,7 @@
     <!--The rest are optional-->
     <open-source>true</open-source>
     <hidden>false</hidden>
-    <access>private</access>
+    <access>public</access>
     <tags>
         <tag>Test</tag>
     </tags>
