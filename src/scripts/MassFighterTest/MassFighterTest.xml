@@ -14,6 +14,7 @@
     <internal-id>Ozzy-MassFighterTest</internal-id>
     <!--The rest are optional-->
     <open-source>true</open-source>
+    <hidden>false</hidden>
     <access>private</access>
     <tags>
         <tag>Test</tag>
