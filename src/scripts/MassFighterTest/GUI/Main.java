@@ -3,8 +3,8 @@ package scripts.MassFighterTest.GUI;
 import com.runemate.game.api.hybrid.Environment;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import scripts.MassFighterTest.MassFighterTest;
 
@@ -16,7 +16,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception {
 
         FXMLLoader loader = new FXMLLoader(MassFighterTest.class.getResource("GUI/FighterDesign.fxml"));
-        Parent root = loader.load();
+        Pane root = loader.load();
         primaryStage.setTitle("MassFighterTest V4");
         primaryStage.setScene(new Scene(root));
         primaryStage.setOnCloseRequest(event -> {
