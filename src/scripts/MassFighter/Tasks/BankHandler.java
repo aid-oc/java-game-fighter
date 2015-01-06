@@ -28,17 +28,21 @@ public class BankHandler extends Task {
         MassFighter.status = "Going to the bank";
         final BankingProfile profile = (BankingProfile)MassFighter.combatProfile;
         if (!profile.getBankArea().contains(Players.getLocal()) && Inventory.isFull() || !MassFighter.methods.readyToFight()) {
-            WebPath toBank = Traversal.getDefaultWeb().getPathBuilder().buildTo(profile.getBankArea());
-            if (toBank != null) {
-                if (Menu.isOpen()) {
-                    Menu.close();
+            if (profile.getBankPath() == null) {
+                WebPath toBank = Traversal.getDefaultWeb().getPathBuilder().buildTo(profile.getBankArea());
+                if (toBank != null) {
+                    if (Menu.isOpen()) {
+                        Menu.close();
+                    } else {
+                        System.out.println("Path to the bank is VALID: traversing");
+                        toBank.step(true);
+                    }
                 } else {
-                    System.out.println("Path to the bank is VALID: traversing");
-                    toBank.step(true);
+                    System.out.println("Path to the bank is INVALID: traversing backup");
+                    BresenhamPath.buildTo(profile.getBankArea()).step(true);
                 }
             } else {
-                System.out.println("Path to the bank is INVALID: traversing backup");
-                BresenhamPath.buildTo(profile.getBankArea()).step(true);
+                profile.getBankPath().step(true);
             }
         } else if (profile.getBankArea().contains(Players.getLocal())) {
             System.out.println("We're at the bank - banking");
@@ -73,17 +77,21 @@ public class BankHandler extends Task {
             }
         } else if (!Inventory.isFull() || MassFighter.combatProfile.getLootNames().length > 0 && !Inventory.containsAnyOf(MassFighter.combatProfile.getLootNames())) {
             MassFighter.status = "Returning to fight area";
-            WebPath toFightArea = Traversal.getDefaultWeb().getPathBuilder().buildTo(MassFighter.methods.fightAreasAsArray()[0]);
-            if (toFightArea != null) {
-                if (Menu.isOpen()) {
-                    Menu.close();
-                    System.out.println("Path to the fight area is VALID: traversing");
+            if (profile.getBankPath() == null) {
+                WebPath toFightArea = Traversal.getDefaultWeb().getPathBuilder().buildTo(MassFighter.methods.fightAreasAsArray()[0]);
+                if (toFightArea != null) {
+                    if (Menu.isOpen()) {
+                        Menu.close();
+                        System.out.println("Path to the fight area is VALID: traversing");
+                    } else {
+                        toFightArea.step(true);
+                    }
                 } else {
-                    toFightArea.step(true);
+                    System.out.println("Path to the fight area is INVALID: traversing backup");
+                    BresenhamPath.buildTo(MassFighter.methods.fightAreasAsArray()[0]).step(true);
                 }
             } else {
-                System.out.println("Path to the fight area is INVALID: traversing backup");
-                BresenhamPath.buildTo(MassFighter.methods.fightAreasAsArray()[0]).step(true);
+                profile.getBankPath().reverse().step(true);
             }
         }
     }

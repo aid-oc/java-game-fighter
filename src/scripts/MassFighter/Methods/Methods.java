@@ -80,13 +80,15 @@ public class Methods  {
         @Override
         public boolean accepts(GroundItem groundItem) {
             String itemName = groundItem.getDefinition().getName().toLowerCase();
-            List<String> lootNames = Arrays.asList(MassFighter.combatProfile.getLootNames());
-            for (String lootName : lootNames) {
-                if (lootName.toLowerCase().equals(itemName) || MassFighter.buryBones && (itemName.toLowerCase().contains("bones") || itemName.toLowerCase().contains("ashes"))) {
-                    return true;
+            if (MassFighter.combatProfile.getLootNames() != null && MassFighter.combatProfile.getLootNames().length > 0) {
+                List<String> lootNames = Arrays.asList(MassFighter.combatProfile.getLootNames());
+                for (String lootName : lootNames) {
+                    if (lootName.toLowerCase().equals(itemName)) {
+                        return true;
+                    }
                 }
             }
-            return false;
+            return MassFighter.buryBones && (itemName.toLowerCase().contains("bones") || itemName.toLowerCase().contains("ashes"));
         }
     });
 }

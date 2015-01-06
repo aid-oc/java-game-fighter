@@ -27,12 +27,13 @@ public class CombatHandler extends Task {
 
     private final CombatProfile combatProfile = MassFighter.combatProfile;
     private final Area[] fightAreas =  MassFighter.methods.fightAreasAsArray();
-    final NpcQueryBuilder validTargetQuery = Npcs.newQuery().within(fightAreas).names(combatProfile.getNpcNames()).filter(new Filter<Npc>() {
+    private final NpcQueryBuilder validTargetQuery = Npcs.newQuery().within(fightAreas).names(combatProfile.getNpcNames()).filter(new Filter<Npc>() {
         @Override
         public boolean accepts(Npc npc) {
             return npc.getHealthGauge() == null && npc.isValid() && npc.getAnimationId() == -1;
         }
     }).reachable();
+    private final SpriteItemQueryBuilder buryItems = Inventory.newQuery().actions("Bury", "Scatter");
 
     public boolean validate() {
         if (combatProfile instanceof BankingProfile) {
@@ -44,28 +45,15 @@ public class CombatHandler extends Task {
     @Override
     public void execute() {
         Npc targetNpc = null;
-        /* LOOTING */
-        if (MassFighter.lootInCombat || !MassFighter.methods.isInCombat()) {
-            // Bury bones
-            final SpriteItemQueryBuilder buryItems = Inventory.newQuery().actions("Bury", "Scatter");
-            if (MassFighter.buryBones && !buryItems.results().isEmpty()) {
-                MassFighter.status = "Burying Bones";
-                SpriteItemQueryResults bones = buryItems.results();
-                bones.stream().filter(bone -> bone != null).forEach(bone -> {
-                    String name = bone.getDefinition().getName();
-                    if (name.toLowerCase().contains("bones") && bone.interact("Bury") || name.toLowerCase().contains("ashes") && bone.interact("Scatter")) {
-                        Execution.delayUntil(() -> !bone.isValid(), 1000,1400);
-                    }
-                });
-            }
-            // Pick up loot
-            if (MassFighter.looting && !MassFighter.methods.validLoot.results().isEmpty() && !Inventory.isFull()) {
+
+        if ((MassFighter.lootInCombat || !MassFighter.methods.isInCombat()) && (MassFighter.looting || MassFighter.buryBones) && !MassFighter.methods.validLoot.results().isEmpty() && !Inventory.isFull()) {
+            if ((MassFighter.looting || MassFighter.buryBones)) {
                 GroundItem targetLoot = MassFighter.methods.validLoot.results().nearest();
                 if (targetLoot != null) {
                     MassFighter.status = "Picking up " + targetLoot.getDefinition().getName();
                     if (targetLoot.isVisible()) {
                         if (targetLoot.interact("Take", targetLoot.getDefinition().getName())) {
-                            Execution.delayUntil(() -> !targetLoot.isValid(), 2500,3000);
+                            Execution.delayUntil(() -> !targetLoot.isValid(), 2500, 3000);
                         } else if (Menu.isOpen()) {
                             Menu.close();
                         }
@@ -76,67 +64,82 @@ public class CombatHandler extends Task {
                     }
                 }
             }
-        }
-        /* COMBAT */
-        if (Players.getLocal().getTarget() == null) {
-            if (MassFighter.methods.inFightAreas(Players.getLocal())) {
-                // Get NPC Attacking US
-                if (MassFighter.methods.isInCombat()) {
-                    MassFighter.status = "We're under attack - finding target";
-                    System.out.println("Combat: We're in combat, but not attacking");
-                    NpcQueryBuilder opponents = Npcs.newQuery().within(fightAreas).reachable().filter(new Filter<Npc>() {
-                        @Override
-                        public boolean accepts(Npc npc) {
-                            return npc.getTarget() != null && npc.getTarget().equals(Players.getLocal());
+        } else if (MassFighter.buryBones && !buryItems.results().isEmpty()) {
+            if (MassFighter.buryBones) {
+                final SpriteItemQueryBuilder buryItems = Inventory.newQuery().actions("Bury", "Scatter");
+                if (MassFighter.buryBones && !buryItems.results().isEmpty()) {
+                    MassFighter.status = "Burying Bones";
+                    SpriteItemQueryResults bones = buryItems.results();
+                    bones.stream().filter(bone -> bone != null).forEach(bone -> {
+                        String name = bone.getDefinition().getName();
+                        if (name.toLowerCase().contains("bones") && bone.interact("Bury") || name.toLowerCase().contains("ashes") && bone.interact("Scatter")) {
+                            Execution.delayUntil(() -> !bone.isValid(), 1000,1400);
                         }
                     });
-                    if (!opponents.results().isEmpty()) {
-                        System.out.println("Combat: Found who's attacking us");
-                        targetNpc = opponents.results().nearest();
-                    }
-                } else {
-                    if (!validTargetQuery.results().isEmpty()) {
-                        System.out.println("Combat: Not in combat, getting new target");
-                        targetNpc = validTargetQuery.results().sortByDistance().limit(MassFighter.targetSelection).random();
-                    } else {
-                        if (fightAreas.length > 1 && !Players.getLocal().isMoving()) {
-                            MassFighter.status = "Changing fight area";
-                            System.out.println("Combat: Changing Area");
-                            int currentIndex = MassFighter.methods.getFightAreaIndex();
-                            int targetIndex = currentIndex == fightAreas.length - 1 ? 0 : currentIndex + 1;
-                            WebPath toNextArea = Traversal.getDefaultWeb().getPathBuilder().buildTo(fightAreas[targetIndex]);
-                            if (toNextArea != null) {
-                                System.out.println("Travering WEB path to next area");
-                                Execution.delayUntil(() -> {
-                                    toNextArea.step(true);
-                                    return fightAreas[targetIndex].contains(Players.getLocal());
-                                }, (int) Distance.between(Players.getLocal(), fightAreas[targetIndex]) * 1000);
-                            } else {
-                                System.out.println("Traversing BACKUP path to next area");
-                                Execution.delayUntil(() -> {
-                                    BresenhamPath.buildTo(fightAreas[targetIndex]).step(true);
-                                    return fightAreas[targetIndex].contains(Players.getLocal());
-                                }, (int) Distance.between(Players.getLocal(), fightAreas[targetIndex]) * 1000);
+                }
+            }
+        } else {
+                /* COMBAT */
+                if (Players.getLocal().getTarget() == null) {
+                    if (MassFighter.methods.inFightAreas(Players.getLocal())) {
+                        // Get NPC Attacking US
+                        if (MassFighter.methods.isInCombat()) {
+                            MassFighter.status = "We're under attack - finding target";
+                            System.out.println("Combat: We're in combat, but not attacking");
+                            NpcQueryBuilder opponents = Npcs.newQuery().within(fightAreas).reachable().filter(new Filter<Npc>() {
+                                @Override
+                                public boolean accepts(Npc npc) {
+                                    return npc.getTarget() != null && npc.getTarget().equals(Players.getLocal());
+                                }
+                            });
+                            if (!opponents.results().isEmpty()) {
+                                System.out.println("Combat: Found who's attacking us");
+                                targetNpc = opponents.results().nearest();
                             }
                         } else {
-                            MassFighter.status = "No monsters in set tile range, waiting";
+                            if (!validTargetQuery.results().isEmpty()) {
+                                System.out.println("Combat: Not in combat, getting new target");
+                                targetNpc = validTargetQuery.results().sortByDistance().limit(MassFighter.targetSelection).random();
+                            } else {
+                                if (fightAreas.length > 1 && !Players.getLocal().isMoving()) {
+                                    MassFighter.status = "Changing fight area";
+                                    System.out.println("Combat: Changing Area");
+                                    int currentIndex = MassFighter.methods.getFightAreaIndex();
+                                    int targetIndex = currentIndex == fightAreas.length - 1 ? 0 : currentIndex + 1;
+                                    WebPath toNextArea = Traversal.getDefaultWeb().getPathBuilder().buildTo(fightAreas[targetIndex]);
+                                    if (toNextArea != null) {
+                                        System.out.println("Travering WEB path to next area");
+                                        Execution.delayUntil(() -> {
+                                            toNextArea.step(true);
+                                            return fightAreas[targetIndex].contains(Players.getLocal());
+                                        }, (int) Distance.between(Players.getLocal(), fightAreas[targetIndex]) * 1000);
+                                    } else {
+                                        System.out.println("Traversing BACKUP path to next area");
+                                        Execution.delayUntil(() -> {
+                                            BresenhamPath.buildTo(fightAreas[targetIndex]).step(true);
+                                            return fightAreas[targetIndex].contains(Players.getLocal());
+                                        }, (int) Distance.between(Players.getLocal(), fightAreas[targetIndex]) * 1000);
+                                    }
+                                } else {
+                                    MassFighter.status = "No monsters in set tile range, waiting";
+                                }
+                            }
                         }
+                    } else {
+                        MassFighter.status = "Moving back into fight area";
+                        System.out.println("Returning to fight area");
+                        BresenhamPath.buildTo(fightAreas[0]).step(true);
                     }
                 }
-            } else {
-                MassFighter.status = "Moving back into fight area";
-                System.out.println("Returning to fight area");
-                BresenhamPath.buildTo(fightAreas[0]).step(true);
+                // Attack
+                if (targetNpc != null) {
+                    if (targetNpc.getName().equals("Aviansie")) {
+                        // Model to exclude the rapidly moving wings
+                        targetNpc.setForcedModel(new int[]{-118, -341, -73}, new int[]{95, -188, 25});
+                    }
+                    attackTarget(targetNpc);
+                }
             }
-        }
-        // Attack
-        if (targetNpc != null) {
-            if (targetNpc.getName().equals("Aviansie")) {
-                // Model to exclude the rapidly moving wings
-                targetNpc.setForcedModel(new int[]{-118, -341, -73}, new int[]{95, -188, 25});
-            }
-            attackTarget(targetNpc);
-        }
     }
 
     private void attackTarget(final Npc targetNpc) {

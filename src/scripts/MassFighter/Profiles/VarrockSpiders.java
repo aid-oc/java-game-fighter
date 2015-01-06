@@ -1,12 +1,15 @@
 package scripts.MassFighter.Profiles;
 
 import com.runemate.game.api.hybrid.location.Area;
+import com.runemate.game.api.hybrid.location.navigation.basic.PredefinedPath;
 import com.runemate.game.api.hybrid.util.collections.Pair;
+import scripts.MassFighter.Framework.BankingProfile;
 import scripts.MassFighter.Framework.CombatProfile;
 
 import java.util.List;
 
-public class VarrockSpiders extends CombatProfile {
+public class VarrockSpiders extends CombatProfile implements BankingProfile {
+
     @Override
     public Pair<int[], int[]> getForcedModel() {
         return null;
@@ -29,6 +32,16 @@ public class VarrockSpiders extends CombatProfile {
 
     @Override
     public String toString() {
+        return null;
+    }
+
+    @Override
+    public Area getBankArea() {
+        return null;
+    }
+
+    @Override
+    public PredefinedPath getBankPath() {
         return null;
     }
 }

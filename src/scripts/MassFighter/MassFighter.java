@@ -135,6 +135,12 @@ public class MassFighter extends TaskScript implements PaintListener {
         g2d.drawString("Task Status: " + status, 36, 212);
         g2d.drawString("Exp Gained: " + expGained + " (" + numberFormat.format((int) CommonMath.rate(TimeUnit.HOURS, runningTime.getRuntime(), expGained)) + " p/h)", 36, 235);
         g2d.drawString("Script Runtime: " + runningTime.getRuntimeAsString(), 36, 258);
+        if (targetNpc != null && targetNpc.getModel() != null) {
+            if (targetNpc.getModel().getBoundingModel() != null) {
+                g2d.setColor(Color.red);
+                targetNpc.getModel().getBoundingModel().render(g2d);
+            }
+        }
     }
 
 }
