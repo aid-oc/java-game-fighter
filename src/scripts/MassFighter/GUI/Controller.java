@@ -9,6 +9,9 @@ import com.runemate.game.api.hybrid.region.Npcs;
 import com.runemate.game.api.hybrid.region.Players;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import scripts.MassFighter.Data.Food;
 import scripts.MassFighter.Framework.CombatProfile;
@@ -20,6 +23,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.regex.Pattern;
 
+
 public class Controller {
 
     public ListView<String> availableMonsters;
@@ -27,7 +31,7 @@ public class Controller {
     public Button addLoot;
     public Button removeLoot;
     public TextField lootName;
-    public CheckBox lootCharms;
+    public Button addCharms;
     public ListView<String> selectedMonsters;
     public TextField eatValue;
     public TextField tileRange;
@@ -43,10 +47,14 @@ public class Controller {
     public Button npcButton;
     public Button refreshButton;
     public Tab lootTab;
-    public Label availableMonstersLabel;
     public Label profileStatus;
     public TextField criticalHitpoints;
     public Button btnStart;
+    public CheckBox quickPray;
+    public TextField prayValue;
+    public CheckBox exitPrayer;
+
+    public Settings settings;
 
     private List<String> getAvailableMonsters(Area area, String action) {
         List<String> availableNpcs = new ArrayList<>();
@@ -62,6 +70,7 @@ public class Controller {
 
     // Initial setup
     public void initialize() {
+        settings = new Settings();
 
         // Add onAction event handlers
         refreshButton.setOnAction(event -> {
@@ -82,10 +91,9 @@ public class Controller {
         });
         addLoot.setOnAction(this::lootChange);
         removeLoot.setOnAction(this::lootChange);
-        lootCharms.setOnAction(this::lootChange);
-        lootInCombat.setOnAction(this::lootChange);
-        buryBones.setOnAction(this::lootChange);
-        waitLoot.setOnAction(this::lootChange);
+        addCharms.setOnAction(this::lootChange);
+        soulsplit.setOnAction(this::togglePrayer);
+        quickPray.setOnAction(this::togglePrayer);
         btnStart.setOnAction(this::start);
 
         // Init fields
@@ -95,8 +103,17 @@ public class Controller {
         tileRange.setText("20");
         eatValue.setText(Integer.toString(Health.getMaximum()/2));
         criticalHitpoints.setText("1000");
+        prayValue.setText("2000");
         profileChanged();
         profileStatus.setText("Thanks for using MassFighter, please report any issues you have - Ozzy");
+    }
+
+    private void togglePrayer(ActionEvent actionEvent) {
+        if (actionEvent.getSource().equals(soulsplit)) {
+            quickPray.setSelected(false);
+        } else {
+            soulsplit.setSelected(false);
+        }
     }
 
     public void profileChanged() {
@@ -125,14 +142,14 @@ public class Controller {
 
     // Start button pressed, start the script
     public void start(ActionEvent actionEvent) {
-        if (Pattern.matches("\\d+", eatValue.getText()) && Pattern.matches("\\d+", tileRange.getText()) && Pattern.matches("\\d+", criticalHitpoints.getText())) {
+        if (Pattern.matches("\\d+", prayValue.getText()) &&  Pattern.matches("\\d+", eatValue.getText()) && Pattern.matches("\\d+", tileRange.getText()) && Pattern.matches("\\d+", criticalHitpoints.getText())) {
             if (!profileSelector.getSelectionModel().isEmpty()) {
                 if (profileSelector.getSelectionModel().getSelectedItem() instanceof Powerfighting && !selectedMonsters.getItems().isEmpty()) {
                     Powerfighting profile = new Powerfighting();
                     if (!selectedLoot.getItems().isEmpty()) {
                         String[] lootNames = selectedLoot.getItems().toArray(new String[selectedLoot.getItems().size()]);
                         profile.setLootNames(lootNames);
-                        MassFighter.looting = true;
+                        settings.looting = true;
                     }
                     String[] npcNames = selectedMonsters.getItems().toArray(new String[selectedMonsters.getItems().size()]);
                     profile.setNpcNames(npcNames);
@@ -142,25 +159,31 @@ public class Controller {
                     MassFighter.combatProfile = profile;
                 } else if (!(profileSelector.getSelectionModel().getSelectedItem() instanceof Powerfighting)) {
                     MassFighter.combatProfile = profileSelector.getSelectionModel().getSelectedItem();
-                    MassFighter.looting = MassFighter.combatProfile.getLootNames() != null;
+                    settings.looting = MassFighter.combatProfile.getLootNames() != null;
                 }
                 if (MassFighter.combatProfile != null) {
                     if (!foodSelection.getSelectionModel().isEmpty()) {
-                        MassFighter.useFood = true;
-                        MassFighter.food = foodSelection.getSelectionModel().getSelectedItem();
-                        MassFighter.eatValue = Integer.valueOf(eatValue.getText());
+                        settings.useFood = true;
+                        settings.food = foodSelection.getSelectionModel().getSelectedItem();
+                        settings.eatValue = Integer.valueOf(eatValue.getText());
                     } else {
-                        MassFighter.useFood = false;
+                        settings.useFood = false;
                     }
-                    MassFighter.waitForLoot = waitLoot.isSelected();
-                    MassFighter.targetSelection = (int) targetSlider.getValue();
-                    MassFighter.lootInCombat = lootInCombat.isSelected();
-                    MassFighter.useAbilities = abilities.isSelected();
-                    MassFighter.useSoulsplit = soulsplit.isSelected();
-                    MassFighter.fightRadius = Integer.valueOf(tileRange.getText());
-                    MassFighter.criticalHitpoints = Integer.valueOf(criticalHitpoints.getText());
-                    MassFighter.exitOutFood = stopWhenOutOfFood.isSelected();
-                    MassFighter.buryBones = buryBones.isSelected();
+                    if (quickPray.isSelected() || soulsplit.isSelected()) {
+                        settings.prayValue = Integer.valueOf(prayValue.getText());
+                    }
+                    settings.waitForLoot = waitLoot.isSelected();
+                    settings.targetSelection = (int) targetSlider.getValue();
+                    settings.lootInCombat = lootInCombat.isSelected();
+                    settings.useAbilities = abilities.isSelected();
+                    settings.quickPray = quickPray.isSelected();
+                    settings.useSoulsplit = soulsplit.isSelected();
+                    settings.exitOnPrayerOut = exitPrayer.isSelected();
+                    settings.fightRadius = Integer.valueOf(tileRange.getText());
+                    settings.criticalHitpoints = Integer.valueOf(criticalHitpoints.getText());
+                    settings.exitOutFood = stopWhenOutOfFood.isSelected();
+                    settings.buryBones = buryBones.isSelected();
+                    MassFighter.settings = settings;
                     MassFighter.setupRunning = false;
                     closeUI();
                 }
@@ -183,7 +206,7 @@ public class Controller {
             if (!selectedLoot.getSelectionModel().getSelectedItems().isEmpty()) {
                 selectedLoot.getItems().removeAll(selectedLoot.getSelectionModel().getSelectedItems());
             }
-        } else if (actionEvent.getSource().equals(lootCharms)) {
+        } else if (actionEvent.getSource().equals(addCharms)) {
             String[] charms = {"Crimson charm", "Gold charm", "Blue charm", "Green charm", "Elder charm"};
             for (String s : charms) {
                 if (!selectedLoot.getItems().contains(s)) {

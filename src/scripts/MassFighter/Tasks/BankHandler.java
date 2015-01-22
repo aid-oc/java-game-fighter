@@ -16,6 +16,8 @@ import com.runemate.game.api.script.framework.task.Task;
 import scripts.MassFighter.Framework.BankingProfile;
 import scripts.MassFighter.MassFighter;
 
+import static scripts.MassFighter.MassFighter.settings;
+
 public class BankHandler extends Task {
 
     @Override
@@ -25,7 +27,7 @@ public class BankHandler extends Task {
 
     @Override
     public void execute() {
-        MassFighter.status = "Going to the bank";
+        MassFighter.status = "Banking";
         final BankingProfile profile = (BankingProfile)MassFighter.combatProfile;
         if (!profile.getBankArea().contains(Players.getLocal()) && Inventory.isFull() || !MassFighter.methods.readyToFight()) {
             if (profile.getBankPath() == null) {
@@ -59,12 +61,12 @@ public class BankHandler extends Task {
                                 }
                             }
                         }
-                        if (MassFighter.useFood && !Inventory.containsAnyOf(MassFighter.food.getName())) {
-                            if (Bank.withdraw(MassFighter.food.getName(), 28)) {
+                        if (settings.useFood && !Inventory.containsAnyOf(settings.food.getName())) {
+                            if (Bank.withdraw(settings.food.getName(), 28)) {
                                 System.out.println("Withdrew Food");
                             } else {
                                 if (RuneScape.logout()) {
-                                    MassFighter.status = "Paused: No food in bank to refresh supplies";
+                                    MassFighter.status = "Paused: Supplies";
                                     Environment.getScript().pause();
                                 }
                             }
@@ -76,7 +78,6 @@ public class BankHandler extends Task {
                 }
             }
         } else if (!Inventory.isFull() || MassFighter.combatProfile.getLootNames().length > 0 && !Inventory.containsAnyOf(MassFighter.combatProfile.getLootNames())) {
-            MassFighter.status = "Returning to fight area";
             if (profile.getBankPath() == null) {
                 WebPath toFightArea = Traversal.getDefaultWeb().getPathBuilder().buildTo(MassFighter.methods.fightAreasAsArray()[0]);
                 if (toFightArea != null) {

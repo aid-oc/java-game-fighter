@@ -39,7 +39,7 @@ public class Main extends Stage {
             });
             stage.show();
         } else {
-            MassFighter.status = "Input Stream Unavailable";
+            MassFighter.status = "GUI Fail";
         }
     }
 

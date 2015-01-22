@@ -4,7 +4,6 @@ import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.RuneScape;
 import com.runemate.game.api.hybrid.entities.Actor;
 import com.runemate.game.api.hybrid.entities.GroundItem;
-import com.runemate.game.api.hybrid.entities.Npc;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Health;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
 import com.runemate.game.api.hybrid.location.Area;
@@ -16,15 +15,26 @@ import com.runemate.game.api.hybrid.util.Filter;
 import com.runemate.game.api.rs3.local.hud.Powers;
 import scripts.MassFighter.MassFighter;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static scripts.MassFighter.MassFighter.combatProfile;
+import static scripts.MassFighter.MassFighter.settings;
 
 public class Methods  {
 
+    private List<Area> areas;
+    private Area[] areaArray;
+    private String[] loot;
+
+    public Methods() {
+        areas = combatProfile.getFightAreas();
+        areaArray = combatProfile.getFightAreas().toArray(new Area[(combatProfile.getFightAreas().size())]);
+        loot = combatProfile.getLootNames();
+    }
+
+
+
     public Boolean inFightAreas(Actor actor) {
-        List<Area> areas = combatProfile.getFightAreas();
         for (Area a : areas) {
             if (a.contains(actor)) {
                 return true;
@@ -34,9 +44,8 @@ public class Methods  {
     }
 
     public int getFightAreaIndex() {
-        Area[] areas = MassFighter.combatProfile.getFightAreas().toArray(new Area[(MassFighter.combatProfile.getFightAreas().size())]);
-        for (int i = 0; i < areas.length; i++) {
-            if (areas[i].contains(Players.getLocal())) {
+        for (int i = 0; i < areaArray.length; i++) {
+            if (areaArray[i].contains(Players.getLocal())) {
                 return i;
             }
         }
@@ -44,51 +53,48 @@ public class Methods  {
     }
 
     public Area[] fightAreasAsArray() {
-        return combatProfile.getFightAreas() != null ? combatProfile.getFightAreas().toArray(new Area[combatProfile.getFightAreas().size()]) : new Area[]{new Area.Circular(Players.getLocal().getPosition(), 10)};
+        return areas != null ? areaArray : new Area[]{new Area.Circular(Players.getLocal().getPosition(), 10)};
     }
 
     public Boolean isInCombat() {
-        Area[] fightArea = combatProfile.getFightAreas()
-                .toArray(new Area[combatProfile.getFightAreas().size()]);
-        return Players.getLocal().getTarget() != null || !Npcs.newQuery().within(fightArea).reachable().filter(new Filter<Npc>() {
-            @Override
-            public boolean accepts(Npc npc) {
-                return npc.getTarget() != null && npc.getTarget().equals(Players.getLocal());
-            }
-        }).results().isEmpty();
+        return Players.getLocal().getTarget() != null || !Npcs.newQuery().within(areaArray).reachable().targeting(Players.getLocal()).results().isEmpty();
     }
 
     public void logout() {
         if (!MassFighter.methods.isInCombat()) {
             if (RuneScape.logout()) {
-                MassFighter.status = "Paused: out of supplies";
+                MassFighter.status = "Paused: Supplies";
                 Environment.getScript().pause();
             }
         }
     }
 
     public Boolean readyToFight() {
-        if (MassFighter.useSoulsplit) {
-            return Powers.Prayer.getPoints() > Powers.Prayer.getMaximumPoints() / 2;
-        } else if (MassFighter.useFood) {
-            return Inventory.contains(MassFighter.food.getName()) && Health.getCurrent() >= MassFighter.eatValue;
+        if (settings.useSoulsplit || settings.quickPray) {
+            return (Powers.Prayer.getPoints() >= settings.prayValue) || (Powers.Prayer.isQuickPraying() || Powers.Prayer.Curse.SOUL_SPLIT.isActivated());
+        } else if (settings.useFood) {
+            return Inventory.contains(settings.food.getName()) && Health.getCurrent() >= settings.eatValue;
+        } else if (Health.getCurrent() < settings.criticalHitpoints) {
+            logout();
+            return false;
+        } else {
+            return true;
         }
-        return Health.getCurrent() >= MassFighter.criticalHitpoints;
     }
 
-    public GroundItemQueryBuilder validLoot = GroundItems.newQuery().within(MassFighter.combatProfile.getFightAreas().toArray(new Area[(MassFighter.combatProfile.getFightAreas().size())])).filter(new Filter<GroundItem>() {
+
+    public GroundItemQueryBuilder validLoot = GroundItems.newQuery().within(areaArray).filter(new Filter<GroundItem>() {
         @Override
         public boolean accepts(GroundItem groundItem) {
             String itemName = groundItem.getDefinition().getName().toLowerCase();
-            if (MassFighter.combatProfile.getLootNames() != null && MassFighter.combatProfile.getLootNames().length > 0) {
-                List<String> lootNames = Arrays.asList(MassFighter.combatProfile.getLootNames());
-                for (String lootName : lootNames) {
+            if (loot != null && loot.length > 0) {
+                for (String lootName : loot) {
                     if (lootName.toLowerCase().equals(itemName)) {
                         return true;
                     }
                 }
             }
-            return MassFighter.buryBones && (itemName.toLowerCase().contains("bones") || itemName.toLowerCase().contains("ashes"));
+            return settings.buryBones && (itemName.toLowerCase().contains("bones") || itemName.toLowerCase().contains("ashes"));
         }
     });
 }

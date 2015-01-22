@@ -1,6 +1,5 @@
 package scripts.MassFighter.ProfileTasks;
 
-
 import com.runemate.game.api.hybrid.entities.GameObject;
 import com.runemate.game.api.hybrid.entities.LocatableEntity;
 import com.runemate.game.api.hybrid.entities.Player;
@@ -25,6 +24,8 @@ import scripts.MassFighter.MassFighter;
 
 import javax.swing.*;
 
+import static scripts.MassFighter.MassFighter.settings;
+
 public class HillGiantsRoute extends Task{
 
     @Override
@@ -34,7 +35,7 @@ public class HillGiantsRoute extends Task{
 
     @Override
     public void execute() {
-        MassFighter.status = "Hill Giants: Following Route";
+        MassFighter.status = "Following Route";
         if (Inventory.contains("Brass key")) {
 
             final Area fightArea = MassFighter.combatProfile.getFightAreas().get(0);
@@ -71,7 +72,8 @@ public class HillGiantsRoute extends Task{
                         if (door.isVisible()) {
                             System.out.println("Opening door");
                             if (door.interact("Open")) {
-                                Execution.delayUntil(() -> !door.getDefinition().getActions().contains("Open"), 1500, 2000);
+                                // TODO Temporary, find a suitable condition for delayUntil
+                                Execution.delay(1200);
                             }
                         } else {
                             Camera.turnTo(door);
@@ -96,13 +98,13 @@ public class HillGiantsRoute extends Task{
                                 @Override
                                 public boolean accepts(SpriteItem spriteItem) {
                                     String name = spriteItem.getDefinition().getName();
-                                    return (MassFighter.food != null && (MassFighter.food.getName().equals(name)) || name.equals("Brass key"));
+                                    return (settings.food != null && (settings.food.getName().equals(name)) || name.equals("Brass key"));
                                 }
                             });
-                            if (MassFighter.useFood && MassFighter.food != null && Inventory.getQuantity(MassFighter.food.getName()) < 10) {
+                            if (settings.useFood && settings.food != null && Inventory.getQuantity(settings.food.getName()) < 10) {
                                 System.out.println("Withdrawing food");
-                                if (Bank.withdraw(MassFighter.food.getName(), 10)) {
-                                    Execution.delayUntil(() -> Inventory.contains(MassFighter.food.getName()));
+                                if (Bank.withdraw(settings.food.getName(), 10)) {
+                                    Execution.delayUntil(() -> Inventory.contains(settings.food.getName()));
                                 }
                             }
                             Bank.close();

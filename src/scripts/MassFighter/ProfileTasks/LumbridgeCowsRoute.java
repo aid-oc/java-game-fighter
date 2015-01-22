@@ -25,6 +25,8 @@ import scripts.MassFighter.Framework.BankingProfile;
 import scripts.MassFighter.MassFighter;
 import scripts.MassFighter.Profiles.LumbridgeCows;
 
+import static scripts.MassFighter.MassFighter.settings;
+
 public class LumbridgeCowsRoute extends Task {
 
     @Override
@@ -34,7 +36,7 @@ public class LumbridgeCowsRoute extends Task {
 
     @Override
     public void execute() {
-        MassFighter.status = "Lumbridge Cows: Following Route";
+        MassFighter.status = "Following Route";
 
         final Area gateArea = new Area.Polygonal(new Coordinate(3251, 3265, 0), new Coordinate(3254, 3265, 0), new Coordinate(3254, 3268, 0), new Coordinate(3251, 3268, 0));
         final Player player = Players.getLocal();
@@ -103,13 +105,13 @@ public class LumbridgeCowsRoute extends Task {
                                     @Override
                                     public boolean accepts(SpriteItem spriteItem) {
                                         String name = spriteItem.getDefinition().getName();
-                                        return (MassFighter.food != null && (MassFighter.food.getName().equals(name)));
+                                        return (settings.food != null && (settings.food.getName().equals(name)));
                                     }
                                 });
-                                if (MassFighter.useFood && MassFighter.food != null && Inventory.getQuantity(MassFighter.food.getName()) < 10) {
+                                if (settings.useFood && settings.food != null && Inventory.getQuantity(settings.food.getName()) < 10) {
                                     System.out.println("Withdrawing food");
-                                    if (Bank.withdraw(MassFighter.food.getName(), 10)) {
-                                        Execution.delayUntil(() -> Inventory.contains(MassFighter.food.getName()));
+                                    if (Bank.withdraw(settings.food.getName(), 10)) {
+                                        Execution.delayUntil(() -> Inventory.contains(settings.food.getName()));
                                     }
                                 }
                                 Bank.close();
