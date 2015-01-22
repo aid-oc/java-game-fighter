@@ -8,6 +8,7 @@ import com.runemate.game.api.hybrid.queries.NpcQueryBuilder;
 import com.runemate.game.api.hybrid.region.Npcs;
 import com.runemate.game.api.hybrid.region.Players;
 import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -26,33 +27,60 @@ import java.util.regex.Pattern;
 
 public class Controller {
 
-    public ListView<String> availableMonsters;
-    public ListView<String> selectedLoot;
-    public Button addLoot;
-    public Button removeLoot;
-    public TextField lootName;
-    public Button addCharms;
-    public ListView<String> selectedMonsters;
-    public TextField eatValue;
-    public TextField tileRange;
-    public ListView<Food> foodSelection;
-    public CheckBox abilities;
-    public CheckBox soulsplit;
-    public CheckBox stopWhenOutOfFood;
-    public CheckBox lootInCombat;
-    public CheckBox buryBones;
-    public Slider targetSlider;
-    public CheckBox waitLoot;
-    public ChoiceBox<CombatProfile> profileSelector;
-    public Button npcButton;
-    public Button refreshButton;
-    public Tab lootTab;
-    public Label profileStatus;
-    public TextField criticalHitpoints;
-    public Button btnStart;
-    public CheckBox quickPray;
-    public TextField prayValue;
-    public CheckBox exitPrayer;
+    @FXML
+    private ListView<String> availableMonsters;
+    @FXML
+    private ListView<String> selectedLoot;
+    @FXML
+    private Button addLoot;
+    @FXML
+    private Button removeLoot;
+    @FXML
+    private TextField lootName;
+    @FXML
+    private Button addCharms;
+    @FXML
+    private ListView<String> selectedMonsters;
+    @FXML
+    private TextField eatValue;
+    @FXML
+    private TextField tileRange;
+    @FXML
+    private ListView<Food> foodSelection;
+    @FXML
+    private CheckBox abilities;
+    @FXML
+    private CheckBox soulsplit;
+    @FXML
+    private CheckBox stopWhenOutOfFood;
+    @FXML
+    private CheckBox lootInCombat;
+    @FXML
+    private CheckBox buryBones;
+    @FXML
+    private Slider targetSlider;
+    @FXML
+    private CheckBox waitLoot;
+    @FXML
+    private ChoiceBox<CombatProfile> profileSelector;
+    @FXML
+    private Button npcButton;
+    @FXML
+    private Button refreshButton;
+    @FXML
+    private Tab lootTab;
+    @FXML
+    private Label profileStatus;
+    @FXML
+    private TextField criticalHitpoints;
+    @FXML
+    private Button btnStart;
+    @FXML
+    private CheckBox quickPray;
+    @FXML
+    private TextField prayValue;
+    @FXML
+    private CheckBox exitPrayer;
 
     public Settings settings;
 
