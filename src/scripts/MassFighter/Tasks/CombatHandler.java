@@ -168,7 +168,7 @@ public class CombatHandler extends Task {
                         if (targetNpc.getPosition() == null) {
                             return true;
                         } else {
-                            Area lootArea = new Area.Circular(targetNpc.getPosition(), 3);
+                            Area lootArea = new Area.Circular(targetNpc.getPosition(), 4);
                             GroundItemQueryBuilder drops = GroundItems.newQuery().names(combatProfile.getLootNames()).within(lootArea);
                             return !drops.results().isEmpty();
                         }

@@ -1,7 +1,6 @@
 package scripts.MassFighter.Tasks;
 
 import com.runemate.game.api.hybrid.Environment;
-import com.runemate.game.api.hybrid.local.hud.interfaces.Health;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
 import com.runemate.game.api.hybrid.local.hud.interfaces.SpriteItem;
 import com.runemate.game.api.hybrid.queries.SpriteItemQueryBuilder;
@@ -30,11 +29,8 @@ public class PrayerHandler extends Task {
         return settings.useSoulsplit || settings.quickPray &&
                 // We need to get more prayer points and we have pots/flasks remaining
                 ((Powers.Prayer.getPoints() < settings.prayValue && !validPrayerItems.results().isEmpty())
-                // We need to turn soulsplit off as we have enough health now
-                || (Powers.Prayer.Curse.SOUL_SPLIT.isActivated() && Health.getCurrentPercent() > 80)
-                // We need to turn soulsplit on as we are losing health
-                || (!Powers.Prayer.Curse.SOUL_SPLIT.isActivated() && Health.getCurrentPercent() < 65
-                        && Powers.Prayer.getPoints() >= settings.prayValue)
+                // We need to enable soul split
+                || (settings.useSoulsplit && !Powers.Prayer.Curse.SOUL_SPLIT.isActivated() && Powers.Prayer.getPoints() >= settings.prayValue)
                 // We need to enable quick prayers
                 || (settings.quickPray && !Powers.Prayer.isQuickPraying() && Powers.Prayer.getPoints() >= settings.prayValue));
     }
@@ -52,20 +48,11 @@ public class PrayerHandler extends Task {
             }
         }
 
-        // Disable soulsplit if necessary
-        if (Powers.Prayer.Curse.SOUL_SPLIT.isActivated() && Health.getCurrentPercent() > 80) {
-            MassFighter.status = "Sousplit: OFF";
+        // turn on soulsplit if it is not on
+        if (settings.useSoulsplit && !Powers.Prayer.Curse.SOUL_SPLIT.isActivated() && Powers.Prayer.getPoints() >= settings.prayValue) {
+            MassFighter.status = "Sousplit: Turning ON";
             if (Powers.Prayer.Curse.SOUL_SPLIT.toggle()) {
                 Execution.delayUntil(() -> !Powers.Prayer.Curse.SOUL_SPLIT.isActivated(), 1600,2000);
-            }
-        }
-
-        // Enable soulsplit if necessary
-        if (!Powers.Prayer.Curse.SOUL_SPLIT.isActivated() && Health.getCurrentPercent() < 65
-                && Powers.Prayer.getPoints() >= settings.prayValue) {
-            MassFighter.status = "Soulsplit: ON";
-            if (Powers.Prayer.Curse.SOUL_SPLIT.toggle()) {
-                Execution.delayUntil(Powers.Prayer.Curse.SOUL_SPLIT::isActivated, 1600,2000);
             }
         }
 
