@@ -38,6 +38,7 @@ public class AbilityHandler extends Task implements Runnable {
                     if (ability.activate()) {
                         System.out.println("Activated: " + ability.getName());
                         Execution.delayUntil(() -> !ability.isReady(), 1000, 1600);
+                        break;
                     }
                 }
             }
