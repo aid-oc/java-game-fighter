@@ -34,9 +34,9 @@ public class PrayerHandler extends Task {
                 || (Powers.Prayer.Curse.SOUL_SPLIT.isActivated() && Health.getCurrentPercent() > 80)
                 // We need to turn soulsplit on as we are losing health
                 || (!Powers.Prayer.Curse.SOUL_SPLIT.isActivated() && Health.getCurrentPercent() < 65
-                        && Powers.Prayer.getPoints() > Powers.Prayer.getMaximumPoints() / 2)
+                        && Powers.Prayer.getPoints() >= settings.prayValue)
                 // We need to enable quick prayers
-                || (settings.quickPray && !Powers.Prayer.isQuickPraying()));
+                || (settings.quickPray && !Powers.Prayer.isQuickPraying() && Powers.Prayer.getPoints() >= settings.prayValue));
     }
 
     @Override
@@ -45,7 +45,7 @@ public class PrayerHandler extends Task {
         System.out.println("In the prayer handler");
 
         // turn on quick prayer if it is not on
-        if (settings.quickPray && !Powers.Prayer.isQuickPraying()) {
+        if (settings.quickPray && !Powers.Prayer.isQuickPraying() && Powers.Prayer.getPoints() >= settings.prayValue) {
             MassFighter.status = "QuickPrayers: ON";
             if (Powers.Prayer.toggleQuickPrayers()) {
                 Execution.delayUntil(Powers.Prayer::isQuickPraying, 1600, 2000);
@@ -62,7 +62,7 @@ public class PrayerHandler extends Task {
 
         // Enable soulsplit if necessary
         if (!Powers.Prayer.Curse.SOUL_SPLIT.isActivated() && Health.getCurrentPercent() < 65
-                && Powers.Prayer.getPoints() > Powers.Prayer.getMaximumPoints() / 2) {
+                && Powers.Prayer.getPoints() >= settings.prayValue) {
             MassFighter.status = "Soulsplit: ON";
             if (Powers.Prayer.Curse.SOUL_SPLIT.toggle()) {
                 Execution.delayUntil(Powers.Prayer.Curse.SOUL_SPLIT::isActivated, 1600,2000);
@@ -72,7 +72,7 @@ public class PrayerHandler extends Task {
         // Drinks a prayer pot/flask (starting with flasks)in order to restore prayer points
         // At the moment this occurs if prayer points fall below 50% of the maximum possible amount of points
         // Delays until prayer points have increased or 2s pass
-        if (Powers.Prayer.getPoints() < Powers.Prayer.getMaximumPoints()/2) {
+        if (Powers.Prayer.getPoints() < settings.prayValue) {
             if (validPrayerItems.results().isEmpty()) {
                 if (settings.exitOnPrayerOut) {
                     MassFighter.methods.logout();

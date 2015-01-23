@@ -88,6 +88,7 @@ public class MassFighter extends TaskScript implements PaintListener {
     }
 
     private void showAndWaitGUI() {
+        // Don't change this
         Platform.runLater(() -> new Main());
         while (setupRunning) {
             Execution.delay(200);
