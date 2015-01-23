@@ -101,6 +101,7 @@ public class Controller {
         settings = new Settings();
 
         // Add onAction event handlers
+        // update
         refreshButton.setOnAction(event -> {
             availableMonsters.getItems().remove(0, availableMonsters.getItems().size());
             final Player player = Players.getLocal();

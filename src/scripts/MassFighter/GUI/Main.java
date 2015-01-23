@@ -20,11 +20,11 @@ public class Main extends Stage {
     }
 
     public void start(Stage stage) throws Exception {
-        InputStream in = MassFighter.class.getResourceAsStream("/scripts/MassFighter/GUI/FighterGUI.fxml");
-        if (in != null) {
+        InputStream input = MassFighter.class.getResourceAsStream("/scripts/MassFighter/GUI/FighterGUI.fxml");
+        if (input != null) {
             FXMLLoader loader = new FXMLLoader();
             loader.setController(new Controller());
-            Parent root = loader.load(in);
+            Parent root = loader.load(input);
             Scene scene = new Scene(root);
             stage.setTitle("MassFighter");
             stage.setScene(scene);
