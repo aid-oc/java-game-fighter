@@ -81,6 +81,12 @@ public class Controller {
     private TextField prayValue;
     @FXML
     private CheckBox exitPrayer;
+    @FXML
+    private CheckBox tagMode;
+    @FXML
+    private Slider tagSlider;
+    @FXML
+    private TextField foodAmount;
 
     public Settings settings;
 
@@ -118,6 +124,18 @@ public class Controller {
                 });
             }
         });
+        tagMode.setOnAction(event -> {
+            if (tagMode.isSelected()) {
+                tagSlider.setDisable(false);
+            } else {
+                tagSlider.setDisable(true);
+            }
+        });
+
+        // Disable fields with requirements
+        tagSlider.setDisable(true);
+
+
         addLoot.setOnAction(this::lootChange);
         removeLoot.setOnAction(this::lootChange);
         addCharms.setOnAction(this::lootChange);
@@ -129,6 +147,7 @@ public class Controller {
         profileSelector.getItems().addAll(CombatProfile.getProfiles());
         profileSelector.getSelectionModel().select(0);
         foodSelection.getItems().addAll(Food.values());
+        foodAmount.setText("0");
         tileRange.setText("20");
         eatValue.setText(Integer.toString(Health.getMaximum()/2));
         criticalHitpoints.setText("1000");
@@ -171,7 +190,7 @@ public class Controller {
 
     // Start button pressed, start the script
     public void start(ActionEvent actionEvent) {
-        if (Pattern.matches("\\d+", prayValue.getText()) &&  Pattern.matches("\\d+", eatValue.getText()) && Pattern.matches("\\d+", tileRange.getText()) && Pattern.matches("\\d+", criticalHitpoints.getText())) {
+        if (Pattern.matches("\\d+", prayValue.getText()) && Pattern.matches("\\d+", foodAmount.getText()) &&  Pattern.matches("\\d+", eatValue.getText()) && Pattern.matches("\\d+", tileRange.getText()) && Pattern.matches("\\d+", criticalHitpoints.getText())) {
             if (!profileSelector.getSelectionModel().isEmpty()) {
                 if (profileSelector.getSelectionModel().getSelectedItem() instanceof Powerfighting && !selectedMonsters.getItems().isEmpty()) {
                     Powerfighting profile = new Powerfighting();
@@ -195,11 +214,16 @@ public class Controller {
                         settings.useFood = true;
                         settings.food = foodSelection.getSelectionModel().getSelectedItem();
                         settings.eatValue = Integer.valueOf(eatValue.getText());
+                        settings.foodAmount = Integer.valueOf(foodAmount.getText());
                     } else {
                         settings.useFood = false;
                     }
                     if (quickPray.isSelected() || soulsplit.isSelected()) {
                         settings.prayValue = Integer.valueOf(prayValue.getText());
+                    }
+                    if (tagMode.isSelected()) {
+                        settings.tagMode = true;
+                        settings.tagSelection = (int) tagSlider.getValue();
                     }
                     settings.waitForLoot = waitLoot.isSelected();
                     settings.targetSelection = (int) targetSlider.getValue();

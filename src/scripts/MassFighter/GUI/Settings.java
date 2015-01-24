@@ -15,6 +15,9 @@ public class Settings {
     public Boolean buryBones = false;
     public Boolean quickPray = false;
     public Boolean exitOnPrayerOut = false;
+    public Boolean tagMode = false;
+    public int tagSelection = 0;
+    public int foodAmount = 0;
     public Food food = null;
     public int fightRadius = 20;
     public int eatValue = 0;

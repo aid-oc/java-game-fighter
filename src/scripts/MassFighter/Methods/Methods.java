@@ -33,7 +33,6 @@ public class Methods  {
     }
 
 
-
     public Boolean inFightAreas(Actor actor) {
         for (Area a : areas) {
             if (a.contains(actor)) {
@@ -83,7 +82,7 @@ public class Methods  {
     }
 
 
-    public GroundItemQueryBuilder validLoot = GroundItems.newQuery().within(areaArray).filter(new Filter<GroundItem>() {
+    public GroundItemQueryBuilder validLoot = GroundItems.newQuery().within(combatProfile.getFightAreas().toArray(new Area[combatProfile.getFightAreas().size()])).filter(new Filter<GroundItem>() {
         @Override
         public boolean accepts(GroundItem groundItem) {
             String itemName = groundItem.getDefinition().getName().toLowerCase();
@@ -96,5 +95,5 @@ public class Methods  {
             }
             return settings.buryBones && (itemName.toLowerCase().contains("bones") || itemName.toLowerCase().contains("ashes"));
         }
-    });
+    }).reachable();
 }

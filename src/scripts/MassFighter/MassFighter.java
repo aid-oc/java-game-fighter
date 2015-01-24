@@ -34,6 +34,7 @@ public class MassFighter extends TaskScript implements PaintListener {
     public static Settings settings;
     public static Npc targetNpc;
     public static String status;
+    public static int currentTargetCount;
     public static CombatProfile combatProfile;
     public static Boolean requestedShutdown;
     public static Boolean setupRunning;
@@ -57,7 +58,7 @@ public class MassFighter extends TaskScript implements PaintListener {
                     ActionBar.toggleAutoRetaliation();
                 }
             }
-            startExp = Skill.STRENGTH.getExperience() + Skill.ATTACK.getExperience() + Skill.DEFENCE.getExperience()
+            startExp = Skill.STRENGTH.getExperience() + Skill.RANGED.getExperience() + Skill.MAGIC.getExperience() + Skill.ATTACK.getExperience() + Skill.DEFENCE.getExperience()
                     + Skill.CONSTITUTION.getExperience() + Skill.PRAYER.getExperience();
             runningTime.start();
 
@@ -107,7 +108,7 @@ public class MassFighter extends TaskScript implements PaintListener {
     @Override
     public void onPaint(Graphics2D g2d) {
         graphics = g2d;
-        int expGained = Skill.STRENGTH.getExperience() + Skill.ATTACK.getExperience() + Skill.DEFENCE.getExperience()
+        int expGained = Skill.STRENGTH.getExperience() + Skill.RANGED.getExperience() + Skill.MAGIC.getExperience() + Skill.ATTACK.getExperience() + Skill.DEFENCE.getExperience()
                 + Skill.CONSTITUTION.getExperience() + Skill.PRAYER.getExperience() - startExp;
         g2d.setColor(new Color(145, 138, 138, 178));
         g2d.fillRect(17, 143, 155, 130);
@@ -124,6 +125,11 @@ public class MassFighter extends TaskScript implements PaintListener {
                 g2d.setColor(Color.red);
                 targetNpc.getModel().getBoundingModel().render(g2d);
             }
+        }
+        if (settings != null && settings.tagMode) {
+            g2d.setColor(Color.RED);
+            g2d.setFont(new Font("Arial", Font.BOLD, 15));
+            g2d.drawString("(Debug) Tag Mode: Active // Current Targets = " + currentTargetCount + " // Ideal Targets = " + settings.tagSelection , 24, 270);
         }
     }
 }

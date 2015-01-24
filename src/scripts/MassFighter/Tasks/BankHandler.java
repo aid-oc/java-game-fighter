@@ -1,7 +1,5 @@
 package scripts.MassFighter.Tasks;
 
-import com.runemate.game.api.hybrid.Environment;
-import com.runemate.game.api.hybrid.RuneScape;
 import com.runemate.game.api.hybrid.entities.LocatableEntity;
 import com.runemate.game.api.hybrid.local.Camera;
 import com.runemate.game.api.hybrid.local.hud.Menu;
@@ -12,6 +10,7 @@ import com.runemate.game.api.hybrid.location.navigation.basic.BresenhamPath;
 import com.runemate.game.api.hybrid.location.navigation.web.WebPath;
 import com.runemate.game.api.hybrid.region.Banks;
 import com.runemate.game.api.hybrid.region.Players;
+import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.task.Task;
 import scripts.MassFighter.Framework.BankingProfile;
 import scripts.MassFighter.MassFighter;
@@ -29,7 +28,7 @@ public class BankHandler extends Task {
     public void execute() {
         MassFighter.status = "Banking";
         final BankingProfile profile = (BankingProfile)MassFighter.combatProfile;
-        if (!profile.getBankArea().contains(Players.getLocal()) && Inventory.isFull() || !MassFighter.methods.readyToFight()) {
+        if (!profile.getBankArea().contains(Players.getLocal()) && (Inventory.isFull() || !MassFighter.methods.readyToFight())) {
             if (profile.getBankPath() == null) {
                 WebPath toBank = Traversal.getDefaultWeb().getPathBuilder().buildTo(profile.getBankArea());
                 if (toBank != null) {
@@ -52,23 +51,12 @@ public class BankHandler extends Task {
             if (bank != null) {
                 if (bank.isVisible()) {
                     if (Bank.open()) {
-                        if (MassFighter.combatProfile.getLootNames().length > 0) {
-                            if (Inventory.containsAnyOf(MassFighter.combatProfile.getLootNames())) {
-                                for (String i : MassFighter.combatProfile.getLootNames()) {
-                                    if (Inventory.contains(i)) {
-                                        Bank.deposit(i, Inventory.getQuantity(i));
-                                    }
-                                }
-                            }
+                        if (Bank.depositInventory()) {
+                            Execution.delayUntil(() -> !Inventory.isFull(), 800,1000);
                         }
-                        if (settings.useFood && !Inventory.containsAnyOf(settings.food.getName())) {
-                            if (Bank.withdraw(settings.food.getName(), 28)) {
+                        if (settings.useFood && Inventory.getQuantity(settings.food.getName()) < settings.foodAmount) {
+                            if (Bank.withdraw(settings.food.getName(), settings.foodAmount)) {
                                 System.out.println("Withdrew Food");
-                            } else {
-                                if (RuneScape.logout()) {
-                                    MassFighter.status = "Paused: Supplies";
-                                    Environment.getScript().pause();
-                                }
                             }
                         }
                         Bank.close();
