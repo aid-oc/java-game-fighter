@@ -75,7 +75,7 @@ public class CombatHandler extends Task {
             if (settings.tagMode) {
                 int currentTargetCount = Npcs.newQuery().targeting(Players.getLocal()).results().size();
                 MassFighter.currentTargetCount =  currentTargetCount;
-                LocatableEntityQueryResults<Npc> tagTargets = Npcs.newQuery().within(fightAreas).filter(new Filter<Npc>() {
+                LocatableEntityQueryResults<Npc> tagTargets = Npcs.newQuery().within(fightAreas).names(combatProfile.getNpcNames()).filter(new Filter<Npc>() {
                     @Override
                     public boolean accepts(Npc npc) {
                         return npc.getTarget() == null && npc.isValid();
