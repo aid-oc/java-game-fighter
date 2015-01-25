@@ -3,8 +3,9 @@ package scripts.MassFighter;
 import com.runemate.game.api.client.paint.PaintListener;
 import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.RuneScape;
-import com.runemate.game.api.hybrid.entities.Npc;
+import com.runemate.game.api.hybrid.entities.LocatableEntity;
 import com.runemate.game.api.hybrid.local.Skill;
+import com.runemate.game.api.hybrid.location.Coordinate;
 import com.runemate.game.api.hybrid.util.StopWatch;
 import com.runemate.game.api.hybrid.util.calculations.CommonMath;
 import com.runemate.game.api.rs3.local.hud.interfaces.eoc.ActionBar;
@@ -32,7 +33,7 @@ public class MassFighter extends TaskScript implements PaintListener {
 
     public static Methods methods;
     public static Settings settings;
-    public static Npc targetNpc;
+    public static LocatableEntity targetEntity;
     public static String status;
     public static int currentTargetCount;
     public static CombatProfile combatProfile;
@@ -99,7 +100,7 @@ public class MassFighter extends TaskScript implements PaintListener {
     private void reset() {
         requestedShutdown = false;
         setupRunning = true;
-        targetNpc = null;
+        targetEntity = null;
         combatProfile = null;
         status = "Setting up";
     }
@@ -111,25 +112,26 @@ public class MassFighter extends TaskScript implements PaintListener {
         int expGained = Skill.STRENGTH.getExperience() + Skill.RANGED.getExperience() + Skill.MAGIC.getExperience() + Skill.ATTACK.getExperience() + Skill.DEFENCE.getExperience()
                 + Skill.CONSTITUTION.getExperience() + Skill.PRAYER.getExperience() - startExp;
         g2d.setColor(new Color(145, 138, 138, 178));
-        g2d.fillRect(17, 143, 155, 130);
+        g2d.fillRect(17, 143, 155, 150);
         g2d.setFont(new Font("Arial", 0, 11));
         g2d.setColor(new Color(0, 0, 0, 178));
         g2d.drawString("Exp Gain: " + expGained + " (" + numberFormat.format((int) CommonMath.rate(TimeUnit.HOURS, runningTime.getRuntime(), expGained)) + " p/h)", 24, 244);
         g2d.drawString("Status: " + status, 24, 226);
         g2d.drawString("Runtime: " + runningTime.getRuntimeAsString(), 24, 208);
         if (combatProfile != null) g2d.drawString("Profile: " + combatProfile.toString(), 24, 190);
+        if (settings != null && settings.tagMode) {
+            g2d.drawString("Current Targets: " + currentTargetCount , 24, 262);
+            g2d.drawString("Ideal Targets: " +  settings.tagSelection, 24, 280);
+        }
         g2d.setFont(new Font("Arial", Font.BOLD, 15));
         g2d.drawString("MassFighter", 43, 165);
-        if (targetNpc != null && targetNpc.getModel() != null) {
-            if (targetNpc.getModel().getBoundingModel() != null) {
+        if (targetEntity != null) {
+            Coordinate targetPosition = targetEntity.getPosition();
+            if (targetPosition != null) {
                 g2d.setColor(Color.red);
-                targetNpc.getModel().getBoundingModel().render(g2d);
+                targetEntity.getPosition().render(g2d);
             }
         }
-        if (settings != null && settings.tagMode) {
-            g2d.setColor(Color.RED);
-            g2d.setFont(new Font("Arial", Font.BOLD, 15));
-            g2d.drawString("(Debug) Tag Mode: Active // Current Targets = " + currentTargetCount + " // Ideal Targets = " + settings.tagSelection , 24, 270);
-        }
+
     }
 }

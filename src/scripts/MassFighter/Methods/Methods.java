@@ -82,7 +82,7 @@ public class Methods  {
     }
 
 
-    public GroundItemQueryBuilder validLoot = GroundItems.newQuery().within(combatProfile.getFightAreas().toArray(new Area[combatProfile.getFightAreas().size()])).filter(new Filter<GroundItem>() {
+    public GroundItemQueryBuilder validLoot = GroundItems.newQuery().within(fightAreasAsArray()).filter(new Filter<GroundItem>() {
         @Override
         public boolean accepts(GroundItem groundItem) {
             String itemName = groundItem.getDefinition().getName().toLowerCase();

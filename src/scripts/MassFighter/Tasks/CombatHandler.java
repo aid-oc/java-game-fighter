@@ -11,6 +11,7 @@ import com.runemate.game.api.hybrid.location.navigation.basic.BresenhamPath;
 import com.runemate.game.api.hybrid.location.navigation.web.WebPath;
 import com.runemate.game.api.hybrid.queries.NpcQueryBuilder;
 import com.runemate.game.api.hybrid.queries.SpriteItemQueryBuilder;
+import com.runemate.game.api.hybrid.queries.results.LocatableEntityQueryResults;
 import com.runemate.game.api.hybrid.queries.results.SpriteItemQueryResults;
 import com.runemate.game.api.hybrid.region.Npcs;
 import com.runemate.game.api.hybrid.region.Players;
@@ -52,9 +53,11 @@ public class CombatHandler extends Task {
                 && !MassFighter.methods.validLoot.results().isEmpty() && !Inventory.isFull()) {
                 GroundItem targetLoot = MassFighter.methods.validLoot.results().nearest();
             if (targetLoot != null) {
-                MassFighter.status = "Picking up " + targetLoot.getDefinition().getName();
+                String targetLootName = targetLoot.getDefinition().getName();
+                MassFighter.status = "Picking up " + targetLootName;
+                MassFighter.targetEntity = targetLoot;
                 if (targetLoot.isVisible()) {
-                    if (targetLoot.interact("Take", targetLoot.getDefinition().getName())) {
+                    if (targetLoot.interact("Take", targetLootName)) {
                         Execution.delayUntil(() -> !targetLoot.isValid(), 2500, 3000);
                     } else if (Menu.isOpen()) {
                         Menu.close();
@@ -72,17 +75,18 @@ public class CombatHandler extends Task {
             if (settings.tagMode) {
                 int currentTargetCount = Npcs.newQuery().targeting(Players.getLocal()).results().size();
                 MassFighter.currentTargetCount =  currentTargetCount;
-                NpcQueryBuilder tagTargets = Npcs.newQuery().within(fightAreas).filter(new Filter<Npc>() {
+                LocatableEntityQueryResults<Npc> tagTargets = Npcs.newQuery().within(fightAreas).filter(new Filter<Npc>() {
                     @Override
                     public boolean accepts(Npc npc) {
                         return npc.getTarget() == null && npc.isValid();
                     }
-                });
-                if (currentTargetCount < settings.tagSelection && !validTargetQuery.results().isEmpty()) {
-                    Npc target = tagTargets.results().sortByDistance().limit(3).first();
+                }).reachable().results();
+
+                if (currentTargetCount < settings.tagSelection && !tagTargets.isEmpty()) {
+                    Npc target = tagTargets.sortByDistance().limit(2).random();
                     if (target != null) {
-                        if (attackTarget(tagTargets.results().sortByDistance().limit(3).first())) {
-                            System.out.println("Tango Tagged");
+                        if (attackTarget(target)) {
+                            System.out.println("Tagged an NPC");
                         }
                     }
                 }
@@ -172,7 +176,7 @@ public class CombatHandler extends Task {
 
     private boolean attackTarget(final Npc targetNpc) {
         MassFighter.status = "Locating target";
-        MassFighter.targetNpc = targetNpc;
+        MassFighter.targetEntity = targetNpc;
         if (targetNpc.getVisibility() == 100) {
             System.out.println("Combat: Target is visible");
             if (targetNpc.interact("Attack", targetNpc.getName())) {
