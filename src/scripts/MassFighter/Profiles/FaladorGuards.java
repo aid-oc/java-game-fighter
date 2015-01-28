@@ -41,7 +41,7 @@ public class FaladorGuards extends CombatProfile implements BankingProfile {
     @Override
     public List<Area> getFightAreas() {
         List<Area> areas = new ArrayList<>();
-        areas.add( new Area.Polygonal(new Coordinate(2971, 3388, 0), new Coordinate(2971, 3400, 0), new Coordinate(2965, 3404, 0), new Coordinate(2959, 3397, 0), new Coordinate(2961, 3383, 0)));
+        areas.add( new Area.Polygonal(new Coordinate(2971, 3386, 0), new Coordinate(2961, 3387, 0), new Coordinate(2960, 3399, 0), new Coordinate(2969, 3402, 0)));
         return areas;
     }
 
