@@ -2,7 +2,6 @@ package scripts.MassFighter;
 
 import com.runemate.game.api.client.paint.PaintListener;
 import com.runemate.game.api.hybrid.Environment;
-import com.runemate.game.api.hybrid.RuneScape;
 import com.runemate.game.api.hybrid.entities.LocatableEntity;
 import com.runemate.game.api.hybrid.local.Skill;
 import com.runemate.game.api.hybrid.location.Coordinate;
@@ -13,18 +12,12 @@ import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.core.LoopingThread;
 import com.runemate.game.api.script.framework.task.TaskScript;
 import javafx.application.Platform;
-import scripts.MassFighter.Framework.BankingProfile;
-import scripts.MassFighter.Framework.CombatProfile;
+import scripts.MassFighter.Framework.UserProfile;
 import scripts.MassFighter.GUI.Main;
 import scripts.MassFighter.GUI.Settings;
 import scripts.MassFighter.Methods.Methods;
-import scripts.MassFighter.ProfileTasks.HillGiantsRoute;
-import scripts.MassFighter.ProfileTasks.LumbridgeCowsRoute;
-import scripts.MassFighter.Profiles.HillGiants;
-import scripts.MassFighter.Profiles.LumbridgeCows;
 import scripts.MassFighter.Tasks.*;
 
-import javax.swing.*;
 import java.awt.*;
 import java.text.NumberFormat;
 import java.util.concurrent.TimeUnit;
@@ -36,7 +29,7 @@ public class MassFighter extends TaskScript implements PaintListener {
     public static LocatableEntity targetEntity;
     public static String status;
     public static int currentTargetCount;
-    public static CombatProfile combatProfile;
+    public static UserProfile userProfile;
     public static Boolean requestedShutdown;
     public static Boolean setupRunning;
     public static Graphics2D graphics;
@@ -46,46 +39,37 @@ public class MassFighter extends TaskScript implements PaintListener {
     private int startExp;
 
     public void onStart(String... args) {
+        reset();
+        // Loop & GUI Setup
+        setLoopDelay(400, 600);
+        getEventDispatcher().addListener(this);
+        showAndWaitGUI();
+        settings = userProfile.settings;
+        methods = new Methods();
+        if (Environment.isRS3()) {
+            if (!ActionBar.isAutoRetaliating()) {
+                ActionBar.toggleAutoRetaliation();
+            }
+        }
+        startExp = Skill.STRENGTH.getExperience() + Skill.RANGED.getExperience() + Skill.MAGIC.getExperience() + Skill.ATTACK.getExperience() + Skill.DEFENCE.getExperience()
+                + Skill.CONSTITUTION.getExperience() + Skill.PRAYER.getExperience();
+        runningTime.start();
 
-        if (RuneScape.isLoggedIn()) {
-            reset();
-            // Loop & GUI Setup
-            setLoopDelay(400, 600);
-            getEventDispatcher().addListener(this);
-            showAndWaitGUI();
-            methods = new Methods();
-            if (Environment.isRS3()) {
-                if (!ActionBar.isAutoRetaliating()) {
-                    ActionBar.toggleAutoRetaliation();
-                }
+        if (userProfile.getBankArea() != null) {
+            add(new BankHandler());
+        }
+        if (settings.quickPray || (settings.useSoulsplit && Environment.isRS3())) {
+            add(new PrayerHandler());
+        }
+        if (settings.useFood) {
+            add(new FoodHandler());
+        }
+        add(new CombatHandler());
+        if (settings.useAbilities && Environment.isRS3()) {
+            if (!ActionBar.isExpanded()) {
+                ActionBar.toggleExpansion();
             }
-            startExp = Skill.STRENGTH.getExperience() + Skill.RANGED.getExperience() + Skill.MAGIC.getExperience() + Skill.ATTACK.getExperience() + Skill.DEFENCE.getExperience()
-                    + Skill.CONSTITUTION.getExperience() + Skill.PRAYER.getExperience();
-            runningTime.start();
-
-            if (combatProfile instanceof LumbridgeCows) {
-                add(new LumbridgeCowsRoute());
-            } else if (combatProfile instanceof HillGiants) {
-                add(new HillGiantsRoute());
-            } else if (combatProfile instanceof BankingProfile) {
-                add(new BankHandler());
-            }
-            if (settings.quickPray || (settings.useSoulsplit && Environment.isRS3())) {
-                add(new PrayerHandler());
-            }
-            if (settings.useFood) {
-                add(new FoodHandler());
-            }
-            add(new CombatHandler());
-            if (settings.useAbilities && Environment.isRS3()) {
-                if (!ActionBar.isExpanded()) {
-                    ActionBar.toggleExpansion();
-                }
-                new LoopingThread(new AbilityHandler(), 1000, 1200).start();
-            }
-        } else {
-            JOptionPane.showMessageDialog(null, "Please start the script logged in", "MassFighter", JOptionPane.WARNING_MESSAGE);
-            this.stop();
+            new LoopingThread(new AbilityHandler(), 1000, 1200).start();
         }
     }
 
@@ -98,10 +82,12 @@ public class MassFighter extends TaskScript implements PaintListener {
     }
 
     private void reset() {
+        methods = null;
+        settings = null;
         requestedShutdown = false;
         setupRunning = true;
         targetEntity = null;
-        combatProfile = null;
+        userProfile = null;
         status = "Setting up";
     }
 
@@ -118,7 +104,7 @@ public class MassFighter extends TaskScript implements PaintListener {
         g2d.drawString("Exp Gain: " + expGained + " (" + numberFormat.format((int) CommonMath.rate(TimeUnit.HOURS, runningTime.getRuntime(), expGained)) + " p/h)", 24, 244);
         g2d.drawString("Status: " + status, 24, 226);
         g2d.drawString("Runtime: " + runningTime.getRuntimeAsString(), 24, 208);
-        if (combatProfile != null) g2d.drawString("Profile: " + combatProfile.toString(), 24, 190);
+        if (userProfile != null) g2d.drawString("Profile: " + userProfile.getProfileName(), 24, 190);
         if (settings != null && settings.tagMode) {
             g2d.drawString("Current Targets: " + currentTargetCount , 24, 262);
             g2d.drawString("Ideal Targets: " +  settings.tagSelection, 24, 280);
@@ -132,6 +118,5 @@ public class MassFighter extends TaskScript implements PaintListener {
                 targetEntity.getPosition().render(g2d);
             }
         }
-
     }
 }

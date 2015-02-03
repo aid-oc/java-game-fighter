@@ -16,6 +16,9 @@ public class Settings {
     public Boolean quickPray = false;
     public Boolean exitOnPrayerOut = false;
     public Boolean tagMode = false;
+    public Boolean revolutionMode = false;
+    public Boolean lootByValue = false;
+    public double lootValue;
     public int tagSelection = 0;
     public int foodAmount = 0;
     public Food food = null;

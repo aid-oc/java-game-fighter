@@ -25,22 +25,19 @@ public class PrayerHandler extends Task {
         }
     });
     public boolean validate() {
-        System.out.println("Trying to activate the prayer handler");
-        return settings.useSoulsplit || settings.quickPray &&
-                // We need to get more prayer points and we have pots/flasks remaining
-                ((Powers.Prayer.getPoints() < settings.prayValue && !validPrayerItems.results().isEmpty())
-                // We need to enable soul split
-                || (settings.useSoulsplit && !Powers.Prayer.Curse.SOUL_SPLIT.isActivated() && Powers.Prayer.getPoints() >= settings.prayValue)
-                // We need to enable quick prayers
-                || (settings.quickPray && !Powers.Prayer.isQuickPraying() && Powers.Prayer.getPoints() >= settings.prayValue));
+        return  (Powers.Prayer.getPoints() < settings.prayValue) ||
+                (settings.useSoulsplit && !Powers.Prayer.Curse.SOUL_SPLIT.isActivated() && Powers.Prayer.getPoints() >= settings.prayValue)
+                || (settings.quickPray && !Powers.Prayer.isQuickPraying() && Powers.Prayer.getPoints() >= settings.prayValue);
     }
 
     @Override
     public void execute() {
 
-        System.out.println("In the prayer handler");
+        System.out.println("Need to top up prayer?: " + (Powers.Prayer.getPoints() < settings.prayValue && !validPrayerItems.results().isEmpty()));
+        System.out.println("Need to turn on SS?: " + ((settings.useSoulsplit && !Powers.Prayer.Curse.SOUL_SPLIT.isActivated() && Powers.Prayer.getPoints() >= settings.prayValue)));
+        System.out.println("Need to turn on quickprayer?: " + (settings.quickPray && !Powers.Prayer.isQuickPraying() && Powers.Prayer.getPoints() >= settings.prayValue));
 
-        // turn on quick prayer if it is not on
+
         if (settings.quickPray && !Powers.Prayer.isQuickPraying() && Powers.Prayer.getPoints() >= settings.prayValue) {
             MassFighter.status = "QuickPrayers: ON";
             if (Powers.Prayer.toggleQuickPrayers()) {

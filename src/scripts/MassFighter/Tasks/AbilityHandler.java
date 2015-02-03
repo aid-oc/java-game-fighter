@@ -6,6 +6,7 @@ import com.runemate.game.api.rs3.local.hud.interfaces.eoc.SlotAction;
 import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.task.Task;
 import scripts.MassFighter.Data.Ability;
+import scripts.MassFighter.MassFighter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,11 +35,13 @@ public class AbilityHandler extends Task implements Runnable {
     public void execute() {
         if (!abilities.isEmpty()) {
             for (SlotAction ability : abilities) {
-                if (ability != null && ability.getName() != null && ability.isActivatable() && ability.isReady()) {
-                    if (ability.activate()) {
-                        System.out.println("Activated: " + ability.getName());
-                        Execution.delayUntil(() -> !ability.isReady(), 1000, 1600);
-                        break;
+                if (ability != null) {
+                    if (ability.getName() != null && ability.isActivatable() && ability.isReady()) {
+                        if (ability.activate()) {
+                            System.out.println("Used Ability: " + ability.getName());
+                            Execution.delayUntil(() -> !ability.isReady(), 1000, 1600);
+                            break;
+                        }
                     }
                 }
             }
@@ -64,7 +67,9 @@ public class AbilityHandler extends Task implements Runnable {
                                 thresholds.add(barAbility);
                                 break;
                             case "Basic":
-                                basics.add(barAbility);
+                                if (!MassFighter.settings.revolutionMode) {
+                                    basics.add(barAbility);
+                                }
                                 break;
                             case "Special":
                                 specials.add(barAbility);
