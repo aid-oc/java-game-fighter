@@ -126,6 +126,11 @@ public class Controller implements MouseListener, PaintListener {
     private TextField lootValue;
     @FXML
     private CheckBox lootByValue;
+    @FXML
+    private Button btnAddToAlch;
+    @FXML
+    private ListView<String> selectedAlchLoot;
+
 
     public UserProfile userProfile;
     public Graphics2D areaRender;
@@ -256,6 +261,15 @@ public class Controller implements MouseListener, PaintListener {
                 lootValue.setDisable(false);
             } else {
                 lootValue.setDisable(true);
+            }
+        });
+
+        btnAddToAlch.setOnAction(event -> {
+            String selectedItem = selectedLoot.getSelectionModel().getSelectedItem();
+            if (selectedItem != null) {
+                if (!selectedAlchLoot.getItems().contains(selectedItem)) {
+                    selectedAlchLoot.getItems().add(selectedItem);
+                }
             }
         });
 
@@ -396,6 +410,12 @@ public class Controller implements MouseListener, PaintListener {
                             }
                             settings.looting = true;
                         }
+                        if (!selectedAlchLoot.getItems().isEmpty()) {
+                            List<String> alchLoot = new ArrayList<>();
+                            alchLoot.addAll(selectedAlchLoot.getItems().stream().map(String::toLowerCase).collect(Collectors.toList()));
+                            profile.setAlchLoot(alchLoot.toArray(new String[alchLoot.size()]));
+                        }
+
                         profile.settings = settings;
 
                         profile.setFightAreaCoords(fightAreaCoords);

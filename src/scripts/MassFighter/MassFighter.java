@@ -64,6 +64,9 @@ public class MassFighter extends TaskScript implements PaintListener {
         if (settings.useFood) {
             add(new FoodHandler());
         }
+        if (userProfile.alchLoot != null && userProfile.alchLoot.length > 0) {
+            add(new AlchemyHandler());
+        }
         add(new CombatHandler());
         if (settings.useAbilities && Environment.isRS3()) {
             if (!ActionBar.isExpanded()) {
@@ -98,7 +101,7 @@ public class MassFighter extends TaskScript implements PaintListener {
         int expGained = Skill.STRENGTH.getExperience() + Skill.RANGED.getExperience() + Skill.MAGIC.getExperience() + Skill.ATTACK.getExperience() + Skill.DEFENCE.getExperience()
                 + Skill.CONSTITUTION.getExperience() + Skill.PRAYER.getExperience() - startExp;
         g2d.setColor(new Color(145, 138, 138, 178));
-        g2d.fillRect(17, 143, 155, 150);
+        g2d.fillRect(17, 143, 175, 150);
         g2d.setFont(new Font("Arial", 0, 11));
         g2d.setColor(new Color(0, 0, 0, 178));
         g2d.drawString("Exp Gain: " + expGained + " (" + numberFormat.format((int) CommonMath.rate(TimeUnit.HOURS, runningTime.getRuntime(), expGained)) + " p/h)", 24, 244);

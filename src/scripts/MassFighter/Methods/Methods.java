@@ -27,7 +27,7 @@ public class Methods  {
     private HashMap<String, Integer> itemPrices = new HashMap<>();
 
     public Boolean isInCombat() {
-        return Players.getLocal().getTarget() != null || !Npcs.newQuery().within(userProfile.getFightArea()).actions("Attack").reachable().targeting(Players.getLocal()).results().isEmpty();
+        return !Npcs.newQuery().within(userProfile.getFightArea()).actions("Attack").reachable().targeting(Players.getLocal()).results().isEmpty();
     }
 
     public void logout() {

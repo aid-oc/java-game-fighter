@@ -153,17 +153,18 @@ public class CombatHandler extends Task {
                         return false;
                     }, 1500,2000);
                 } else {
-                    Execution.delayUntil(MassFighter.methods::isInCombat, 800, 1000);
+                    Execution.delayUntil(MassFighter.methods::isInCombat, 1000, 1300);
                 }
                 return true;
             }
-        } else if (Distance.to(targetNpc) > Random.nextInt(2, 4)) {
-            BresenhamPath path = BresenhamPath.buildTo(targetNpc);
-            if (path != null) {
-                path.step(true);
+        } else if (Camera.turnTo(targetNpc)) {
+            Execution.delayUntil(targetNpc::isVisible, 1500, 2000);
+            if (!targetNpc.isVisible()) {
+                BresenhamPath toNpc = BresenhamPath.buildTo(targetNpc);
+                if (toNpc != null) {
+                    toNpc.step(true);
+                }
             }
-        } else {
-            Camera.turnTo(targetNpc);
         }
         return false;
     }

@@ -13,13 +13,20 @@ import java.util.List;
 @XmlAccessorType(XmlAccessType.PROPERTY)
 public class UserProfile {
 
-
-
     public String profileName;
     public String[] npcNames;
     public String[] lootNames;
+    public String[] alchLoot;
     public List<XMLCoordinate> fightAreaCoords = new ArrayList<>();
     public List<XMLCoordinate> bankAreaCoords = new ArrayList<>();
+
+    public void setAlchLoot(String[] loot) {
+        alchLoot = loot;
+    }
+
+    public String[] getAlchLoot() {
+        return alchLoot;
+    }
 
     public Area getBankArea() {
         if (bankAreaCoords.isEmpty()) return null;
