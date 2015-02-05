@@ -64,6 +64,7 @@ public class Methods  {
                 int itemValue = 0;
                 if (itemPrices.containsKey(itemName)) {
                     itemValue = itemPrices.get(itemName);
+                    System.out.println("Stored Value Found: (" + itemName + ")" + " : " + itemValue);
                 } else {
                     if (Environment.isRS3()) {
                         GrandExchange.Item item = GrandExchange.lookup(groundItem.getId());
@@ -74,9 +75,9 @@ public class Methods  {
                         itemValue = Zybez.getAveragePrice(itemName);
                     }
                     itemPrices.put(itemName, itemValue);
+                    System.out.println("Looked up value for: (" + itemName + ")" + " : " + itemValue);
                 }
                 if (itemValue >= settings.lootValue) {
-                    System.out.println("Looting: " + itemName + "-" + itemName);
                     return true;
                 }
             }

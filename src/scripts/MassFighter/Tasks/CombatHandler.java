@@ -157,14 +157,14 @@ public class CombatHandler extends Task {
                 }
                 return true;
             }
-        } else if (Camera.turnTo(targetNpc)) {
-            Execution.delayUntil(targetNpc::isVisible, 1500, 2000);
-            if (!targetNpc.isVisible()) {
-                BresenhamPath toNpc = BresenhamPath.buildTo(targetNpc);
-                if (toNpc != null) {
-                    toNpc.step(true);
-                }
+        } else if (Distance.to(targetNpc) > Random.nextInt(5, 7)) {
+            BresenhamPath toNpc = BresenhamPath.buildTo(targetNpc);
+            if (toNpc != null) {
+                toNpc.step(true);
             }
+        } else {
+            Camera.turnTo(targetNpc);
+            Execution.delayUntil(targetNpc::isVisible, 1200, 1500);
         }
         return false;
     }
