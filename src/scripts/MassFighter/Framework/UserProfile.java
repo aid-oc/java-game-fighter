@@ -5,12 +5,10 @@ import com.runemate.game.api.hybrid.location.Coordinate;
 import com.runemate.game.api.hybrid.region.Players;
 import scripts.MassFighter.GUI.Settings;
 
-import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.PROPERTY)
+
 public class UserProfile {
 
     public String profileName;
@@ -50,14 +48,12 @@ public class UserProfile {
         return new Area.Circular(Players.getLocal().getPosition(), settings.fightRadius);
     }
 
-    @XmlElement
     public Settings settings;
 
     public void setProfileName(String name) {
         profileName = name;
     }
 
-    @XmlElement
     public String getProfileName() {
         return profileName;
     }
@@ -66,7 +62,6 @@ public class UserProfile {
         npcNames = names;
     }
 
-    @XmlElement
     public String[] getNpcNames() {
         return npcNames;
     }
@@ -75,7 +70,6 @@ public class UserProfile {
         lootNames = names;
     }
 
-    @XmlElement
     public String[] getLootNames() {
         return lootNames;
     }
@@ -87,8 +81,6 @@ public class UserProfile {
         }
     }
 
-    @XmlElementWrapper
-    @XmlElement
     public List<XMLCoordinate> getFightAreaCoords() {
         return fightAreaCoords;
     }
@@ -100,8 +92,6 @@ public class UserProfile {
         }
     }
 
-    @XmlElementWrapper
-    @XmlElement
     public List<XMLCoordinate> getBankAreaCoords() {
         return bankAreaCoords;
     }

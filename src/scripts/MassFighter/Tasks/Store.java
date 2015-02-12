@@ -3,7 +3,6 @@ package scripts.MassFighter.Tasks;
 import com.runemate.game.api.hybrid.entities.LocatableEntity;
 import com.runemate.game.api.hybrid.local.Camera;
 import com.runemate.game.api.hybrid.local.hud.Menu;
-import com.runemate.game.api.hybrid.local.hud.interfaces.Bank;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
 import com.runemate.game.api.hybrid.location.Area;
 import com.runemate.game.api.hybrid.location.navigation.Traversal;
@@ -18,7 +17,7 @@ import scripts.MassFighter.MassFighter;
 
 import static scripts.MassFighter.MassFighter.settings;
 
-public class BankHandler extends Task {
+public class Store extends Task {
 
     @Override
     public boolean validate() {
@@ -50,14 +49,14 @@ public class BankHandler extends Task {
             LocatableEntity bank = Banks.getLoaded().nearest();
             if (bank != null) {
                 if (bank.isVisible()) {
-                    if (Bank.open()) {
-                        if (Bank.depositInventory()) {
+                    if (com.runemate.game.api.hybrid.local.hud.interfaces.Bank.open()) {
+                        if (com.runemate.game.api.hybrid.local.hud.interfaces.Bank.depositInventory()) {
                             Execution.delayUntil(() -> !Inventory.isFull(), 800,1000);
                         }
-                        if (settings.useFood && Inventory.getQuantity(settings.food.getName()) < settings.foodAmount) {
-                            Bank.withdraw(settings.food.getName(), settings.foodAmount);
+                        if (settings.useFood && Inventory.getQuantity(settings.foodName) < settings.foodAmount) {
+                            com.runemate.game.api.hybrid.local.hud.interfaces.Bank.withdraw(settings.foodName, settings.foodAmount);
                         }
-                        Bank.close();
+                        com.runemate.game.api.hybrid.local.hud.interfaces.Bank.close();
                     }
                 } else {
                     Camera.turnTo(bank);

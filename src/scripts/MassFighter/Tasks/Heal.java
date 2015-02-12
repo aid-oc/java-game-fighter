@@ -11,7 +11,7 @@ import scripts.MassFighter.MassFighter;
 
 import static scripts.MassFighter.MassFighter.settings;
 
-public class FoodHandler extends Task {
+public class Heal extends Task {
 
     public boolean validate() {
         return settings.useFood && Health.getCurrent() < settings.eatValue;
@@ -22,11 +22,11 @@ public class FoodHandler extends Task {
         MassFighter.status = "Eating";
         // Interacts with a SpriteItem with the name set by the user (chosenFood)
         // This activates if the players health falls below their set threshold
-        if (Inventory.contains(settings.food.getName())) {
+        if (Inventory.contains(settings.foodName)) {
             final int startHealth = Health.getCurrent();
-            SpriteItem i = Inventory.getItems(settings.food.getName()).random();
+            SpriteItem i = Inventory.getItems(settings.foodName).random();
             if (i != null) {
-                if (i.interact("Eat")) {
+                if (i.isValid() && i.interact("Eat")) {
                     Execution.delayUntil(() -> Health.getCurrent() != startHealth, 1600,2000);
                 }
             }
@@ -37,7 +37,7 @@ public class FoodHandler extends Task {
             settings.useFood = false;
             System.out.println("Trying to remove Food Handler");
             TaskScript rootScript = (TaskScript) Environment.getScript();
-            rootScript.getTasks().stream().filter(task -> task != null && task instanceof FoodHandler).forEach(task -> {
+            rootScript.getTasks().stream().filter(task -> task != null && task instanceof Heal).forEach(task -> {
                 System.out.println("Removed Food Handler");
                 rootScript.remove(task);
             });

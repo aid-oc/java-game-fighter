@@ -18,7 +18,7 @@ import scripts.MassFighter.MassFighter;
 
 import java.util.Arrays;
 
-public class AlchemyHandler extends Task {
+public class Alchemy extends Task {
 
     private SpriteItemQueryBuilder alchItems = Inventory.newQuery().filter(new Filter<SpriteItem>() {
         @Override
@@ -38,7 +38,7 @@ public class AlchemyHandler extends Task {
     });
 
     private boolean hasAlchReqs() {
-        return Inventory.containsAnyOf("Nature rune") && ((Inventory.containsAnyOf("Fire rune") && Inventory.getQuantity("Fire rune") >= 5) || !validStaff.results().isEmpty());
+        return Inventory.containsAnyOf("Nature rune") && (((Inventory.containsAnyOf("Fire rune") && Inventory.getQuantity("Fire rune") >= 5)) || !validStaff.results().isEmpty());
     }
 
 

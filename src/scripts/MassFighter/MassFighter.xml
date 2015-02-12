@@ -1,8 +1,8 @@
 <manifest>
     <main-class>scripts.MassFighter.MassFighter</main-class>
     <name>MassFighter</name>
-    <description>AIO Fighter for RS3 - Create Profiles for Banking, Moneymaking etc.</description>
-    <version>1.5</version>
+    <description>AIO Fighter for RS3 and OSRS.</description>
+    <version>1.6</version>
     <compatibility>
         <game-type>OSRS</game-type>
         <game-type>RS3</game-type>

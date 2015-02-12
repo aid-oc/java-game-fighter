@@ -1,11 +1,11 @@
 package scripts.MassFighter.GUI;
 
-import scripts.MassFighter.Data.Food;
 
 public class Settings {
 
     public int targetSelection = 1;
     public Boolean useFood = false;
+    public Boolean showOutline = true;
     public Boolean exitOutFood = false;
     public Boolean lootInCombat = false;
     public Boolean useAbilities = false;
@@ -18,10 +18,10 @@ public class Settings {
     public Boolean tagMode = false;
     public Boolean revolutionMode = false;
     public Boolean lootByValue = false;
-    public double lootValue;
+    public double lootValue = 0;
     public int tagSelection = 0;
     public int foodAmount = 0;
-    public Food food = null;
+    public String foodName = "";
     public int fightRadius = 20;
     public int eatValue = 0;
     public int prayValue = 0;

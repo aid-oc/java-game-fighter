@@ -16,6 +16,8 @@ public enum Ability {
     HURRICANE(145, "Attack", "Threshold", 20, 14215),
     MASSACRE(177, "Attack", "Ultimate", 60, 14217),
     METEOR_STRIKE(193, "Attack", "Ultimate", 60, 14218),
+    BLOOD_TENDRILS(0, "Attack", "Threshold", 45, 0),
+    BALANCED_STRIKE(0, "Attack", "Ultimate", 120, 0),
     // Strength Abilities
     STOMP(210, "Strength", "Threshold", 15, 22753),
     KICK(34, "Strength", "Basic", 15, 14256),
@@ -46,6 +48,8 @@ public enum Ability {
     WILD_MAGIC(150, "Magic", "Threshold", 20, 14239),
     METAMORPHOSIS(166, "Magic", "Ultimate", 60, 14241),
     TSUNAMI(182, "Magic", "Ultimate", 60, 14240),
+    SMOKE_TENDRILS(0, "Magic", "Threshold", 45, 0),
+    SUNSHINE(0, "Magic", "Ultimate", 60, 0),
     // Ranged Abilities
     PIERCING_SHOT(21, "Ranged", "Basic", 3, 14243),
     SNAP_SHOT(117, "Ranged", "Threshold", 20, 14249),
@@ -62,6 +66,8 @@ public enum Ability {
     BOMBARDMENT(149, "Ranged", "Threshold", 30, 14251),
     INCENDIARY_SHOT(165, "Ranged", "Ultimate", 60, 14252),
     UNLOAD(181, "Ranged", "Ultimate", 60, 14253),
+    SHADOW_TENDRILS(0, "Ranged", "Threshold", 75, 0),
+    DEATH_SWIFTNESS(0, "Ranged", "Ultimate", 60, 0),
     // Defence Abilities
     ANTICIPATION(19, "Defence", "Basic", 24, 14219),
     BASH(99, "Defence", "Basic", 15, 14224),

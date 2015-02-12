@@ -11,7 +11,7 @@ import scripts.MassFighter.MassFighter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AbilityHandler extends Task implements Runnable {
+public class Abilities extends Task implements Runnable {
 
 
     private List<SlotAction> ultimates = new ArrayList<>();
@@ -22,7 +22,7 @@ public class AbilityHandler extends Task implements Runnable {
     private List<SlotAction> abilities = new ArrayList<>();
 
 
-    public AbilityHandler() {
+    public Abilities() {
         abilities = sortAbilities(ActionBar.getActions());
     }
 
@@ -58,6 +58,9 @@ public class AbilityHandler extends Task implements Runnable {
         for (Ability enumAbility : Ability.values()) {
             for (SlotAction barAbility : abilities) {
                 if (barAbility.getName() != null && barAbility.getType().equals(SlotAction.Type.ABILITY)) {
+                    if (barAbility.getName().toLowerCase().equals("death's swiftness")) {
+                        ultimates.add(barAbility);
+                    }
                     if (enumAbility.getName().toLowerCase().equals(barAbility.getName().replaceAll(" ", "_").toLowerCase())) {
                         switch (enumAbility.getAbilityCategory()) {
                             case "Ultimate":

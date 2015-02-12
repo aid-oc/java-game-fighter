@@ -14,7 +14,7 @@ import scripts.MassFighter.MassFighter;
 
 import static scripts.MassFighter.MassFighter.settings;
 
-public class PrayerHandler extends Task {
+public class Pray extends Task {
 
     final SpriteItemQueryBuilder validPrayerItems = Inventory.newQuery().filter(new Filter<SpriteItem>() {
         @Override
@@ -39,7 +39,7 @@ public class PrayerHandler extends Task {
 
 
         if (settings.quickPray && !Powers.Prayer.isQuickPraying() && Powers.Prayer.getPoints() >= settings.prayValue) {
-            MassFighter.status = "QuickPrayers: ON";
+            MassFighter.status = "Quickpray: ON";
             if (Powers.Prayer.toggleQuickPrayers()) {
                 Execution.delayUntil(Powers.Prayer::isQuickPraying, 1600, 2000);
             }
@@ -47,7 +47,7 @@ public class PrayerHandler extends Task {
 
         // turn on soulsplit if it is not on
         if (settings.useSoulsplit && !Powers.Prayer.Curse.SOUL_SPLIT.isActivated() && Powers.Prayer.getPoints() >= settings.prayValue) {
-            MassFighter.status = "Sousplit: Turning ON";
+            MassFighter.status = "Sousplit: ON";
             if (Powers.Prayer.Curse.SOUL_SPLIT.toggle()) {
                 Execution.delayUntil(() -> !Powers.Prayer.Curse.SOUL_SPLIT.isActivated(), 1600,2000);
             }
@@ -65,7 +65,7 @@ public class PrayerHandler extends Task {
                     settings.quickPray = false;
                     System.out.println("Trying to remove Prayer Handler");
                     TaskScript rootScript = (TaskScript)Environment.getScript();
-                    rootScript.getTasks().stream().filter(task -> task != null && task instanceof PrayerHandler).forEach(task -> {
+                    rootScript.getTasks().stream().filter(task -> task != null && task instanceof Pray).forEach(task -> {
                         System.out.println("Removed Prayer Handler");
                         rootScript.remove(task);
                     });
