@@ -80,7 +80,7 @@ public class MassFighter extends TaskScript implements PaintListener {
         if (settings.useFood) {
             add(new Heal());
         }
-        if (userProfile.alchLoot != null && userProfile.alchLoot.length > 0) {
+        if (userProfile.getAlchLoot() != null) {
             add(new Alchemy());
         }
         if (userProfile.getLootNames() != null || userProfile.getAlchLoot() != null || settings.buryBones) {

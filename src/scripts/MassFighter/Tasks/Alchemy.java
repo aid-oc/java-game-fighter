@@ -23,7 +23,7 @@ public class Alchemy extends Task {
     private SpriteItemQueryBuilder alchItems = Inventory.newQuery().filter(new Filter<SpriteItem>() {
         @Override
         public boolean accepts(SpriteItem spriteItem) {
-            return Arrays.asList(MassFighter.userProfile.alchLoot).contains(spriteItem.getDefinition().getName().toLowerCase());
+            return Arrays.asList(MassFighter.userProfile.getAlchLoot()).contains(spriteItem.getDefinition().getName().toLowerCase());
         }
     });
     private SpriteItemQueryBuilder validStaff = Equipment.newQuery().filter(new Filter<SpriteItem>() {
@@ -43,7 +43,7 @@ public class Alchemy extends Task {
 
 
     public boolean validate() {
-        return MassFighter.userProfile.alchLoot != null && MassFighter.userProfile.alchLoot.length > 0 && !alchItems.results().isEmpty() && hasAlchReqs();
+        return MassFighter.userProfile.getAlchLoot() != null && !alchItems.results().isEmpty() && hasAlchReqs();
     }
 
     @Override

@@ -11,12 +11,12 @@ import java.util.List;
 
 public class UserProfile {
 
-    public String profileName;
-    public String[] npcNames;
-    public String[] lootNames;
-    public String[] alchLoot;
-    public List<XMLCoordinate> fightAreaCoords = new ArrayList<>();
-    public List<XMLCoordinate> bankAreaCoords = new ArrayList<>();
+    private String profileName;
+    private String[] npcNames;
+    private String[] lootNames;
+    private String[] alchLoot;
+    private List<XMLCoordinate> fightAreaCoords = new ArrayList<>();
+    private List<XMLCoordinate> bankAreaCoords = new ArrayList<>();
 
     public void setAlchLoot(String[] loot) {
         alchLoot = loot;

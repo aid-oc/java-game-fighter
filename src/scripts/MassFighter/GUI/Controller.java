@@ -147,9 +147,9 @@ public class Controller implements MouseListener, PaintListener {
     public UserProfile userProfile;
     public Graphics2D areaRender;
 
-    private List<Coordinate> areaCoords = new ArrayList<>();
-    private List<Coordinate> fightAreaCoords = new ArrayList<>();
-    private List<Coordinate> bankAreaCoords = new ArrayList<>();
+    private List<Coordinate> areaCoords = new LinkedList<>();
+    private List<Coordinate> fightAreaCoords = new LinkedList<>();
+    private List<Coordinate> bankAreaCoords = new LinkedList<>();
 
     private List<String> getAvailableMonsters(Area area, String action) {
         List<String> availableNpcs = new ArrayList<>();
@@ -285,7 +285,7 @@ public class Controller implements MouseListener, PaintListener {
                         NodeList alchLootList = document.getElementsByTagName("alchLoot");
                         NodeList alchLootNodes = alchLootList.item(0).getChildNodes();
                         for (int i = 0; i < alchLootNodes.getLength(); i++) {
-                            alchLootNames.add(alchLootNodes.item(i).getTextContent());
+                            alchLootNames.add(alchLootNodes.item(i).getTextContent().toLowerCase());
                         }
                         profile.setAlchLoot(alchLootNames.toArray(new String[alchLootNames.size()]));
 

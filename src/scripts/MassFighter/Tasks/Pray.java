@@ -33,11 +33,6 @@ public class Pray extends Task {
     @Override
     public void execute() {
 
-        System.out.println("Need to top up prayer?: " + (Powers.Prayer.getPoints() < settings.prayValue && !validPrayerItems.results().isEmpty()));
-        System.out.println("Need to turn on SS?: " + ((settings.useSoulsplit && !Powers.Prayer.Curse.SOUL_SPLIT.isActivated() && Powers.Prayer.getPoints() >= settings.prayValue)));
-        System.out.println("Need to turn on quickprayer?: " + (settings.quickPray && !Powers.Prayer.isQuickPraying() && Powers.Prayer.getPoints() >= settings.prayValue));
-
-
         if (settings.quickPray && !Powers.Prayer.isQuickPraying() && Powers.Prayer.getPoints() >= settings.prayValue) {
             MassFighter.status = "Quickpray: ON";
             if (Powers.Prayer.toggleQuickPrayers()) {
