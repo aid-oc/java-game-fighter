@@ -62,17 +62,6 @@ public class Store extends Task {
                     Camera.turnTo(bank);
                 }
             }
-        } else if (!Inventory.isFull() || MassFighter.userProfile.getLootNames() != null && !Inventory.containsAnyOf(MassFighter.userProfile.getLootNames())) {
-            WebPath toFightArea = Traversal.getDefaultWeb().getPathBuilder().buildTo(fightArea);
-            if (toFightArea != null) {
-                if (Menu.isOpen()) {
-                    Menu.close();
-                } else {
-                    toFightArea.step(true);
-                }
-            } else {
-                BresenhamPath.buildTo(fightArea).step(true);
-            }
         }
     }
 }

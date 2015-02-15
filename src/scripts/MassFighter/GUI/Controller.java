@@ -195,15 +195,6 @@ public class Controller implements MouseListener, PaintListener {
         });
 
         btnSave.setOnAction(event -> {
-            /*
-            UserProfile profile = createProfile();
-            if (profile != null) {
-                saveProfile(profile);
-                userProfile = profile;
-            } else {
-                txtProfileSaved.setText("Invalid profile");
-            }
-            */
             CreateAndSaveProfile();
         });
 
@@ -301,10 +292,10 @@ public class Controller implements MouseListener, PaintListener {
                             fightAreaLocations.add(new Coordinate(x,y,z));
                         }
                         // Remove duplicates
-                        HashSet<Coordinate> fightAreahs = new HashSet<>();
-                        fightAreahs.addAll(fightAreaLocations);
+                        HashSet<Coordinate> fightAreas = new HashSet<>();
+                        fightAreas.addAll(fightAreaLocations);
                         fightAreaLocations.clear();
-                        fightAreaLocations.addAll(fightAreahs);
+                        fightAreaLocations.addAll(fightAreas);
                         System.out.println("-- Start Fight Area --");
                         fightAreaLocations.forEach(System.out::println);
                         System.out.println("-- End Fight Area --");
@@ -321,18 +312,17 @@ public class Controller implements MouseListener, PaintListener {
                             bankAreaLocations.add(new Coordinate(x,y,z));
                         }
                         // remove duplicates
-                        HashSet<Coordinate> bankAreahs = new HashSet<>();
-                        bankAreahs.addAll(bankAreaLocations);
+                        HashSet<Coordinate> bankAreas = new HashSet<>();
+                        bankAreas.addAll(bankAreaLocations);
                         bankAreaLocations.clear();
-                        bankAreaLocations.addAll(bankAreahs);
+                        bankAreaLocations.addAll(bankAreas);
                         System.out.println("-- Start Bank Area --");
                         bankAreaLocations.forEach(System.out::println);
                         System.out.println("-- End Bank Area --");
                         profile.setBankAreaCoords(bankAreaLocations);
 
                         userProfile = profile;
-                        txtProfileName.setText(profile.getProfileName());
-                        txtProfileSaved.setText("Profile loaded! - Press 'Start Loaded'");
+                        populateUI(profile);
 
                     } catch (ParserConfigurationException e) {
                         e.printStackTrace();
@@ -424,6 +414,47 @@ public class Controller implements MouseListener, PaintListener {
         eatValue.setText(Integer.toString(Health.getMaximum()/2));
         criticalHitpoints.setText("1000");
         prayValue.setText("200");
+    }
+
+    private void populateUI(UserProfile profile) {
+        if (profile != null) {
+            selectedMonsters.getItems().setAll(profile.getNpcNames());
+            targetSlider.setValue(profile.settings.targetSelection);
+            tagMode.setSelected(profile.settings.tagMode);
+            tagSlider.setValue(profile.settings.tagSelection);
+            criticalHitpoints.setText(Integer.toString(profile.settings.criticalHitpoints));
+            abilities.setSelected(profile.settings.useAbilities);
+            revolutionMode.setSelected(profile.settings.revolutionMode);
+            if (!profile.settings.foodName.isEmpty()) {
+                if (Food.valueOf(profile.settings.foodName.toUpperCase()) != null) {
+                    foodSelection.getSelectionModel().select(Food.valueOf(profile.settings.foodName.toUpperCase()));
+                }
+            }
+            eatValue.setText(Integer.toString(profile.settings.eatValue));
+            stopWhenOutOfFood.setSelected(profile.settings.exitOutFood);
+            foodAmount.setText(Integer.toString(profile.settings.foodAmount));
+            lootByValue.setSelected(profile.settings.lootByValue);
+            lootValue.setText(Double.toString(profile.settings.lootValue));
+            lootInCombat.setSelected(profile.settings.lootInCombat);
+            buryBones.setSelected(profile.settings.buryBones);
+            waitLoot.setSelected(profile.settings.waitForLoot);
+            selectedLoot.getItems().setAll(profile.getLootNames());
+            selectedAlchLoot.getItems().setAll(profile.getAlchLoot());
+            soulsplit.setSelected(profile.settings.useSoulsplit);
+            quickPray.setSelected(profile.settings.quickPray);
+            prayValue.setText(Integer.toString(profile.settings.prayValue));
+            exitPrayer.setSelected(profile.settings.exitOnPrayerOut);
+
+            if (profile.getFightArea() != null) {
+                fightAreaCoords = profile.getFightArea().getCoordinates();
+            }
+            if (profile.getBankArea() != null) {
+                bankAreaCoords = profile.getBankArea().getCoordinates();
+            }
+
+            txtProfileName.setText(profile.getProfileName());
+            txtProfileSaved.setText("Profile loaded! - Press 'Start Loaded'");
+        }
     }
 
     private void removeAllCoordinates(List<Coordinate> items, List<Coordinate> target) {
@@ -808,7 +839,11 @@ public class Controller implements MouseListener, PaintListener {
         List<Coordinate> renderCoords = areaCoords;
         if (!renderCoords.isEmpty()) {
             graphics2D.setColor(Color.WHITE);
-            renderCoords.parallelStream().forEach(coord -> coord.render(graphics2D));
+            renderCoords.parallelStream().forEach(coord ->  {
+                if (coord != null) {
+                    coord.render(graphics2D);
+                }
+            });
             if (showArea.isSelected()) {
                 graphics2D.setColor(Color.GREEN);
                 Area area = new Area.Polygonal(renderCoords.toArray(new Coordinate[(renderCoords.size())]));

@@ -27,7 +27,7 @@ import static scripts.MassFighter.MassFighter.userProfile;
  */
 public class Loot extends Task {
 
-    private static HashMap<String, Integer> itemPrices = new HashMap<>();
+    public static HashMap<String, Integer> itemPrices = new HashMap<>();
     private String itemName;
     public static GroundItemQueryBuilder validLoot = GroundItems.newQuery().within(userProfile.getFightArea()).filter(new Filter<GroundItem>() {
         @Override

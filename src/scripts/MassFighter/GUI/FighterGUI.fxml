@@ -43,7 +43,7 @@
                               <Font size="13.0" />
                            </font>
                         </Button>
-                        <Label fx:id="txtProfileSaved" layoutX="114.0" layoutY="132.0" prefHeight="27.0" prefWidth="453.0" textFill="#00ff66" />
+                        <Label fx:id="txtProfileSaved" layoutX="195.0" layoutY="145.0" prefHeight="27.0" prefWidth="273.0" textFill="#00ff66" />
                         <TextField fx:id="txtSetProfileName" layoutX="217.0" layoutY="251.0" prefHeight="25.0" prefWidth="101.0" promptText="profile name" />
                         <Button fx:id="btnRunNoSave" layoutX="242.0" layoutY="184.0" mnemonicParsing="false" prefHeight="43.0" prefWidth="175.0" text="Run without saving">
                            <font>

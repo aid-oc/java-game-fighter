@@ -4,13 +4,18 @@ import com.runemate.game.api.client.paint.PaintListener;
 import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.entities.LocatableEntity;
 import com.runemate.game.api.hybrid.local.Skill;
+import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
 import com.runemate.game.api.hybrid.location.Area;
 import com.runemate.game.api.hybrid.location.Coordinate;
 import com.runemate.game.api.hybrid.util.StopWatch;
 import com.runemate.game.api.hybrid.util.calculations.CommonMath;
+import com.runemate.game.api.osrs.net.Zybez;
 import com.runemate.game.api.rs3.local.hud.interfaces.eoc.ActionBar;
+import com.runemate.game.api.rs3.net.GrandExchange;
 import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.core.LoopingThread;
+import com.runemate.game.api.script.framework.listeners.InventoryListener;
+import com.runemate.game.api.script.framework.listeners.events.ItemEvent;
 import com.runemate.game.api.script.framework.task.TaskScript;
 import javafx.application.Platform;
 import scripts.MassFighter.Framework.UserProfile;
@@ -26,7 +31,7 @@ import java.text.NumberFormat;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-public class MassFighter extends TaskScript implements PaintListener {
+public class MassFighter extends TaskScript implements PaintListener, InventoryListener {
 
     public static Methods methods;
     public static Settings settings;
@@ -71,11 +76,11 @@ public class MassFighter extends TaskScript implements PaintListener {
                 + Skill.PRAYER.getExperience() + Skill.CONSTITUTION.getExperience();
         runningTime.start();
 
-        if (userProfile.getBankArea() != null) {
-            add(new Store());
-        }
         if (settings.quickPray || (settings.useSoulsplit && Environment.isRS3())) {
             add(new Pray());
+        }
+        if (userProfile.getBankArea() != null) {
+            add(new Store());
         }
         if (settings.useFood) {
             add(new Heal());
@@ -114,6 +119,27 @@ public class MassFighter extends TaskScript implements PaintListener {
     }
 
     @Override
+    public void onItemAdded(ItemEvent event) {
+        String itemName = event.getItem().getDefinition().getName();
+        int itemId = event.getItem().getId();
+        int itemValue = 0;
+        if (Loot.itemPrices.containsKey(itemName)) {
+            itemValue = Loot.itemPrices.get(itemName);
+        } else {
+            if (Environment.isRS3()) {
+                GrandExchange.Item item = GrandExchange.lookup(itemId);
+                if (item != null) {
+                    itemValue = item.getPrice();
+                }
+            } else if (Environment.isOSRS()) {
+                itemValue = Zybez.getAveragePrice(itemName);
+            }
+            Loot.itemPrices.put(itemName, itemValue);
+        }
+        profit += itemValue;
+    }
+
+    @Override
     public void onPaint(Graphics2D g2d) {
         if (userProfile != null) {
             int expGainedNoHP = Skill.STRENGTH.getExperience() + Skill.RANGED.getExperience() + Skill.MAGIC.getExperience() + Skill.ATTACK.getExperience() + Skill.DEFENCE.getExperience()
@@ -123,7 +149,7 @@ public class MassFighter extends TaskScript implements PaintListener {
             graphics = g2d;
             g2d.setFont(new Font("Purisa", Font.PLAIN, 11));
             g2d.setColor(Color.black);
-            g2d.fillRect(0, 0, 170, 350);
+            g2d.fillRect(0, 0, 170, 390);
             g2d.setColor(Color.white);
             g2d.drawString("-- MassFighter --", 20, 20);
             g2d.drawString("Status: " + status, 20, 40);
@@ -142,6 +168,8 @@ public class MassFighter extends TaskScript implements PaintListener {
             g2d.drawString("("+numberFormat.format((int) CommonMath.rate(TimeUnit.HOURS, runningTime.getRuntime(), expGainedNoHP)) + " p/h)", 20, 300);
             g2d.drawString("Exp Gain (Total): " + expGained, 20, 320);
             g2d.drawString("("+numberFormat.format((int) CommonMath.rate(TimeUnit.HOURS, runningTime.getRuntime(), expGained)) + " p/h)", 20, 340);
+            g2d.drawString("Profit Gain: " + profit, 20, 360);
+            g2d.drawString("("+numberFormat.format((int) CommonMath.rate(TimeUnit.HOURS, runningTime.getRuntime(), profit)) + " p/h)", 20, 380);
             if (targetEntity != null) {
                 Coordinate targetPosition = targetEntity.getPosition();
                 if (targetPosition != null) {

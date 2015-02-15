@@ -2,10 +2,13 @@ package scripts.MassFighter.Tasks;
 
 import com.runemate.game.api.hybrid.entities.Npc;
 import com.runemate.game.api.hybrid.local.Camera;
+import com.runemate.game.api.hybrid.local.hud.Menu;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
 import com.runemate.game.api.hybrid.location.Area;
 import com.runemate.game.api.hybrid.location.Coordinate;
+import com.runemate.game.api.hybrid.location.navigation.Traversal;
 import com.runemate.game.api.hybrid.location.navigation.basic.BresenhamPath;
+import com.runemate.game.api.hybrid.location.navigation.web.WebPath;
 import com.runemate.game.api.hybrid.queries.NpcQueryBuilder;
 import com.runemate.game.api.hybrid.queries.SpriteItemQueryBuilder;
 import com.runemate.game.api.hybrid.queries.results.LocatableEntityQueryResults;
@@ -96,6 +99,18 @@ public class Combat extends Task {
                             idleTime.stop();
                             idleTime.reset();
                         }
+                    }
+                } else {
+                    WebPath toFightArea = Traversal.getDefaultWeb().getPathBuilder().buildTo(fightArea);
+                    if (toFightArea != null) {
+                        MassFighter.status = "Moving to Fight Area";
+                        if (Menu.isOpen()) {
+                            Menu.close();
+                        } else {
+                            toFightArea.step(true);
+                        }
+                    } else {
+                        BresenhamPath.buildTo(fightArea).step(true);
                     }
                 }
             } else {
