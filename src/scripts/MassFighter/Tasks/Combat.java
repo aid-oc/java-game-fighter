@@ -2,13 +2,9 @@ package scripts.MassFighter.Tasks;
 
 import com.runemate.game.api.hybrid.entities.Npc;
 import com.runemate.game.api.hybrid.local.Camera;
-import com.runemate.game.api.hybrid.local.hud.Menu;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
 import com.runemate.game.api.hybrid.location.Area;
 import com.runemate.game.api.hybrid.location.Coordinate;
-import com.runemate.game.api.hybrid.location.navigation.Traversal;
-import com.runemate.game.api.hybrid.location.navigation.basic.BresenhamPath;
-import com.runemate.game.api.hybrid.location.navigation.web.WebPath;
 import com.runemate.game.api.hybrid.queries.NpcQueryBuilder;
 import com.runemate.game.api.hybrid.queries.SpriteItemQueryBuilder;
 import com.runemate.game.api.hybrid.queries.results.LocatableEntityQueryResults;
@@ -17,10 +13,10 @@ import com.runemate.game.api.hybrid.region.Npcs;
 import com.runemate.game.api.hybrid.region.Players;
 import com.runemate.game.api.hybrid.util.Filter;
 import com.runemate.game.api.hybrid.util.StopWatch;
-import com.runemate.game.api.hybrid.util.calculations.Distance;
 import com.runemate.game.api.hybrid.util.calculations.Random;
 import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.task.Task;
+import scripts.MassFighter.Framework.Spice;
 import scripts.MassFighter.Framework.UserProfile;
 import scripts.MassFighter.MassFighter;
 
@@ -82,7 +78,7 @@ public class Combat extends Task {
                                 if (random.isVisible()) {
                                     random.click();
                                 } else {
-                                    Camera.turnTo(random);
+                                    Spice.moveToLocatable(random);
                                 }
                             }
                         } else {
@@ -101,17 +97,7 @@ public class Combat extends Task {
                         }
                     }
                 } else {
-                    WebPath toFightArea = Traversal.getDefaultWeb().getPathBuilder().buildTo(fightArea);
-                    if (toFightArea != null) {
-                        MassFighter.status = "Moving to Fight Area";
-                        if (Menu.isOpen()) {
-                            Menu.close();
-                        } else {
-                            toFightArea.step(true);
-                        }
-                    } else {
-                        BresenhamPath.buildTo(fightArea).step(true);
-                    }
+                    Spice.pathToLocatable(fightArea);
                 }
             } else {
                 idleTime.reset();
@@ -163,14 +149,8 @@ public class Combat extends Task {
                 }
                 return true;
             }
-        } else if (Distance.to(targetNpc) > Random.nextInt(5, 7)) {
-            BresenhamPath toNpc = BresenhamPath.buildTo(targetNpc);
-            if (toNpc != null) {
-                toNpc.step(true);
-            }
         } else {
-            Camera.turnTo(targetNpc);
-            Execution.delayUntil(targetNpc::isVisible, 1200, 1500);
+            Spice.moveToLocatable(targetNpc);
         }
         return false;
     }

@@ -49,7 +49,6 @@
                            <font>
                               <Font name="System Bold" size="12.0" />
                            </font></Button>
-                        <Label layoutX="446.0" layoutY="263.0" prefHeight="51.0" prefWidth="176.0" text="Saving (Beta) - Should work, but report any issues" wrapText="true" />
                      </children>
                   </AnchorPane>
               </content>
@@ -104,7 +103,7 @@
                         <Label layoutX="22.0" layoutY="225.0" text="Choose from the nearest" />
                         <Label layoutX="272.0" layoutY="225.0" text="NPCs" />
                         <Label fx:id="profileStatus" layoutX="216.0" textFill="#d31313" />
-                        <Label layoutX="278.0" layoutY="122.0" text="Stop fighting below" />
+                        <Label layoutX="293.0" layoutY="125.0" text="Log out below" />
                         <TextField fx:id="criticalHitpoints" layoutX="298.0" layoutY="150.0" prefHeight="25.0" prefWidth="66.0" />
                         <Label layoutX="308.0" layoutY="182.0" text="hitpoints" />
                         <CheckBox fx:id="tagMode" layoutX="26.0" layoutY="266.0" mnemonicParsing="false" prefHeight="17.0" prefWidth="75.0" text="Tag Mode" />

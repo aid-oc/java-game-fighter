@@ -412,8 +412,14 @@ public class Controller implements MouseListener, PaintListener {
         foodAmount.setText("0");
         tileRange.setText("10");
         eatValue.setText(Integer.toString(Health.getMaximum()/2));
-        criticalHitpoints.setText("1000");
-        prayValue.setText("200");
+        if (Environment.isRS3()) {
+            criticalHitpoints.setText("500");
+            prayValue.setText("50");
+        } else {
+            criticalHitpoints.setText("5");
+            prayValue.setText("5");
+        }
+
     }
 
     private void populateUI(UserProfile profile) {

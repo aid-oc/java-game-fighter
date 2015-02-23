@@ -2,18 +2,16 @@ package scripts.MassFighter.Tasks;
 
 import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.entities.GroundItem;
-import com.runemate.game.api.hybrid.local.Camera;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
-import com.runemate.game.api.hybrid.location.navigation.basic.BresenhamPath;
 import com.runemate.game.api.hybrid.queries.GroundItemQueryBuilder;
 import com.runemate.game.api.hybrid.queries.results.LocatableEntityQueryResults;
 import com.runemate.game.api.hybrid.region.GroundItems;
 import com.runemate.game.api.hybrid.util.Filter;
-import com.runemate.game.api.hybrid.util.calculations.Distance;
 import com.runemate.game.api.osrs.net.Zybez;
 import com.runemate.game.api.rs3.net.GrandExchange;
 import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.task.Task;
+import scripts.MassFighter.Framework.Spice;
 import scripts.MassFighter.MassFighter;
 
 import java.util.Arrays;
@@ -79,11 +77,8 @@ public class Loot extends Task {
                     Execution.delayUntil(item::isValid, 1500,2000);
                     return true;
                 }
-            } else if (Distance.to(item) > 3) {
-                BresenhamPath toItem = BresenhamPath.buildTo(item);
-                if (toItem != null) toItem.step(true);
             } else {
-                Camera.turnTo(item);
+                Spice.moveToLocatable(item);
             }
         }
         return false;

@@ -4,7 +4,6 @@ import com.runemate.game.api.client.paint.PaintListener;
 import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.entities.LocatableEntity;
 import com.runemate.game.api.hybrid.local.Skill;
-import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
 import com.runemate.game.api.hybrid.location.Area;
 import com.runemate.game.api.hybrid.location.Coordinate;
 import com.runemate.game.api.hybrid.util.StopWatch;
@@ -142,34 +141,51 @@ public class MassFighter extends TaskScript implements PaintListener, InventoryL
     @Override
     public void onPaint(Graphics2D g2d) {
         if (userProfile != null) {
+
             int expGainedNoHP = Skill.STRENGTH.getExperience() + Skill.RANGED.getExperience() + Skill.MAGIC.getExperience() + Skill.ATTACK.getExperience() + Skill.DEFENCE.getExperience()
                     + Skill.PRAYER.getExperience() - startExpNoHp;
             int expGained = Skill.STRENGTH.getExperience() + Skill.RANGED.getExperience() + Skill.MAGIC.getExperience() + Skill.ATTACK.getExperience() + Skill.DEFENCE.getExperience()
                     + Skill.CONSTITUTION.getExperience() + Skill.PRAYER.getExperience() - startExp;
             graphics = g2d;
-            g2d.setFont(new Font("Purisa", Font.PLAIN, 11));
-            g2d.setColor(Color.black);
-            g2d.fillRect(0, 0, 170, 390);
-            g2d.setColor(Color.white);
-            g2d.drawString("-- MassFighter --", 20, 20);
-            g2d.drawString("Status: " + status, 20, 40);
-            g2d.drawString("Runtime: " + runningTime.getRuntimeAsString(), 20, 60);
-            g2d.drawString("Profile: " + userProfile.getProfileName(), 20, 80);
-            g2d.drawString(" -- Stats -- ", 20, 100);
-            g2d.drawString("Constitution: " + Skill.CONSTITUTION.getCurrentLevel() + "(" + getLevelGain(constitutionLevel, Skill.CONSTITUTION) + ")", 20, 120);
-            g2d.drawString("Attack: " + Skill.ATTACK.getCurrentLevel() + "(" + getLevelGain(attackLevel, Skill.ATTACK) + ")", 20, 140);
-            g2d.drawString("Strength: " + Skill.STRENGTH.getCurrentLevel() + "(" + getLevelGain(strengthLevel, Skill.STRENGTH) + ")", 20, 160);
-            g2d.drawString("Defence: " + Skill.DEFENCE.getCurrentLevel() + "(" + getLevelGain(defenceLevel, Skill.DEFENCE) + ")", 20, 180);
-            g2d.drawString("Ranged: " + Skill.RANGED.getCurrentLevel() + "(" + getLevelGain(rangedLevel, Skill.RANGED) + ")", 20, 200);
-            g2d.drawString("Magic: " + Skill.MAGIC.getCurrentLevel() + "(" + getLevelGain(mageLevel, Skill.MAGIC) + ")", 20, 220);
-            g2d.drawString("Prayer: " + Skill.PRAYER.getCurrentLevel() + "(" + getLevelGain(prayerLevel, Skill.PRAYER) + ")", 20, 240);
-            g2d.drawString("-- Rates -- ", 20, 260);
-            g2d.drawString("Exp Gain (No HP): " + expGainedNoHP, 20, 280);
-            g2d.drawString("("+numberFormat.format((int) CommonMath.rate(TimeUnit.HOURS, runningTime.getRuntime(), expGainedNoHP)) + " p/h)", 20, 300);
-            g2d.drawString("Exp Gain (Total): " + expGained, 20, 320);
-            g2d.drawString("("+numberFormat.format((int) CommonMath.rate(TimeUnit.HOURS, runningTime.getRuntime(), expGained)) + " p/h)", 20, 340);
-            g2d.drawString("Profit Gain: " + profit, 20, 360);
-            g2d.drawString("("+numberFormat.format((int) CommonMath.rate(TimeUnit.HOURS, runningTime.getRuntime(), profit)) + " p/h)", 20, 380);
+
+            Color color1 = new Color(0, 0, 0, 110);
+            Color color2 = new Color(255, 255, 255);
+            BasicStroke stroke1 = new BasicStroke(1);
+            Font font1 = new Font("Arial", Font.BOLD, 16);
+            Font font2 = new Font("Arial", Font.BOLD, 14);
+            Font font3 = new Font("Arial", Font.PLAIN, 12);
+
+            g2d.setColor(color1);
+            g2d.fillRoundRect(1, 0, 550, 114, 16, 16);
+            g2d.setColor(color2);
+            g2d.setStroke(stroke1);
+            g2d.drawRoundRect(1, 0, 550, 114, 16, 16);
+            g2d.setFont(font1);
+            g2d.drawString("MassFighter", 211, 23);
+            g2d.setFont(font2);
+            // Titles
+            g2d.drawString("Core", 52, 44);
+            g2d.drawString("Stats", 239, 44);
+            g2d.drawString("Rates", 396, 44);
+            g2d.setFont(font3);
+            // Core info
+            g2d.drawString("Status: " + status, 7, 79);
+            g2d.drawString("Runtime: " + runningTime.getRuntimeAsString(), 7, 96);
+            g2d.drawString("Profile: " + userProfile.getProfileName(), 7, 61);
+            // Level info
+            g2d.drawString("Constitution: " + Skill.CONSTITUTION.getCurrentLevel() + "(" + getLevelGain(constitutionLevel, Skill.CONSTITUTION) + ")" , 161, 61);
+            g2d.drawString("Attack: " + Skill.ATTACK.getCurrentLevel() + "(" + getLevelGain(attackLevel, Skill.ATTACK) + ")", 161, 75);
+            g2d.drawString("Strength: " + Skill.STRENGTH.getCurrentLevel() + "(" + getLevelGain(strengthLevel, Skill.STRENGTH) + ")", 161, 89);
+            g2d.drawString("Defence: " + Skill.DEFENCE.getCurrentLevel() + "(" + getLevelGain(defenceLevel, Skill.DEFENCE) + ")", 276, 62);
+            g2d.drawString("Ranged: " + Skill.DEFENCE.getCurrentLevel() + "(" + getLevelGain(defenceLevel, Skill.DEFENCE) + ")", 276, 77);
+            g2d.drawString("Magic: " + Skill.MAGIC.getCurrentLevel() + "(" + getLevelGain(mageLevel, Skill.MAGIC) + ")", 276, 92);
+            g2d.drawString("Prayer: " + Skill.PRAYER.getCurrentLevel() + "(" + getLevelGain(prayerLevel, Skill.PRAYER) + ")", 161, 103);
+            // Rates
+            g2d.drawString("Exp (No HP): " + expGainedNoHP + "("+numberFormat.format((int) CommonMath.rate(TimeUnit.HOURS, runningTime.getRuntime(), expGainedNoHP)) + " p/h)", 365, 62);
+            g2d.drawString("Exp (Total): " + expGained + "("+numberFormat.format((int) CommonMath.rate(TimeUnit.HOURS, runningTime.getRuntime(), expGained)) + " p/h)", 365, 76);
+            g2d.drawString("Profit: " + profit + "("+numberFormat.format((int) CommonMath.rate(TimeUnit.HOURS, runningTime.getRuntime(), profit)) + " p/h)", 365, 90);
+
+            // Areas and targets
             if (targetEntity != null) {
                 Coordinate targetPosition = targetEntity.getPosition();
                 if (targetPosition != null) {
