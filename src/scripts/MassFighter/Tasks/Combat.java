@@ -6,7 +6,6 @@ import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
 import com.runemate.game.api.hybrid.location.Area;
 import com.runemate.game.api.hybrid.location.Coordinate;
 import com.runemate.game.api.hybrid.queries.NpcQueryBuilder;
-import com.runemate.game.api.hybrid.queries.SpriteItemQueryBuilder;
 import com.runemate.game.api.hybrid.queries.results.LocatableEntityQueryResults;
 import com.runemate.game.api.hybrid.queries.results.SpriteItemQueryResults;
 import com.runemate.game.api.hybrid.region.Npcs;
@@ -31,10 +30,9 @@ public class Combat extends Task {
     private final NpcQueryBuilder validTargetQuery = Npcs.newQuery().within(fightArea).names(userProfile.getNpcNames()).filter(new Filter<Npc>() {
         @Override
         public boolean accepts(Npc npc) {
-            return npc != null && npc.getHealthGauge() == null && npc.isValid() && npc.getAnimationId() == -1;
+            return npc != null && npc.getHealthGauge() == null && npc.isValid() && npc.getAnimationId() == -1 && !npc.getDefinition().getAppearance().contains(5176);
         }
     }).reachable();
-    private final SpriteItemQueryBuilder buryItems = Inventory.newQuery().actions("Bury", "Scatter");
     private StopWatch idleTime = new StopWatch();
 
     public boolean validate() {
@@ -117,11 +115,10 @@ public class Combat extends Task {
 
 
     private void buryBones() {
-        if (settings.buryBones && !buryItems.results().isEmpty()) {
-            final SpriteItemQueryBuilder buryItems = Inventory.newQuery().actions("Bury", "Scatter");
-            if (!buryItems.results().isEmpty()) {
+        final SpriteItemQueryResults bones = Inventory.newQuery().actions("Bury", "Scatter").results();
+        if (!bones.isEmpty() && Random.nextInt(10) >= 6) {
+            if (!bones.isEmpty()) {
                 MassFighter.status = "Burying";
-                SpriteItemQueryResults bones = buryItems.results();
                 bones.stream().filter(bone -> bone != null).forEach(bone -> {
                     String name = bone.getDefinition().getName();
                     if (name.toLowerCase().contains("bones") && bone.interact("Bury") || name.toLowerCase().contains("ashes") && bone.interact("Scatter")) {
@@ -133,7 +130,7 @@ public class Combat extends Task {
     }
 
     private boolean attackTarget(final Npc targetNpc) {
-        MassFighter.status = "Finding Target";
+        MassFighter.status = "Attacking Target";
         MassFighter.targetEntity = targetNpc;
         if (targetNpc.getVisibility() == 100) {
             if (targetNpc.interact("Attack", targetNpc.getName())) {

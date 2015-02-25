@@ -7,7 +7,7 @@ import com.runemate.game.api.hybrid.local.Skill;
 import com.runemate.game.api.hybrid.location.Area;
 import com.runemate.game.api.hybrid.location.Coordinate;
 import com.runemate.game.api.hybrid.util.StopWatch;
-import com.runemate.game.api.hybrid.util.calculations.CommonMath;
+import com.runemate.game.api.hybrid.util.calculations.*;
 import com.runemate.game.api.osrs.net.Zybez;
 import com.runemate.game.api.rs3.local.hud.interfaces.eoc.ActionBar;
 import com.runemate.game.api.rs3.net.GrandExchange;
@@ -26,7 +26,9 @@ import scripts.MassFighter.Tasks.Heal;
 import scripts.MassFighter.Tasks.Store;
 
 import java.awt.*;
+import java.awt.List;
 import java.text.NumberFormat;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
@@ -75,6 +77,7 @@ public class MassFighter extends TaskScript implements PaintListener, InventoryL
                 + Skill.PRAYER.getExperience() + Skill.CONSTITUTION.getExperience();
         runningTime.start();
 
+        add(new Distraction());
         if (settings.quickPray || (settings.useSoulsplit && Environment.isRS3())) {
             add(new Pray());
         }
@@ -119,23 +122,25 @@ public class MassFighter extends TaskScript implements PaintListener, InventoryL
 
     @Override
     public void onItemAdded(ItemEvent event) {
-        String itemName = event.getItem().getDefinition().getName();
-        int itemId = event.getItem().getId();
-        int itemValue = 0;
-        if (Loot.itemPrices.containsKey(itemName)) {
-            itemValue = Loot.itemPrices.get(itemName);
-        } else {
-            if (Environment.isRS3()) {
-                GrandExchange.Item item = GrandExchange.lookup(itemId);
-                if (item != null) {
-                    itemValue = item.getPrice();
+        if (event.getItem() != null) {
+            String itemName = event.getItem().getDefinition().getName();
+            int itemId = event.getItem().getId();
+            int itemValue = 0;
+            if (Loot.itemPrices.containsKey(itemName)) {
+                itemValue = Loot.itemPrices.get(itemName);
+            } else {
+                if (Environment.isRS3()) {
+                    GrandExchange.Item item = GrandExchange.lookup(itemId);
+                    if (item != null) {
+                        itemValue = item.getPrice();
+                    }
+                } else if (Environment.isOSRS()) {
+                    itemValue = Zybez.getAveragePrice(itemName);
                 }
-            } else if (Environment.isOSRS()) {
-                itemValue = Zybez.getAveragePrice(itemName);
+                Loot.itemPrices.put(itemName, itemValue);
             }
-            Loot.itemPrices.put(itemName, itemValue);
+            profit += itemValue;
         }
-        profit += itemValue;
     }
 
     @Override
@@ -156,10 +161,10 @@ public class MassFighter extends TaskScript implements PaintListener, InventoryL
             Font font3 = new Font("Arial", Font.PLAIN, 12);
 
             g2d.setColor(color1);
-            g2d.fillRoundRect(1, 0, 550, 114, 16, 16);
+            g2d.fillRoundRect(1, 0, 560, 130, 16, 16);
             g2d.setColor(color2);
             g2d.setStroke(stroke1);
-            g2d.drawRoundRect(1, 0, 550, 114, 16, 16);
+            g2d.drawRoundRect(1, 0, 560, 130, 16, 16);
             g2d.setFont(font1);
             g2d.drawString("MassFighter", 211, 23);
             g2d.setFont(font2);
@@ -167,11 +172,13 @@ public class MassFighter extends TaskScript implements PaintListener, InventoryL
             g2d.drawString("Core", 52, 44);
             g2d.drawString("Stats", 239, 44);
             g2d.drawString("Rates", 396, 44);
+            // Timers
             g2d.setFont(font3);
             // Core info
             g2d.drawString("Status: " + status, 7, 79);
             g2d.drawString("Runtime: " + runningTime.getRuntimeAsString(), 7, 96);
             g2d.drawString("Profile: " + userProfile.getProfileName(), 7, 61);
+            g2d.drawString("Next distraction in around: " + Distraction.getNext() + " seconds", 7, 120);
             // Level info
             g2d.drawString("Constitution: " + Skill.CONSTITUTION.getCurrentLevel() + "(" + getLevelGain(constitutionLevel, Skill.CONSTITUTION) + ")" , 161, 61);
             g2d.drawString("Attack: " + Skill.ATTACK.getCurrentLevel() + "(" + getLevelGain(attackLevel, Skill.ATTACK) + ")", 161, 75);
@@ -185,7 +192,7 @@ public class MassFighter extends TaskScript implements PaintListener, InventoryL
             g2d.drawString("Exp (Total): " + expGained + "("+numberFormat.format((int) CommonMath.rate(TimeUnit.HOURS, runningTime.getRuntime(), expGained)) + " p/h)", 365, 76);
             g2d.drawString("Profit: " + profit + "("+numberFormat.format((int) CommonMath.rate(TimeUnit.HOURS, runningTime.getRuntime(), profit)) + " p/h)", 365, 90);
 
-            // Areas and targets
+            // Render current target entity
             if (targetEntity != null) {
                 Coordinate targetPosition = targetEntity.getPosition();
                 if (targetPosition != null) {
@@ -193,6 +200,7 @@ public class MassFighter extends TaskScript implements PaintListener, InventoryL
                     targetEntity.getPosition().render(g2d);
                 }
             }
+            // Render the fight area's outline
             if (settings != null && settings.showOutline) {
                 Area area = userProfile.getFightArea();
                 if (area != null && area.isValid() && area.isVisible()) {
@@ -209,6 +217,12 @@ public class MassFighter extends TaskScript implements PaintListener, InventoryL
                 }
             }
         }
+    }
+
+    private java.util.List<String> runningTasks() {
+        java.util.List<String> taskNames = new ArrayList<>();
+        getTasks().parallelStream().forEach(task -> taskNames.add(task.getClass().getSimpleName() + " "));
+        return taskNames;
     }
 
     private int getLevelGain(int start, Skill skill) {

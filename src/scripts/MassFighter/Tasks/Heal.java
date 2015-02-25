@@ -4,6 +4,7 @@ import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Health;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
 import com.runemate.game.api.hybrid.local.hud.interfaces.SpriteItem;
+import com.runemate.game.api.hybrid.util.calculations.Random;
 import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.task.Task;
 import com.runemate.game.api.script.framework.task.TaskScript;
@@ -20,14 +21,15 @@ public class Heal extends Task {
     @Override
     public void execute() {
         MassFighter.status = "Eating";
-        // Interacts with a SpriteItem with the name set by the user (chosenFood)
-        // This activates if the players health falls below their set threshold
         if (Inventory.contains(settings.foodName)) {
             final int startHealth = Health.getCurrent();
             SpriteItem i = Inventory.getItems(settings.foodName).random();
             if (i != null) {
                 if (i.isValid() && i.interact("Eat")) {
                     Execution.delayUntil(() -> Health.getCurrent() != startHealth, 1600,2000);
+                    if (Random.nextInt(100) > 90) {
+                        execute();
+                    }
                 }
             }
         } else if (settings.exitOutFood) {

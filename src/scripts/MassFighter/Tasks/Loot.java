@@ -71,10 +71,11 @@ public class Loot extends Task {
 
     private Boolean takeGroundItem(GroundItem item) {
         if (item != null) {
+            int invCount = Inventory.getQuantity();
             itemName = item.getDefinition().getName();
             if (item.getVisibility() == 100) {
                 if (item.interact("Take", itemName)) {
-                    Execution.delayUntil(item::isValid, 1500,2000);
+                    Execution.delayUntil(() -> Inventory.getQuantity() > invCount, 1500,2000);
                     return true;
                 }
             } else {
