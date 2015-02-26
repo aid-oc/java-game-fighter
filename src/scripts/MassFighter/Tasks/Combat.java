@@ -30,7 +30,7 @@ public class Combat extends Task {
     private final NpcQueryBuilder validTargetQuery = Npcs.newQuery().within(fightArea).names(userProfile.getNpcNames()).filter(new Filter<Npc>() {
         @Override
         public boolean accepts(Npc npc) {
-            return npc != null && npc.getHealthGauge() == null && npc.isValid() && npc.getAnimationId() == -1 && !npc.getDefinition().getAppearance().contains(5176);
+            return npc != null && npc.getHealthGauge() == null && npc.isValid() && npc.getAnimationId() == -1;
         }
     }).reachable();
     private StopWatch idleTime = new StopWatch();
