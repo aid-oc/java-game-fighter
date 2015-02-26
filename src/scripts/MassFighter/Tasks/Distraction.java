@@ -31,7 +31,7 @@ public class Distraction extends Task {
         // todo add more
         switch (Random.nextInt(1)) {
             case 0:
-                Spice.hoverOverRandomSkill(Skill.values()[Random.nextInt(Skill.values().length)]);
+                Spice.hoverOverRandomSkill(Skill.values()[Random.nextInt(Skill.values().length)-1]);
                 break;
         }
         nextDistraction = Random.nextInt(30, 900);

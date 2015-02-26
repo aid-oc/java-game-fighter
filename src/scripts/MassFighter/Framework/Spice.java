@@ -77,17 +77,19 @@ public class Spice {
     }
 
     public static void hoverOverRandomSkill(Skill skill) {
-        if (!InterfaceWindows.getSkills().isOpen()) InterfaceWindows.getSkills().open();
-        System.out.println("Looking for: " + skill.toString());
-        InterfaceComponentQueryResults skillSquareResults = Interfaces.newQuery().containers(1466).texts(Integer.toString(skill.getCurrentLevel())).results();
-        if (!skillSquareResults.isEmpty()) {
-            InterfaceComponent skillSquare = (InterfaceComponent)skillSquareResults.first();
-            if (skillSquare != null) {
-                if (skillSquare.getBounds() != null) {
-                    if (skillSquare.getBounds().hover()) {
-                        Execution.delay(1000, 4000);
-                        if (Random.nextInt(10) >= 5) {
-                            InterfaceWindows.getInventory().open();
+        if (skill != null) {
+            if (!InterfaceWindows.getSkills().isOpen()) InterfaceWindows.getSkills().open();
+            System.out.println("Looking for: " + skill.toString());
+            InterfaceComponentQueryResults skillSquareResults = Interfaces.newQuery().containers(1466).texts(Integer.toString(skill.getCurrentLevel())).results();
+            if (!skillSquareResults.isEmpty()) {
+                InterfaceComponent skillSquare = (InterfaceComponent) skillSquareResults.first();
+                if (skillSquare != null) {
+                    if (skillSquare.getBounds() != null) {
+                        if (skillSquare.getBounds().hover()) {
+                            Execution.delay(1000, 4000);
+                            if (Random.nextInt(10) >= 5) {
+                                InterfaceWindows.getInventory().open();
+                            }
                         }
                     }
                 }
