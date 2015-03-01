@@ -8,7 +8,6 @@ import scripts.MassFighter.Framework.Spice;
 
 import java.util.concurrent.TimeUnit;
 
-
 public class Distraction extends Task {
 
     public static StopWatch lastDistraction = new StopWatch();
@@ -26,14 +25,8 @@ public class Distraction extends Task {
 
     @Override
     public void execute() {
-        System.out.println("DISTRACTION");
         lastDistraction.reset();
-        // todo add more
-        switch (Random.nextInt(1)) {
-            case 0:
-                Spice.hoverOverRandomSkill(Skill.values()[Random.nextInt(Skill.values().length)-1]);
-                break;
-        }
+        Spice.hoverOverRandomSkill(Random.nextElement(Skill.values()));
         nextDistraction = Random.nextInt(30, 900);
     }
 
