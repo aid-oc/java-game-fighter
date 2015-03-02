@@ -63,6 +63,7 @@ public class Pray extends Task {
                     rootScript.getTasks().stream().filter(task -> task != null && task instanceof Pray).forEach(task -> {
                         System.out.println("Removed Prayer Handler");
                         rootScript.remove(task);
+                        MassFighter.getSimpleTasks(rootScript.getTasks());
                     });
                 }
             } else {

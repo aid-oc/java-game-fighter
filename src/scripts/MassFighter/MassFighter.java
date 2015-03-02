@@ -15,6 +15,7 @@ import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.core.LoopingThread;
 import com.runemate.game.api.script.framework.listeners.InventoryListener;
 import com.runemate.game.api.script.framework.listeners.events.ItemEvent;
+import com.runemate.game.api.script.framework.task.Task;
 import com.runemate.game.api.script.framework.task.TaskScript;
 import javafx.application.Platform;
 import scripts.MassFighter.Framework.UserProfile;
@@ -26,9 +27,9 @@ import scripts.MassFighter.Tasks.Heal;
 import scripts.MassFighter.Tasks.Store;
 
 import java.awt.*;
-import java.awt.List;
 import java.text.NumberFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
@@ -43,6 +44,7 @@ public class MassFighter extends TaskScript implements PaintListener, InventoryL
     public static Boolean requestedShutdown;
     public static Boolean setupRunning;
     public static Graphics2D graphics;
+    public static List<String> runningTaskNames;
 
     private final StopWatch runningTime = new StopWatch();
     private final NumberFormat numberFormat = NumberFormat.getNumberInstance();
@@ -77,7 +79,7 @@ public class MassFighter extends TaskScript implements PaintListener, InventoryL
                 + Skill.PRAYER.getExperience() + Skill.CONSTITUTION.getExperience();
         runningTime.start();
 
-        add(new Distraction());
+        //add(new Distraction());
         if (settings.quickPray || (settings.useSoulsplit && Environment.isRS3())) {
             add(new Pray());
         }
@@ -93,6 +95,9 @@ public class MassFighter extends TaskScript implements PaintListener, InventoryL
         if (userProfile.getLootNames() != null || userProfile.getAlchLoot() != null || settings.buryBones) {
             add(new Loot());
         }
+        if (!settings.selectedPotions.isEmpty()) {
+            add(new Boost());
+        }
         add(new Combat());
         if (settings.useAbilities && Environment.isRS3()) {
             if (!ActionBar.isExpanded()) {
@@ -100,6 +105,13 @@ public class MassFighter extends TaskScript implements PaintListener, InventoryL
             }
             new LoopingThread(new Abilities(), 1000, 1200).start();
         }
+        getSimpleTasks(getTasks());
+    }
+
+    public static void getSimpleTasks(List<Task> tasks) {
+        List<String> taskNames = new ArrayList<>();
+        tasks.stream().filter(task -> task != null).forEach(task -> taskNames.add(task.getClass().getSimpleName()));
+        runningTaskNames = taskNames;
     }
 
     private void showAndWaitGUI() {
@@ -161,10 +173,10 @@ public class MassFighter extends TaskScript implements PaintListener, InventoryL
             Font font3 = new Font("Arial", Font.PLAIN, 12);
 
             g2d.setColor(color1);
-            g2d.fillRoundRect(1, 0, 560, 130, 16, 16);
+            g2d.fillRoundRect(1, 0, 560, 150, 16, 16);
             g2d.setColor(color2);
             g2d.setStroke(stroke1);
-            g2d.drawRoundRect(1, 0, 560, 130, 16, 16);
+            g2d.drawRoundRect(1, 0, 560, 150, 16, 16);
             g2d.setFont(font1);
             g2d.drawString("MassFighter", 211, 23);
             g2d.setFont(font2);
@@ -178,13 +190,14 @@ public class MassFighter extends TaskScript implements PaintListener, InventoryL
             g2d.drawString("Status: " + status, 7, 79);
             g2d.drawString("Runtime: " + runningTime.getRuntimeAsString(), 7, 96);
             g2d.drawString("Profile: " + userProfile.getProfileName(), 7, 61);
-            g2d.drawString("Next distraction in around: " + Distraction.getNext() + " seconds", 7, 120);
+            //g2d.drawString("Next distraction in around: " + Distraction.getNext() + " seconds", 7, 120);
+            g2d.drawString("Running Tasks: " + runningTaskNames, 7, 140);
             // Level info
             g2d.drawString("Constitution: " + Skill.CONSTITUTION.getCurrentLevel() + "(" + getLevelGain(constitutionLevel, Skill.CONSTITUTION) + ")" , 161, 61);
             g2d.drawString("Attack: " + Skill.ATTACK.getCurrentLevel() + "(" + getLevelGain(attackLevel, Skill.ATTACK) + ")", 161, 75);
             g2d.drawString("Strength: " + Skill.STRENGTH.getCurrentLevel() + "(" + getLevelGain(strengthLevel, Skill.STRENGTH) + ")", 161, 89);
             g2d.drawString("Defence: " + Skill.DEFENCE.getCurrentLevel() + "(" + getLevelGain(defenceLevel, Skill.DEFENCE) + ")", 276, 62);
-            g2d.drawString("Ranged: " + Skill.DEFENCE.getCurrentLevel() + "(" + getLevelGain(defenceLevel, Skill.DEFENCE) + ")", 276, 77);
+            g2d.drawString("Ranged: " + Skill.RANGED.getCurrentLevel() + "(" + getLevelGain(rangedLevel, Skill.RANGED) + ")", 276, 77);
             g2d.drawString("Magic: " + Skill.MAGIC.getCurrentLevel() + "(" + getLevelGain(mageLevel, Skill.MAGIC) + ")", 276, 92);
             g2d.drawString("Prayer: " + Skill.PRAYER.getCurrentLevel() + "(" + getLevelGain(prayerLevel, Skill.PRAYER) + ")", 161, 103);
             // Rates
@@ -217,12 +230,7 @@ public class MassFighter extends TaskScript implements PaintListener, InventoryL
                 }
             }
         }
-    }
 
-    private java.util.List<String> runningTasks() {
-        java.util.List<String> taskNames = new ArrayList<>();
-        getTasks().parallelStream().forEach(task -> taskNames.add(task.getClass().getSimpleName() + " "));
-        return taskNames;
     }
 
     private int getLevelGain(int start, Skill skill) {

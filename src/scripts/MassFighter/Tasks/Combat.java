@@ -87,7 +87,7 @@ public class Combat extends Task {
                     } else {
                         // Assign a target which is attacking us
                         if (!idleTime.isRunning()) idleTime.start();
-                        if (idleTime.getRuntime(TimeUnit.SECONDS) > Random.nextInt(5, 10)) {
+                        if (idleTime.getRuntime(TimeUnit.SECONDS) > Random.nextInt(2, 5)) {
                             System.out.println("Getting AGGRO Target: idled for " + idleTime.getRuntime(TimeUnit.SECONDS));
                             targetNpc = aggro.sortByDistance().limit(settings.targetSelection).random();
                             idleTime.stop();
