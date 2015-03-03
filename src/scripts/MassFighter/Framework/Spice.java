@@ -2,17 +2,13 @@ package scripts.MassFighter.Framework;
 
 import com.runemate.game.api.hybrid.entities.details.Locatable;
 import com.runemate.game.api.hybrid.local.Camera;
-import com.runemate.game.api.hybrid.local.Skill;
-import com.runemate.game.api.hybrid.local.hud.interfaces.*;
 import com.runemate.game.api.hybrid.location.navigation.Path;
 import com.runemate.game.api.hybrid.location.navigation.Traversal;
 import com.runemate.game.api.hybrid.location.navigation.basic.BresenhamPath;
 import com.runemate.game.api.hybrid.location.navigation.cognizant.RegionPath;
-import com.runemate.game.api.hybrid.queries.results.InterfaceComponentQueryResults;
 import com.runemate.game.api.hybrid.region.Players;
 import com.runemate.game.api.hybrid.util.calculations.Distance;
 import com.runemate.game.api.hybrid.util.calculations.Random;
-import com.runemate.game.api.script.Execution;
 
 // Some methods just to add some randomness to the paths etc. the script uses to hopefully reduce patterns between users
 public class Spice {
@@ -57,28 +53,6 @@ public class Spice {
                 }
                 if (toLocatable != null) {
                     toLocatable.step(true);
-                }
-            }
-        }
-    }
-
-    /* Hovers over a skill with a random chance of switching back to the inventory */
-    public static void hoverOverRandomSkill(Skill skill) {
-        if (skill != null) {
-            if (!InterfaceWindows.getSkills().isOpen()) InterfaceWindows.getSkills().open();
-            System.out.println("Looking for: " + skill.toString());
-            InterfaceComponentQueryResults skillSquareResults = Interfaces.newQuery().containers(1466).texts(Integer.toString(skill.getCurrentLevel())).results();
-            if (!skillSquareResults.isEmpty()) {
-                InterfaceComponent skillSquare = (InterfaceComponent) skillSquareResults.first();
-                if (skillSquare != null) {
-                    if (skillSquare.getBounds() != null) {
-                        if (skillSquare.getBounds().hover()) {
-                            Execution.delay(1000, 4000);
-                            if (Random.nextBoolean()) {
-                                InterfaceWindows.getInventory().open();
-                            }
-                        }
-                    }
                 }
             }
         }

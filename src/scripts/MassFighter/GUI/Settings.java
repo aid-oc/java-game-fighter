@@ -1,5 +1,9 @@
 package scripts.MassFighter.GUI;
 
+import scripts.MassFighter.Data.Potion;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Settings {
 
@@ -16,6 +20,8 @@ public class Settings {
     public Boolean quickPray = false;
     public Boolean exitOnPrayerOut = false;
     public Boolean tagMode = false;
+    public Boolean attackCombatMonsters = false;
+    public Boolean bypassReachable = false;
     public Boolean revolutionMode = false;
     public Boolean lootByValue = false;
     public double lootValue = 0;
@@ -26,6 +32,7 @@ public class Settings {
     public int eatValue = 0;
     public int prayValue = 0;
     public int criticalHitpoints = 0;
+    public List<Potion> selectedPotions = new ArrayList<>();
 
 
 }

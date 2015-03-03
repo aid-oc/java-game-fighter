@@ -30,9 +30,16 @@ public class Combat extends Task {
     private final NpcQueryBuilder validTargetQuery = Npcs.newQuery().within(fightArea).names(userProfile.getNpcNames()).filter(new Filter<Npc>() {
         @Override
         public boolean accepts(Npc npc) {
-            return npc != null && npc.getHealthGauge() == null && npc.isValid() && npc.getAnimationId() == -1;
+            if (settings.attackCombatMonsters) {
+                return npc != null && npc.isValid();
+            } else return npc != null && npc.getTarget() == null && npc.getHealthGauge() == null && npc.isValid() && npc.getAnimationId() == -1;
         }
-    }).reachable();
+    }).filter(new Filter<Npc>() {
+        @Override
+        public boolean accepts(Npc npc) {
+            return settings.bypassReachable || (npc.getPosition() != null && npc.getPosition().isReachable());
+        }
+    });
     private StopWatch idleTime = new StopWatch();
 
     public boolean validate() {

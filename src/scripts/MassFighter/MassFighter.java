@@ -79,7 +79,6 @@ public class MassFighter extends TaskScript implements PaintListener, InventoryL
                 + Skill.PRAYER.getExperience() + Skill.CONSTITUTION.getExperience();
         runningTime.start();
 
-        //add(new Distraction());
         if (settings.quickPray || (settings.useSoulsplit && Environment.isRS3())) {
             add(new Pray());
         }
@@ -89,17 +88,15 @@ public class MassFighter extends TaskScript implements PaintListener, InventoryL
         if (settings.useFood) {
             add(new Heal());
         }
-        if (userProfile.getAlchLoot() != null) {
+        if (userProfile.getAlchLoot() != null && userProfile.getAlchLoot().length > 0) {
             add(new Alchemy());
         }
-        if (userProfile.getLootNames() != null || userProfile.getAlchLoot() != null || settings.buryBones) {
+        if (userProfile.getLootNames() != null && userProfile.getLootNames().length > 0 || settings.buryBones) {
             add(new Loot());
         }
-        /*
         if (!settings.selectedPotions.isEmpty()) {
             add(new Boost());
         }
-        */
         add(new Combat());
         if (settings.useAbilities && Environment.isRS3()) {
             if (!ActionBar.isExpanded()) {
@@ -175,10 +172,10 @@ public class MassFighter extends TaskScript implements PaintListener, InventoryL
             Font font3 = new Font("Arial", Font.PLAIN, 12);
 
             g2d.setColor(color1);
-            g2d.fillRoundRect(1, 0, 560, 150, 16, 16);
+            g2d.fillRoundRect(1, 0, 560, 130, 16, 16);
             g2d.setColor(color2);
             g2d.setStroke(stroke1);
-            g2d.drawRoundRect(1, 0, 560, 150, 16, 16);
+            g2d.drawRoundRect(1, 0, 560, 130, 16, 16);
             g2d.setFont(font1);
             g2d.drawString("MassFighter", 211, 23);
             g2d.setFont(font2);
@@ -192,8 +189,7 @@ public class MassFighter extends TaskScript implements PaintListener, InventoryL
             g2d.drawString("Status: " + status, 7, 79);
             g2d.drawString("Runtime: " + runningTime.getRuntimeAsString(), 7, 96);
             g2d.drawString("Profile: " + userProfile.getProfileName(), 7, 61);
-            //g2d.drawString("Next distraction in around: " + Distraction.getNext() + " seconds", 7, 120);
-            g2d.drawString("Running Tasks: " + runningTaskNames, 7, 140);
+            g2d.drawString("Running Tasks: " + runningTaskNames, 7, 120);
             // Level info
             g2d.drawString("Constitution: " + Skill.CONSTITUTION.getCurrentLevel() + "(" + getLevelGain(constitutionLevel, Skill.CONSTITUTION) + ")" , 161, 61);
             g2d.drawString("Attack: " + Skill.ATTACK.getCurrentLevel() + "(" + getLevelGain(attackLevel, Skill.ATTACK) + ")", 161, 75);

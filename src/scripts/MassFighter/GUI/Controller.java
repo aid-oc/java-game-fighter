@@ -23,6 +23,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 import scripts.MassFighter.Data.Food;
+import scripts.MassFighter.Data.Potion;
 import scripts.MassFighter.Framework.UserProfile;
 import scripts.MassFighter.MassFighter;
 
@@ -129,8 +130,6 @@ public class Controller implements MouseListener, PaintListener {
     @FXML
     private Button btnResetArea;
     @FXML
-    private Button btnRunNoSave;
-    @FXML
     private CheckBox revolutionMode;
     @FXML
     private TextField lootValue;
@@ -142,6 +141,18 @@ public class Controller implements MouseListener, PaintListener {
     private ListView<String> selectedAlchLoot;
     @FXML
     private CheckBox showOutline;
+    @FXML
+    private ListView<Potion> availableBoosts;
+    @FXML
+    private ListView<Potion> selectedBoosts;
+    @FXML
+    private Button boostButton;
+    @FXML
+    private CheckBox attackCombatMonsters;
+    @FXML
+    private CheckBox bypassReachable;
+    @FXML
+    private ListView<String> updatesList;
 
 
     public UserProfile userProfile;
@@ -167,7 +178,21 @@ public class Controller implements MouseListener, PaintListener {
     public void initialize() {
 
         Environment.getScript().getEventDispatcher().addListener(this);
+
+        // Temporary Updates Solution
+        List<String> updates = new ArrayList<>();
+        updates.add("03/03/2015: Added potion support + quickpraying for OSRS");
+        updates.add("02/03/2015: Added more target finding options, you may need to remake profiles ");
+        updates.add("02/03/2015: Made target finding faster, fixed crash");
+        updates.add("01/03/2015: Updated Logic Randomness");
+        // List was adding 2 of each item for some reason
+        updates.stream().filter(n -> !updatesList.getItems().contains(n)).forEach(n -> {
+            updatesList.getItems().add(n);
+        });
+
+
         txtProfileName.setText("None Selected");
+        availableBoosts.getItems().addAll(Potion.values());
         // Add onAction event handlers
         // update
         refreshButton.setOnAction(event -> {
@@ -183,6 +208,15 @@ public class Controller implements MouseListener, PaintListener {
             } else if (!availableMonsters.getSelectionModel().getSelectedItems().isEmpty()) {
                 availableMonsters.getSelectionModel().getSelectedItems().stream().filter(s -> !selectedMonsters.getItems().contains(s)).forEach(s -> {
                     selectedMonsters.getItems().add(s);
+                });
+            }
+        });
+        boostButton.setOnAction(event -> {
+            if (!selectedBoosts.getSelectionModel().getSelectedItems().isEmpty()) {
+                selectedBoosts.getItems().removeAll(selectedBoosts.getSelectionModel().getSelectedItems());
+            } else if (!availableBoosts.getSelectionModel().getSelectedItems().isEmpty()) {
+                availableBoosts.getSelectionModel().getSelectedItems().stream().filter(s -> !selectedBoosts.getItems().contains(s)).forEach(s -> {
+                    selectedBoosts.getItems().add(s);
                 });
             }
         });
@@ -243,6 +277,8 @@ public class Controller implements MouseListener, PaintListener {
                         settings.quickPray = Boolean.valueOf(element.getElementsByTagName("quickPray").item(0).getTextContent());
                         settings.exitOnPrayerOut = Boolean.valueOf(element.getElementsByTagName("exitOnPrayerOut").item(0).getTextContent());
                         settings.tagMode = Boolean.valueOf(element.getElementsByTagName("tagMode").item(0).getTextContent());
+                        settings.attackCombatMonsters = Boolean.valueOf(element.getElementsByTagName("attackCombatMonsters").item(0).getTextContent());
+                        settings.bypassReachable = Boolean.valueOf(element.getElementsByTagName("bypassReachable").item(0).getTextContent());
                         settings.revolutionMode = Boolean.valueOf((element.getElementsByTagName("revolutionMode").item(0).getTextContent()));
                         settings.tagSelection = (int)Double.parseDouble(element.getElementsByTagName("tagSelection").item(0).getTextContent());
                         settings.foodAmount = (int)Double.parseDouble(element.getElementsByTagName("foodAmount").item(0).getTextContent());
@@ -250,6 +286,16 @@ public class Controller implements MouseListener, PaintListener {
                         settings.eatValue = (int)Double.parseDouble(element.getElementsByTagName("eatValue").item(0).getTextContent());
                         settings.prayValue = (int)Double.parseDouble(element.getElementsByTagName("prayValue").item(0).getTextContent());
                         settings.criticalHitpoints = (int)Double.parseDouble(element.getElementsByTagName("criticalHitpoints").item(0).getTextContent());
+
+
+                        List<Potion> potions = new ArrayList<>();
+                        NodeList potionList = document.getElementsByTagName("selectedPotions");
+                        NodeList potionNodes = potionList.item(0).getChildNodes();
+                        for (int i = 0; i < potionNodes.getLength(); i++) {
+                            potions.add(Potion.valueOf(potionNodes.item(i).getTextContent().toUpperCase().replace(" ", "_")));
+                        }
+                        settings.selectedPotions = potions;
+
                         profile.settings = settings;
 
                         String profileName = document.getElementsByTagName("profileName").item(0).getTextContent();
@@ -359,17 +405,6 @@ public class Controller implements MouseListener, PaintListener {
             removeAllCoordinates(areaCoords, areaCoords);
         });
 
-        btnRunNoSave.setOnAction(event -> {
-            txtSetProfileName.setText("Quick Run");
-            UserProfile quickProfile = createProfile();
-            if (quickProfile != null) {
-                userProfile = quickProfile;
-                btnStart.fire();
-            } else {
-                txtProfileSaved.setText("Invalid profile");
-            }
-        });
-
         abilities.setOnAction(event -> {
             if (abilities.isSelected()) {
                 revolutionMode.setDisable(false);
@@ -425,6 +460,9 @@ public class Controller implements MouseListener, PaintListener {
     private void populateUI(UserProfile profile) {
         if (profile != null) {
             selectedMonsters.getItems().setAll(profile.getNpcNames());
+            if (!profile.settings.selectedPotions.isEmpty()) {
+                selectedBoosts.getItems().addAll(profile.settings.selectedPotions);
+            }
             targetSlider.setValue(profile.settings.targetSelection);
             tagMode.setSelected(profile.settings.tagMode);
             tagSlider.setValue(profile.settings.tagSelection);
@@ -447,6 +485,8 @@ public class Controller implements MouseListener, PaintListener {
             selectedLoot.getItems().setAll(profile.getLootNames());
             selectedAlchLoot.getItems().setAll(profile.getAlchLoot());
             soulsplit.setSelected(profile.settings.useSoulsplit);
+            attackCombatMonsters.setSelected(profile.settings.attackCombatMonsters);
+            bypassReachable.setSelected(profile.settings.bypassReachable);
             quickPray.setSelected(profile.settings.quickPray);
             prayValue.setText(Integer.toString(profile.settings.prayValue));
             exitPrayer.setSelected(profile.settings.exitOnPrayerOut);
@@ -459,7 +499,7 @@ public class Controller implements MouseListener, PaintListener {
             }
 
             txtProfileName.setText(profile.getProfileName());
-            txtProfileSaved.setText("Profile loaded! - Press 'Start Loaded'");
+            txtProfileSaved.setText("Profile loaded and ready to go!");
         }
     }
 
@@ -486,6 +526,10 @@ public class Controller implements MouseListener, PaintListener {
 
     // Start button pressed, start the script
     public void start(ActionEvent actionEvent) {
+        if (userProfile == null) {
+            txtSetProfileName.setText("Quick Run");
+            userProfile = createProfile();
+        }
         if (userProfile != null) {
             MassFighter.userProfile = userProfile;
             MassFighter.setupRunning = false;
@@ -495,7 +539,7 @@ public class Controller implements MouseListener, PaintListener {
             System.out.println("Profile Invalid");
             eatValue.setText("3000");
             tileRange.setText("20");
-            criticalHitpoints.setText("1000");
+            criticalHitpoints.setText("10");
         }
     }
 
@@ -609,6 +653,14 @@ public class Controller implements MouseListener, PaintListener {
                             useTagMode.appendChild(document.createTextNode(Boolean.toString(tagMode.isSelected())));
                             settings.appendChild(useTagMode);
 
+                            Element attackCombatNpcs = document.createElement("attackCombatMonsters");
+                            attackCombatNpcs.appendChild(document.createTextNode(Boolean.toString(attackCombatMonsters.isSelected())));
+                            settings.appendChild(attackCombatNpcs);
+
+                            Element attackUnreachable = document.createElement("bypassReachable");
+                            attackUnreachable.appendChild(document.createTextNode(Boolean.toString(bypassReachable.isSelected())));
+                            settings.appendChild(attackUnreachable);
+
                             Element useRevolutionMode = document.createElement("revolutionMode");
                             useRevolutionMode.appendChild(document.createTextNode(Boolean.toString(revolutionMode.isSelected())));
                             settings.appendChild(useRevolutionMode);
@@ -679,6 +731,16 @@ public class Controller implements MouseListener, PaintListener {
                             }
                             rootElement.appendChild(loot);
 
+                            Element selectedPotions = document.createElement("selectedPotions");
+                            if (!selectedBoosts.getItems().isEmpty()) {
+                                for (Potion p : selectedBoosts.getItems()) {
+                                    Element potionItem = document.createElement("selectedPotion");
+                                    potionItem.appendChild(document.createTextNode(p.getPotionName()));
+                                    selectedPotions.appendChild(potionItem);
+                                }
+                            }
+                            rootElement.appendChild(selectedPotions);
+
                             Element alchLoot = document.createElement("alchLoot");
                             for (String alchLootName : selectedAlchLoot.getItems()) {
                                 Element alchItem = document.createElement("alchItem");
@@ -742,6 +804,8 @@ public class Controller implements MouseListener, PaintListener {
                             settings.tagMode = true;
                             settings.tagSelection = (int) tagSlider.getValue();
                         }
+                        settings.attackCombatMonsters = attackCombatMonsters.isSelected();
+                        settings.bypassReachable = bypassReachable.isSelected();
                         settings.showOutline = showOutline.isSelected();
                         settings.waitForLoot = waitLoot.isSelected();
                         settings.targetSelection = (int) targetSlider.getValue();
@@ -756,6 +820,9 @@ public class Controller implements MouseListener, PaintListener {
                         settings.criticalHitpoints = Integer.valueOf(criticalHitpoints.getText());
                         settings.exitOutFood = stopWhenOutOfFood.isSelected();
                         settings.buryBones = buryBones.isSelected();
+                        if (!selectedBoosts.getItems().isEmpty()) {
+                            settings.selectedPotions = selectedBoosts.getItems();
+                        }
 
                         if (!selectedLoot.getItems().isEmpty() || lootByValue.isSelected() && Pattern.matches("\\d+", lootValue.getText())) {
                             if (lootByValue.isSelected() && Pattern.matches("\\d+", lootValue.getText())) {
@@ -853,7 +920,9 @@ public class Controller implements MouseListener, PaintListener {
             if (showArea.isSelected()) {
                 graphics2D.setColor(Color.GREEN);
                 Area area = new Area.Polygonal(renderCoords.toArray(new Coordinate[(renderCoords.size())]));
-                area.render(graphics2D);
+                if (area.getCoordinates() != null) {
+                    area.render(graphics2D);
+                }
             }
         }
     }
