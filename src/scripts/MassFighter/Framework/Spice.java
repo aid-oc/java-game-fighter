@@ -43,17 +43,16 @@ public class Spice {
             Path toLocatable;
             Double distance = Distance.between(Players.getLocal(), l);
             if (distance != null) {
-                if (distance > Random.nextInt(15, 20)) {
+                if (distance > Random.nextInt(10, 12)) {
                     toLocatable = Traversal.getDefaultWeb().getPathBuilder().buildTo(l);
                 } else {
                     toLocatable = RegionPath.buildTo(l);
-                    if (toLocatable == null) {
-                        toLocatable = BresenhamPath.buildTo(l);
-                    }
                 }
-                if (toLocatable != null) {
-                    toLocatable.step(true);
-                }
+            } else {
+                toLocatable = BresenhamPath.buildTo(l);
+            }
+            if (toLocatable != null) {
+                toLocatable.step(true);
             }
         }
     }

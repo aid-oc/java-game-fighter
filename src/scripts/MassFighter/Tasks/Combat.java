@@ -32,7 +32,7 @@ public class Combat extends Task {
         public boolean accepts(Npc npc) {
             if (settings.attackCombatMonsters) {
                 return npc != null && npc.isValid();
-            } else return npc != null && npc.getTarget() == null && npc.getHealthGauge() == null && npc.isValid() && npc.getAnimationId() == -1;
+            } else return npc != null && npc.getHealthGauge() == null && npc.isValid() && npc.getAnimationId() == -1;
         }
     }).filter(new Filter<Npc>() {
         @Override
