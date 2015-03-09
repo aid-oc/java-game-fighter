@@ -4,6 +4,25 @@ import com.runemate.game.api.hybrid.local.Skill;
 
 public enum Potion {
 
+
+    /* OSRS */
+    // ATTACK POTIONS
+    OSRS_ATTACK_POTION("Attack potion", getIncrease(Skill.ATTACK, 3, 10), Skill.ATTACK),
+    OSRS_SUPER_ATTACK("Super attack", getIncrease(Skill.ATTACK, 5, 15), Skill.ATTACK),
+    // STRENGTH POTIONS
+    OSRS_STRENGTH_POTION("Strength potion", getIncrease(Skill.STRENGTH, 3, 10),  Skill.STRENGTH),
+    OSRS_SUPER_STRENGTH("Super strength", getIncrease(Skill.STRENGTH, 5, 15), Skill.STRENGTH),
+    // DEFENCE POTIONS
+    OSRS_DEFENCE_POTION("Defence potion", getIncrease(Skill.DEFENCE, 3, 10), Skill.DEFENCE),
+    OSRS_SUPER_DEFENCE("Super defence", getIncrease(Skill.DEFENCE, 5, 15), Skill.DEFENCE),
+    // RANGED POTIONS
+    OSRS_RANGING_POTION("Ranging potion", getIncrease(Skill.RANGED, 4, 10), Skill.RANGED),
+    OSRS_SUPER_RANGING("Super ranging", getIncrease(Skill.RANGED, 5, 15), Skill.RANGED),
+    // MAGIC POTIONS
+    OSRS_MAGIC_POTION("Magic potion", getIncrease(Skill.MAGIC, 4, 0), Skill.MAGIC),
+    OSRS_SUPER_MAGIC("Super magic", getIncrease(Skill.MAGIC, 5, 15), Skill.MAGIC),
+
+    /* RS3 */
     // MULTIPLE
     OVERLOAD("Overload", getIncrease(Skill.ATTACK, 3, 15), Skill.ATTACK, Skill.DEFENCE, Skill.STRENGTH, Skill.RANGED, Skill.MAGIC),
     COMBAT_POTION("Combat potion", getIncrease(Skill.ATTACK, 3, 10), Skill.ATTACK, Skill.STRENGTH),

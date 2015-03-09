@@ -4,7 +4,6 @@ import com.runemate.game.api.hybrid.local.Skill;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
 import com.runemate.game.api.hybrid.local.hud.interfaces.SpriteItem;
 import com.runemate.game.api.hybrid.util.Filter;
-import com.runemate.game.api.hybrid.util.calculations.Random;
 import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.task.Task;
 import scripts.MassFighter.Data.Potion;
@@ -22,7 +21,7 @@ public class Boost extends Task {
         if (!MassFighter.settings.selectedPotions.isEmpty()) {
             for (Potion p : MassFighter.settings.selectedPotions) {
                 Skill skill = p.getPotionSkills()[0];
-                if ((skill.getCurrentLevel() < skill.getBaseLevel() + p.getBoost()-(p.getBoost()/Random.nextInt(3, 4))) && !Inventory.newQuery().filter(new Filter<SpriteItem>() {
+                if ((skill.getCurrentLevel() < (skill.getBaseLevel() + (p.getBoost()/3))) && !Inventory.newQuery().filter(new Filter<SpriteItem>() {
                     @Override
                     public boolean accepts(SpriteItem spriteItem) {
                         return spriteItem.getDefinition().getName().contains(p.getPotionName());

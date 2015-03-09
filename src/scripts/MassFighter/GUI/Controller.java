@@ -181,6 +181,7 @@ public class Controller implements MouseListener, PaintListener {
 
         // Temporary Updates Solution
         List<String> updates = new ArrayList<>();
+        updates.add("09/03/2015: Added OSRS boosts");
         updates.add("03/03/2015: Added potion support + quickpraying for OSRS");
         updates.add("02/03/2015: Added more target finding options, you may need to remake profiles ");
         updates.add("02/03/2015: Made target finding faster, fixed crash");
@@ -292,7 +293,7 @@ public class Controller implements MouseListener, PaintListener {
                         NodeList potionList = document.getElementsByTagName("selectedPotions");
                         NodeList potionNodes = potionList.item(0).getChildNodes();
                         for (int i = 0; i < potionNodes.getLength(); i++) {
-                            potions.add(Potion.valueOf(potionNodes.item(i).getTextContent().toUpperCase().replace(" ", "_")));
+                            potions.add(Potion.valueOf(potionNodes.item(i).getTextContent()));
                         }
                         settings.selectedPotions = potions;
 
@@ -735,11 +736,12 @@ public class Controller implements MouseListener, PaintListener {
                             if (!selectedBoosts.getItems().isEmpty()) {
                                 for (Potion p : selectedBoosts.getItems()) {
                                     Element potionItem = document.createElement("selectedPotion");
-                                    potionItem.appendChild(document.createTextNode(p.getPotionName()));
+                                    potionItem.appendChild(document.createTextNode(p.name()));
                                     selectedPotions.appendChild(potionItem);
                                 }
                             }
                             rootElement.appendChild(selectedPotions);
+
 
                             Element alchLoot = document.createElement("alchLoot");
                             for (String alchLootName : selectedAlchLoot.getItems()) {
