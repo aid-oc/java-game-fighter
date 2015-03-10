@@ -68,7 +68,6 @@ public class Loot extends Task {
         if (targetItem != null) {
             String targetItemName = targetItem.getDefinition().getName().toLowerCase();
             if (takeGroundItem(targetItem)) {
-                System.out.println("Looted: " + itemName);
                 if (targetItemName.contains("arrow") || targetItemName.contains("bolt")) {
                     SpriteItemQueryResults equipmentQuery = Equipment.newQuery().filter(new Filter<SpriteItem>() {
                         @Override
@@ -89,10 +88,10 @@ public class Loot extends Task {
                                 if (equipItem.interact("Wield")) {
                                     Execution.delayUntil(() -> equipItems.results().isEmpty(), 1500, 2000);
                                 }
-                            } else System.out.println("Equippable ammunition is null");
-                        } else System.out.println("We have no ammunition to equip");
-                    } else System.out.println("We're not using this ammunition, not equipping");
-                } else System.out.println("Loot isn't ammunition, not equipping.");
+                            }
+                        }
+                    }
+                }
             }
         }
     }

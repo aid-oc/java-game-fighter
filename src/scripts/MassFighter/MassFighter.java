@@ -94,6 +94,9 @@ public class MassFighter extends TaskScript implements PaintListener, InventoryL
         if (userProfile.getLootNames() != null && userProfile.getLootNames().length > 0 || settings.buryBones) {
             add(new Loot());
         }
+        if (settings.buryBones) {
+            add(new BuryBones());
+        }
         if (settings.useMagicNotepaper) {
             add(new MagicNotepaper());
         }
