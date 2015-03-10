@@ -71,7 +71,11 @@ public class UserProfile {
     }
 
     public String[] getLootNames() {
-        return lootNames;
+        String[] lowercaseLoot = new String[lootNames.length];
+        for (int i = 0; i < lootNames.length; i++) {
+            lowercaseLoot[i] = lootNames[i].toLowerCase();
+        }
+        return lowercaseLoot;
     }
 
     public void setFightAreaCoords(List<Coordinate> coords) {

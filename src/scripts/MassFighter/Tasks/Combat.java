@@ -15,7 +15,7 @@ import com.runemate.game.api.hybrid.util.StopWatch;
 import com.runemate.game.api.hybrid.util.calculations.Random;
 import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.task.Task;
-import scripts.MassFighter.Framework.Spice;
+import scripts.MassFighter.Framework.Movement;
 import scripts.MassFighter.Framework.UserProfile;
 import scripts.MassFighter.MassFighter;
 
@@ -74,7 +74,6 @@ public class Combat extends Task {
                         // We're not in combat, get a new target
                         LocatableEntityQueryResults<Npc> targets = validTargetQuery.results();
                         if (!targets.isEmpty()) {
-                            System.out.println("Getting new target");
                             targetNpc = targets.sortByDistance().limit(settings.targetSelection).random();
                         } else if (!userProfile.getFightArea().contains(Players.getLocal())) {
                             MassFighter.status = "Returning";
@@ -83,7 +82,7 @@ public class Combat extends Task {
                                 if (random.isVisible()) {
                                     random.click();
                                 } else {
-                                    Spice.moveToLocatable(random);
+                                    Movement.moveToLocatable(random);
                                 }
                             }
                         } else {
@@ -102,7 +101,7 @@ public class Combat extends Task {
                         }
                     }
                 } else {
-                    Spice.pathToLocatable(fightArea);
+                    Movement.pathToLocatable(fightArea);
                 }
             } else {
                 idleTime.reset();
@@ -139,7 +138,7 @@ public class Combat extends Task {
     private boolean attackTarget(final Npc targetNpc) {
         MassFighter.status = "Attacking Target";
         MassFighter.targetEntity = targetNpc;
-        if (targetNpc.getVisibility() == 100) {
+        if (targetNpc.isVisible()) {
             if (targetNpc.interact("Attack", targetNpc.getName())) {
                 if (settings.tagMode) {
                     Execution.delayUntil(() -> {
@@ -154,7 +153,7 @@ public class Combat extends Task {
                 return true;
             }
         } else {
-            Spice.moveToLocatable(targetNpc);
+            Movement.moveToLocatable(targetNpc);
         }
         return false;
     }

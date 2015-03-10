@@ -52,34 +52,31 @@ public class Alchemy extends Task {
         MassFighter.status = "Alching";
         if (Skill.MAGIC.getCurrentLevel() >= 55) {
             if ((Environment.isRS3() && Powers.Magic.Book.getCurrent().equals(Powers.Magic.Book.STANDARD) || (Environment.isOSRS() && Magic.Book.getCurrent().equals(Magic.Book.STANDARD)))) {
-                SpriteItem targetItem = alchItems.results().limit(3).random();
-                SlotAction highAlch = ActionBar.getFirstAction("High Level Alchemy");
-                if (highAlch != null && highAlch.isValid() && highAlch.isActivatable()) {
-                    if (highAlch.activate()) {
-                        if (targetItem != null) {
-                            String itemName = targetItem.getDefinition().getName();
-                            int itemCount = Inventory.getQuantity(itemName);
-                            if (targetItem.click()) {
-                                System.out.println("Alched: " + targetItem.getDefinition().getName());
-                                Execution.delayUntil(() -> Inventory.getQuantity(itemName) < itemCount, 2000, 2200);
-                            }
-                        }
-                    }
-                } else {
-                    if (Powers.Magic.HIGH_LEVEL_ALCHEMY.activate()) {
-                        Execution.delay(600, 800);
-                        System.out.println("Activated Alchemy");
-                        if (targetItem != null) {
-                            String itemName = targetItem.getDefinition().getName();
-                            int itemCount = Inventory.getQuantity(itemName);
-                            if (targetItem.click()) {
-                                System.out.println("Alched: " + targetItem.getDefinition().getName());
-                                Execution.delayUntil(() -> Inventory.getQuantity(itemName) < itemCount, 2000, 2200);
+                SpriteItem alchItem = alchItems.results().limit(3).random();
+                if (alchItem != null) {
+                    String targetItemName = alchItem.getDefinition().getName();
+                    SlotAction highAlch = ActionBar.getFirstAction("High Level Alchemy");
+                    if (highAlch != null && highAlch.isValid() && highAlch.isActivatable()) {
+                        if (highAlch.activate()) {
+                            int itemCount = Inventory.getQuantity(targetItemName);
+                            if (alchItem.click()) {
+                                System.out.println("Alched: " + targetItemName);
+                                Execution.delayUntil(() -> Inventory.getQuantity(targetItemName) < itemCount, 2000, 2200);
                             }
                         }
                     } else {
-                        if (Menu.isOpen()) Menu.close();
-                        System.out.println("Failed to activate high alchemy");
+                        if ((Environment.isRS3() && Powers.Magic.HIGH_LEVEL_ALCHEMY.activate()) || (Environment.isOSRS() && Magic.HIGH_LEVEL_ALCHEMY.activate())) {
+                            Execution.delay(600, 800);
+                            System.out.println("Activated Alchemy");
+                            int itemCount = Inventory.getQuantity(targetItemName);
+                            if (alchItem.click()) {
+                                System.out.println("Alched: " + targetItemName);
+                                Execution.delayUntil(() -> Inventory.getQuantity(targetItemName) < itemCount, 2000, 2200);
+                            }
+                        } else {
+                            if (Menu.isOpen()) Menu.close();
+                            System.out.println("Failed to activate high alchemy");
+                        }
                     }
                 }
             }

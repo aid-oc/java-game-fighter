@@ -32,7 +32,7 @@ public class Pray extends Task {
     public boolean validate() {
         return  (getPrayPoints() < settings.prayValue) ||
                 (settings.useSoulsplit && Environment.isRS3() && !Powers.Prayer.Curse.SOUL_SPLIT.isActivated())
-                || (settings.quickPray && ((Environment.isOSRS() && !Powers.Prayer.isQuickPraying()) || (Environment.isOSRS() && quickPrayActivateQuery.results().isEmpty())) );
+                || (settings.quickPray && ((Environment.isRS3() && !Powers.Prayer.isQuickPraying()) || (Environment.isOSRS() && !quickPrayActivateQuery.results().isEmpty())) );
     }
 
     @Override
@@ -100,7 +100,7 @@ public class Pray extends Task {
         }
     }
 
-    private int getPrayPoints() {
+    public static int getPrayPoints() {
         if (Environment.isRS3()) {
             return Powers.Prayer.getPoints();
         } else {

@@ -38,7 +38,6 @@ public class Abilities extends Task implements Runnable {
                 if (ability != null) {
                     if (ability.getName() != null && ability.isActivatable() && ability.isReady()) {
                         if (ability.activate()) {
-                            System.out.println("Used Ability: " + ability.getName());
                             Execution.delayUntil(() -> !ability.isReady(), 1000, 1600);
                             break;
                         }

@@ -24,6 +24,7 @@ public class Settings {
     public Boolean bypassReachable = false;
     public Boolean revolutionMode = false;
     public Boolean lootByValue = false;
+    public Boolean useMagicNotepaper = false;
     public double lootValue = 0;
     public int tagSelection = 0;
     public int foodAmount = 0;

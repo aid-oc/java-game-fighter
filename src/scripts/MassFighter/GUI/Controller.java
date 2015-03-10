@@ -181,11 +181,10 @@ public class Controller implements MouseListener, PaintListener {
 
         // Temporary Updates Solution
         List<String> updates = new ArrayList<>();
+        updates.add("10/03/2015: Fixed quickpraying, fixed alchemy, looting changes");
         updates.add("09/03/2015: Added OSRS boosts");
         updates.add("03/03/2015: Added potion support + quickpraying for OSRS");
         updates.add("02/03/2015: Added more target finding options, you may need to remake profiles ");
-        updates.add("02/03/2015: Made target finding faster, fixed crash");
-        updates.add("01/03/2015: Updated Logic Randomness");
         // List was adding 2 of each item for some reason
         updates.stream().filter(n -> !updatesList.getItems().contains(n)).forEach(n -> {
             updatesList.getItems().add(n);

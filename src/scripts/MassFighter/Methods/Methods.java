@@ -6,8 +6,8 @@ import com.runemate.game.api.hybrid.local.hud.interfaces.Health;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
 import com.runemate.game.api.hybrid.region.Npcs;
 import com.runemate.game.api.hybrid.region.Players;
-import com.runemate.game.api.rs3.local.hud.Powers;
 import scripts.MassFighter.MassFighter;
+import scripts.MassFighter.Tasks.Pray;
 
 import static scripts.MassFighter.MassFighter.settings;
 import static scripts.MassFighter.MassFighter.userProfile;
@@ -31,7 +31,7 @@ public class Methods  {
     public Boolean readyToFight() {
         if (RuneScape.isLoggedIn()) {
             if (settings.useSoulsplit || settings.quickPray) {
-                return Powers.Prayer.getPoints() >= settings.prayValue;
+                return Pray.getPrayPoints() >= settings.prayValue;
             } else if (settings.useFood) {
                 return Inventory.contains(settings.foodName) && Health.getCurrent() >= settings.eatValue;
             } else if (Health.getCurrent() < settings.criticalHitpoints) {
