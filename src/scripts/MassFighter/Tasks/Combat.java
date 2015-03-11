@@ -48,7 +48,7 @@ public class Combat extends Task {
             final LocatableEntityQueryResults<Npc> validTargetResults = validTargets.results();
             if (!validTargetResults.isEmpty()) {
                 MassFighter.status = "Finding Target";
-                final Npc targetNpc = validTargetResults.limit(settings.targetSelection).random();
+                final Npc targetNpc = validTargetResults.sortByDistance().limit(settings.targetSelection).random();
                 if (targetNpc != null && targetNpc.getSpotAnimationIds().isEmpty()) {
                     MassFighter.targetEntity = targetNpc;
                     if (targetNpc.isVisible()) {
