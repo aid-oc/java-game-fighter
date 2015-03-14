@@ -2,6 +2,7 @@ package scripts.MassFighter.Tasks;
 
 import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.entities.GroundItem;
+import com.runemate.game.api.hybrid.entities.definitions.ItemDefinition;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Equipment;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
 import com.runemate.game.api.hybrid.local.hud.interfaces.SpriteItem;
@@ -27,37 +28,18 @@ import static scripts.MassFighter.MassFighter.userProfile;
 public class Loot extends Task {
 
     public static HashMap<String, Integer> itemPrices = new HashMap<>();
-    private String itemName;
+
     public static GroundItemQueryBuilder validLoot = GroundItems.newQuery().within(userProfile.getFightArea()).filter(new Filter<GroundItem>() {
         @Override
         public boolean accepts(GroundItem groundItem) {
             String itemName = groundItem.getDefinition().getName().toLowerCase();
-            if (settings.lootByValue) {
-                int itemValue = 0;
-                if (itemPrices.containsKey(itemName)) {
-                    itemValue = itemPrices.get(itemName);
-                } else {
-                    if (Environment.isRS3()) {
-                        GrandExchange.Item item = GrandExchange.lookup(groundItem.getId());
-                        if (item != null) {
-                            itemValue = item.getPrice();
-                        }
-                    } else {
-                        itemValue = Zybez.getAveragePrice(itemName);
-                    }
-                    itemPrices.put(itemName, itemValue);
-                }
-                if (itemValue >= settings.lootValue) {
-                    return true;
-                }
-            }
-            return Arrays.asList(userProfile.getLootNames()).contains(itemName) || (settings.buryBones && (itemName.contains("bones") || itemName.contains("ashes")));
+            return hasRoomForItem(groundItem) && settings.lootByValue ? isWorthLooting(groundItem) : Arrays.asList(userProfile.getLootNames()).contains(itemName) || (settings.buryBones && (itemName.contains("bones") || itemName.contains("ashes")));
         }
     }).reachable();
 
     @Override
     public boolean validate() {
-        return !Inventory.isFull() && !validLoot.results().isEmpty() && (settings.lootInCombat || !MassFighter.methods.isInCombat());
+        return !validLoot.results().isEmpty() && (settings.lootInCombat || !MassFighter.methods.isInCombat());
     }
 
     @Override
@@ -96,9 +78,49 @@ public class Loot extends Task {
         }
     }
 
+    private static Boolean hasRoomForItem(GroundItem groundItem) {
+        if (groundItem != null) {
+            ItemDefinition itemDefinition = groundItem.getDefinition();
+            int itemId = itemDefinition.getId();
+            int notedId = itemDefinition.getNotedId();
+            return !Inventory.isFull() || (itemId == notedId && Inventory.contains(notedId)) || (notedId == -1 && Inventory.contains(itemId));
+        }
+        return false;
+    }
+
+    /**
+     * Returns true if the item is above the specified loot value
+    @param gItem The GroundItem to check the value of
+     */
+    public static Boolean isWorthLooting(GroundItem gItem) {
+        int itemValue = 0;
+        String itemName = gItem.getDefinition().getName();
+        int itemId = gItem.getId();
+        if (itemPrices.containsKey(itemName)) {
+            itemValue = itemPrices.get(itemName);
+        } else {
+            if (Environment.isRS3()) {
+                GrandExchange.Item item = GrandExchange.lookup(itemId);
+                if (item != null) {
+                    itemValue = item.getPrice();
+                }
+            } else {
+                itemValue = Zybez.getAveragePrice(itemName);
+            }
+            itemPrices.put(itemName, itemValue);
+        }
+        return itemValue >= settings.lootValue;
+    }
+
+    /**
+     * Returns true if a ground item is successfully looted, otherwise will attempt to relocate to the item
+     * and return false.
+     * @param item The GroundItem to loot
+     * @return Whether the item was successfully looted
+     */
     private Boolean takeGroundItem(GroundItem item) {
         int invCount = Inventory.getQuantity();
-        itemName = item.getDefinition().getName();
+        String itemName = item.getDefinition().getName();
         if (item.isVisible()) {
             if (item.interact("Take", itemName)) {
                 Execution.delayUntil(() -> Inventory.getQuantity() > invCount, 1500,2000);

@@ -1,8 +1,8 @@
 package scripts.MassFighter.Tasks;
 
+import com.runemate.game.api.hybrid.entities.LocatableEntity;
 import com.runemate.game.api.hybrid.entities.Npc;
 import com.runemate.game.api.hybrid.entities.Player;
-import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
 import com.runemate.game.api.hybrid.queries.NpcQueryBuilder;
 import com.runemate.game.api.hybrid.queries.results.LocatableEntityQueryResults;
 import com.runemate.game.api.hybrid.region.Npcs;
@@ -34,8 +34,8 @@ public class Combat extends Task {
     private final StopWatch timeSinceLastCombat = new StopWatch();
 
     public boolean validate() {
-        return userProfile.getBankArea() != null ? MassFighter.methods.readyToFight() && !Inventory.isFull()
-                : MassFighter.methods.readyToFight() && (Loot.validLoot.results().isEmpty() || Inventory.isFull());
+        return userProfile.getBankArea() != null ? MassFighter.methods.readyToFight() && Loot.validLoot.results().isEmpty()
+                : MassFighter.methods.readyToFight() && Loot.validLoot.results().isEmpty();
     }
 
     @Override
@@ -44,7 +44,7 @@ public class Combat extends Task {
         final LocatableEntityQueryResults<Npc> npcsTargettingUs = underAttackQuery.results();
 
         if (npcsTargettingUs.isEmpty() || (MassFighter.settings.tagMode && npcsTargettingUs.size() < MassFighter.settings.tagSelection) || ((!timeSinceLastCombat.isRunning()
-                || timeSinceLastCombat.getRuntime(TimeUnit.SECONDS) > Random.nextInt(2, 4)) && player.getTarget() == null && player.getAnimationId() == -1)) {
+                || timeSinceLastCombat.getRuntime(TimeUnit.SECONDS) > Random.nextInt(2, 4)) && player.getTarget() == null && player.getAnimationId() == -1 && player.getHealthGauge() == null)) {
             final LocatableEntityQueryResults<Npc> validTargetResults = validTargets.results();
             if (!validTargetResults.isEmpty()) {
                 MassFighter.status = "Finding Target";
@@ -65,6 +65,10 @@ public class Combat extends Task {
             } else {
                 MassFighter.status = "No Targets";
             }
+        } else {
+            MassFighter.status = "In Combat";
+            LocatableEntity target = player.getTarget();
+            if (target != null) MassFighter.targetEntity = target;
         }
 
     }

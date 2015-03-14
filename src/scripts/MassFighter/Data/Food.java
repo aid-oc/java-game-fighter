@@ -10,6 +10,7 @@ public enum Food {
         TROUT("Trout", 333, 70),
         SALMON("Salmon", 329, 90),
         TUNA("Tuna", 361, 100),
+        PIKE("Pike", 0, 0),
         LOBSTER("Lobster", 379, 120),
         BASS("Bass", 365, 130),
         SWORDFISH("Swordfish", 373, 140),

@@ -181,6 +181,8 @@ public class Controller implements MouseListener, PaintListener {
 
         // Temporary Updates Solution
         List<String> updates = new ArrayList<>();
+        updates.add("14/03/2015: Combat fixes");
+        updates.add("14/03/2015: Noted/Stackable looting now works");
         updates.add("11/03/2015: Combat should now be fixed");
         updates.add("10/03/2015: Fixed quickpraying, fixed alchemy, looting changes");
         updates.add("09/03/2015: Added OSRS boosts");

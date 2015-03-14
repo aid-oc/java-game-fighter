@@ -45,7 +45,7 @@
                               <Font size="13.0" />
                            </font>
                         </Button>
-                        <Label fx:id="txtProfileSaved" layoutX="349.0" layoutY="277.0" prefHeight="27.0" prefWidth="273.0" textFill="RED">
+                        <Label fx:id="txtProfileSaved" layoutX="349.0" layoutY="277.0" prefHeight="58.0" prefWidth="287.0" text="For the best experience, please enable AutoRetaliation (OSRS), this is done for you on RS3." textFill="RED" wrapText="true">
                            <font>
                               <Font name="System Bold" size="13.0" />
                            </font></Label>

@@ -49,6 +49,7 @@ public class Boost extends Task {
                 String oldName = potion.getDefinition().getName();
                 if (potion.interact("Drink")) {
                     Execution.delayUntil(() -> !potion.getDefinition().getName().equals(oldName), 1500, 2500);
+                    needsBoosting.remove(p);
                 }
             }
         }
