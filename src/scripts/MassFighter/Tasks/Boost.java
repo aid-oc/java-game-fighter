@@ -9,12 +9,10 @@ import com.runemate.game.api.script.framework.task.Task;
 import scripts.MassFighter.Data.Potion;
 import scripts.MassFighter.MassFighter;
 
-import java.util.ArrayList;
-import java.util.List;
 
 public class Boost extends Task {
 
-    List<Potion> needsBoosting = new ArrayList<>();
+    Potion potionToBoost;
 
     @Override
     public boolean validate() {
@@ -27,7 +25,7 @@ public class Boost extends Task {
                         return spriteItem.getDefinition().getName().contains(p.getPotionName());
                     }
                 }).results().isEmpty()) {
-                    needsBoosting.add(p);
+                    potionToBoost = p;
                     return true;
                 }
             }
@@ -37,23 +35,23 @@ public class Boost extends Task {
 
     @Override
     public void execute() {
+
         System.out.println("Time to refresh boosts");
-        for (Potion p : needsBoosting) {
+        if (potionToBoost != null) {
             SpriteItem potion = Inventory.newQuery().filter(new Filter<SpriteItem>() {
                 @Override
                 public boolean accepts(SpriteItem spriteItem) {
-                    return spriteItem.getDefinition().getName().contains(p.getPotionName());
+                    return spriteItem.getDefinition().getName().contains(potionToBoost.getPotionName());
                 }
             }).results().random();
             if (potion != null) {
                 String oldName = potion.getDefinition().getName();
                 if (potion.interact("Drink")) {
                     Execution.delayUntil(() -> !potion.getDefinition().getName().equals(oldName), 1500, 2500);
-                    needsBoosting.remove(p);
+                    potionToBoost = null;
                 }
             }
         }
-
     }
 
 }
