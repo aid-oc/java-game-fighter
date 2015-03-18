@@ -19,7 +19,18 @@ public class Boost extends Task {
         if (!MassFighter.settings.selectedPotions.isEmpty()) {
             for (Potion p : MassFighter.settings.selectedPotions) {
                 Skill skill = p.getPotionSkills()[0];
-                if ((skill.getCurrentLevel() < (skill.getBaseLevel() + (p.getBoost()/3))) && !Inventory.newQuery().filter(new Filter<SpriteItem>() {
+
+                double currentBoost = skill.getCurrentLevel()-skill.getBaseLevel();
+                float differencePercentage = (float)currentBoost/(float)p.getBoost()*100;
+                /*
+                System.out.println("------ Boost Info ------");
+                System.out.println("Boost Item: " + p.getPotionName());
+                System.out.println("Boost Skill: " + skill);
+                System.out.println("We are currently at " + differencePercentage+"% of the max boost");
+                System.out.println("Refreshing boost below " + MassFighter.settings.boostRefreshPercentage + "%");
+                System.out.println("-----------------------");
+                */
+                if (differencePercentage < MassFighter.settings.boostRefreshPercentage && !Inventory.newQuery().filter(new Filter<SpriteItem>() {
                     @Override
                     public boolean accepts(SpriteItem spriteItem) {
                         return spriteItem.getDefinition().getName().contains(p.getPotionName());
@@ -36,7 +47,7 @@ public class Boost extends Task {
     @Override
     public void execute() {
 
-        System.out.println("Time to refresh boosts");
+        MassFighter.status = "Boosting";
         if (potionToBoost != null) {
             SpriteItem potion = Inventory.newQuery().filter(new Filter<SpriteItem>() {
                 @Override

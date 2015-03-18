@@ -32,8 +32,20 @@ public class Loot extends Task {
     public static GroundItemQueryBuilder validLoot = GroundItems.newQuery().within(userProfile.getFightArea()).filter(new Filter<GroundItem>() {
         @Override
         public boolean accepts(GroundItem groundItem) {
-            String itemName = groundItem.getDefinition().getName().toLowerCase();
-            return hasRoomForItem(groundItem) && settings.lootByValue ? isWorthLooting(groundItem) : Arrays.asList(userProfile.getLootNames()).contains(itemName) || (settings.buryBones && (itemName.contains("bones") || itemName.contains("ashes")));
+            if (hasRoomForItem(groundItem)) {
+                String itemName = groundItem.getDefinition().getName().toLowerCase();
+                /*
+                System.out.println("------ Item Info ------");
+                System.out.println("LOOT CONDITIONS FOR: " + itemName);
+                System.out.println("VALUE LOOT: " + (settings.lootByValue && isWorthLooting(groundItem)));
+                System.out.println("LIST LOOT: " + Arrays.asList(userProfile.getLootNames()).contains(itemName));
+                System.out.println("BURY LOOT: " + (settings.buryBones && (itemName.contains("bones") || itemName.contains("ashes"))));
+                System.out.println("ROOM FOR: " + itemName + " = " + hasRoomForItem(groundItem));
+                System.out.println("------------------------");
+                */
+                return ((settings.lootByValue && isWorthLooting(groundItem)) || Arrays.asList(userProfile.getLootNames()).contains(itemName) || (settings.buryBones && (itemName.contains("bones") || itemName.contains("ashes"))));
+            }
+            return false;
         }
     }).reachable();
 
@@ -88,10 +100,6 @@ public class Loot extends Task {
         return false;
     }
 
-    /**
-     * Returns true if the item is above the specified loot value
-    @param gItem The GroundItem to check the value of
-     */
     public static Boolean isWorthLooting(GroundItem gItem) {
         int itemValue = 0;
         String itemName = gItem.getDefinition().getName();
@@ -112,12 +120,6 @@ public class Loot extends Task {
         return itemValue >= settings.lootValue;
     }
 
-    /**
-     * Returns true if a ground item is successfully looted, otherwise will attempt to relocate to the item
-     * and return false.
-     * @param item The GroundItem to loot
-     * @return Whether the item was successfully looted
-     */
     private Boolean takeGroundItem(GroundItem item) {
         int invCount = Inventory.getQuantity();
         String itemName = item.getDefinition().getName();

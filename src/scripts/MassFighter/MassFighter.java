@@ -61,56 +61,61 @@ public class MassFighter extends TaskScript implements PaintListener, InventoryL
     private int prayerLevel = Skill.PRAYER.getBaseLevel();
 
     public void onStart(String... args) {
-        reset();
-        // Loop & GUI Setup
-        setLoopDelay(400, 600);
-        getEventDispatcher().addListener(this);
-        showAndWaitGUI();
-        settings = userProfile.settings;
-        methods = new Methods();
-        if (Environment.isRS3()) {
-            if (!ActionBar.isAutoRetaliating()) {
-                ActionBar.toggleAutoRetaliation();
-            }
-        }
-        startExpNoHp = Skill.STRENGTH.getExperience() + Skill.RANGED.getExperience() + Skill.MAGIC.getExperience() + Skill.ATTACK.getExperience() + Skill.DEFENCE.getExperience()
-                 + Skill.PRAYER.getExperience();
-        startExp = Skill.STRENGTH.getExperience() + Skill.RANGED.getExperience() + Skill.MAGIC.getExperience() + Skill.ATTACK.getExperience() + Skill.DEFENCE.getExperience()
-                + Skill.PRAYER.getExperience() + Skill.CONSTITUTION.getExperience();
-        runningTime.start();
 
-        if (settings.quickPray || (settings.useSoulsplit && Environment.isRS3())) {
-            add(new Pray());
-        }
-        if (userProfile.getBankArea() != null) {
-            add(new Store());
-        }
-        if (settings.useFood) {
-            add(new Heal());
-        }
-        if (userProfile.getAlchLoot() != null && userProfile.getAlchLoot().length > 0) {
-            add(new Alchemy());
-        }
-        if (userProfile.getLootNames() != null && userProfile.getLootNames().length > 0 || settings.buryBones) {
-            add(new Loot());
-        }
-        if (settings.buryBones) {
-            add(new BuryBones());
-        }
-        if (settings.useMagicNotepaper) {
-            add(new MagicNotepaper());
-        }
-        if (!settings.selectedPotions.isEmpty()) {
-            add(new Boost());
-        }
-        add(new Combat());
-        if (settings.useAbilities && Environment.isRS3()) {
-            if (!ActionBar.isExpanded()) {
-                ActionBar.toggleExpansion();
+        if (Environment.getGameType() != null) {
+            reset();
+            // Loop & GUI Setup
+            setLoopDelay(400, 600);
+            getEventDispatcher().addListener(this);
+            showAndWaitGUI();
+            settings = userProfile.settings;
+            methods = new Methods();
+
+            if (Environment.isRS3()) {
+                if (!ActionBar.isAutoRetaliating()) {
+                    ActionBar.toggleAutoRetaliation();
+                }
             }
-            new LoopingThread(new Abilities(), 1000, 1200).start();
+            startExpNoHp = Skill.STRENGTH.getExperience() + Skill.RANGED.getExperience() + Skill.MAGIC.getExperience() + Skill.ATTACK.getExperience() + Skill.DEFENCE.getExperience()
+                    + Skill.PRAYER.getExperience();
+            startExp = Skill.STRENGTH.getExperience() + Skill.RANGED.getExperience() + Skill.MAGIC.getExperience() + Skill.ATTACK.getExperience() + Skill.DEFENCE.getExperience()
+                    + Skill.PRAYER.getExperience() + Skill.CONSTITUTION.getExperience();
+            runningTime.start();
+
+            if (settings.quickPray || (settings.useSoulsplit && Environment.isRS3())) {
+                add(new Pray());
+            }
+            if (userProfile.getBankArea() != null) {
+                add(new Store());
+            }
+            if (settings.useFood) {
+                add(new Heal());
+            }
+            if (userProfile.getAlchLoot() != null && userProfile.getAlchLoot().length > 0) {
+                add(new Alchemy());
+            }
+            if (userProfile.getLootNames() != null && userProfile.getLootNames().length > 0) {
+                add(new Loot());
+            }
+            if (settings.buryBones) {
+                add(new BuryBones());
+            }
+            if (Environment.isRS3() && userProfile.getNotepaperLoot() != null && userProfile.getNotepaperLoot().length > 0) {
+                add(new MagicNotepaper());
+            }
+            if (!settings.selectedPotions.isEmpty()) {
+                add(new Boost());
+            }
+            add(new Combat());
+            if (settings.useAbilities && Environment.isRS3()) {
+                if (!ActionBar.isExpanded()) {
+                    ActionBar.toggleExpansion();
+                }
+                new LoopingThread(new Abilities(), 1000, 1200).start();
+            }
+            getSimpleTasks(getTasks());
         }
-        getSimpleTasks(getTasks());
+
     }
 
     public static void getSimpleTasks(List<Task> tasks) {
@@ -220,13 +225,13 @@ public class MassFighter extends TaskScript implements PaintListener, InventoryL
             // Render the fight area's outline
             if (settings != null && settings.showOutline) {
                 Area area = userProfile.getFightArea();
-                if (area != null && area.isValid() && area.isVisible()) {
+                if (area != null && area.isValid()) {
                     g2d.setColor(Color.orange);
                     java.util.List<Coordinate> surroundingCoords = area.getArea().getSurroundingCoordinates();
                     surroundingCoords.parallelStream().forEach(new Consumer<Coordinate>() {
                         @Override
                         public void accept(Coordinate coordinate) {
-                            if (coordinate != null) {
+                            if (coordinate != null && coordinate.isVisible()) {
                                 coordinate.render(g2d);
                             }
                         }

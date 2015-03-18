@@ -16,14 +16,18 @@ public class Methods  {
 
 
     public Boolean isInCombat() {
-        return !Npcs.newQuery().within(userProfile.getFightArea()).actions("Attack").reachable().targeting(Players.getLocal()).results().isEmpty();
+        return RuneScape.isLoggedIn() && !Npcs.newQuery().within(userProfile.getFightArea()).actions("Attack").reachable().targeting(Players.getLocal()).results().isEmpty();
     }
 
     public void logout() {
         if (!MassFighter.methods.isInCombat()) {
-            if (RuneScape.logout()) {
-                MassFighter.status = "No Supplies";
-                Environment.getScript().pause();
+            if (RuneScape.isLoggedIn()) {
+                if (RuneScape.logout()) {
+                    if (!RuneScape.isLoggedIn()) {
+                        MassFighter.status = "Logged you out";
+                        Environment.getScript().pause();
+                    }
+                }
             }
         }
     }

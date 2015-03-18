@@ -15,6 +15,7 @@ public class UserProfile {
     private String[] npcNames;
     private String[] lootNames;
     private String[] alchLoot;
+    private String[] notepaperLoot;
     private List<XMLCoordinate> fightAreaCoords = new ArrayList<>();
     private List<XMLCoordinate> bankAreaCoords = new ArrayList<>();
 
@@ -24,6 +25,14 @@ public class UserProfile {
 
     public String[] getAlchLoot() {
         return alchLoot;
+    }
+
+    public void setNotepaperLoot(String[] loot) {
+        notepaperLoot = loot;
+    }
+
+    public String[] getNotepaperLoot() {
+        return notepaperLoot;
     }
 
     public Area getBankArea() {

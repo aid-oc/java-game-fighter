@@ -3,6 +3,7 @@ package scripts.MassFighter.Tasks;
 import com.runemate.game.api.hybrid.entities.LocatableEntity;
 import com.runemate.game.api.hybrid.entities.Npc;
 import com.runemate.game.api.hybrid.entities.Player;
+import com.runemate.game.api.hybrid.entities.definitions.NpcDefinition;
 import com.runemate.game.api.hybrid.queries.NpcQueryBuilder;
 import com.runemate.game.api.hybrid.queries.results.LocatableEntityQueryResults;
 import com.runemate.game.api.hybrid.region.Npcs;
@@ -49,17 +50,20 @@ public class Combat extends Task {
             if (!validTargetResults.isEmpty()) {
                 MassFighter.status = "Finding Target";
                 final Npc targetNpc = validTargetResults.sortByDistance().limit(settings.targetSelection).random();
-                if (targetNpc != null && targetNpc.getSpotAnimationIds().isEmpty()) {
-                    MassFighter.targetEntity = targetNpc;
-                    if (targetNpc.isVisible()) {
-                        if (targetNpc.interact("Attack", targetNpc.getDefinition().getName())) {
-                            Execution.delayUntil(() -> targetNpc.getTarget() != null, 1000, 2000);
-                            if (timeSinceLastCombat.isRunning()) timeSinceLastCombat.stop();
-                            timeSinceLastCombat.reset();
-                            timeSinceLastCombat.start();
+                if (targetNpc != null) {
+                    final NpcDefinition targetNpcDefinition = targetNpc.getDefinition();
+                    if (targetNpcDefinition != null) {
+                        MassFighter.targetEntity = targetNpc;
+                        if (targetNpc.isVisible()) {
+                            if (targetNpc.interact("Attack", targetNpcDefinition.getName())) {
+                                Execution.delayUntil(() -> targetNpc.getTarget() != null, 1000, 2000);
+                                if (timeSinceLastCombat.isRunning()) timeSinceLastCombat.stop();
+                                timeSinceLastCombat.reset();
+                                timeSinceLastCombat.start();
+                            }
+                        } else {
+                            Movement.moveToLocatable(targetNpc);
                         }
-                    } else {
-                        Movement.moveToLocatable(targetNpc);
                     }
                 }
             } else {

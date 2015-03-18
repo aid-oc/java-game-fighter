@@ -59,9 +59,9 @@ public enum Potion {
 
     private String potionName;
     private Skill[] potionSkills;
-    private int potionBoost;
+    private double potionBoost;
 
-    public int getBoost() {
+    public double getBoost() {
         return potionBoost;
     }
 
@@ -73,14 +73,15 @@ public enum Potion {
         return potionName;
     }
 
-    private Potion(String name, int boost,  Skill... skills) {
+    private Potion(String name, double boost,  Skill... skills) {
         potionName = name;
         potionBoost = boost;
         potionSkills = skills;
     }
 
-    private static int getIncrease(Skill skill, int increase, int percent) {
-        return increase + (skill.getBaseLevel()/100*percent);
+    private static float getIncrease(Skill skill, int increase, int percent) {
+        float percentOf = ((float) percent) / ((float) skill.getBaseLevel());
+        return increase + (percentOf * 100);
     }
 
 

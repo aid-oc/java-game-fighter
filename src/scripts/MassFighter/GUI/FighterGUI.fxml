@@ -180,13 +180,20 @@
                         <Text layoutX="211.0" layoutY="111.0" strokeType="OUTSIDE" strokeWidth="0.0" text="gp" />
                         <CheckBox fx:id="lootByValue" layoutX="14.0" layoutY="71.0" mnemonicParsing="false" text="Loot by value" />
                         <Text layoutX="11.0" layoutY="111.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Loot anything worth over" />
-                        <Label layoutX="462.0" layoutY="309.0" text="Loot to alch" />
-                        <ScrollPane layoutX="399.0" layoutY="216.0" prefHeight="93.0" prefViewportHeight="109.0" prefViewportWidth="200.0" prefWidth="202.0">
+                        <Label layoutX="535.0" layoutY="309.0" text="Alchemy Items" />
+                        <ScrollPane layoutX="503.0" layoutY="236.0" prefHeight="65.0" prefViewportHeight="109.0" prefViewportWidth="200.0" prefWidth="141.0">
                            <content>
-                              <ListView fx:id="selectedAlchLoot" layoutX="399.0" layoutY="216.0" prefHeight="95.0" prefWidth="200.0" />
+                              <ListView fx:id="selectedAlchLoot" layoutX="399.0" layoutY="216.0" prefHeight="64.0" prefWidth="128.0" />
                            </content>
                         </ScrollPane>
-                        <Button fx:id="btnAddToAlch" layoutX="442.0" layoutY="188.0" mnemonicParsing="false" prefHeight="21.0" prefWidth="114.0" text="Add to Alch Loot" />
+                        <Button fx:id="btnAddToAlch" layoutX="521.0" layoutY="195.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="84.0" text="Add to Alch" />
+                        <Button fx:id="btnAddToNotepaper" layoutX="398.0" layoutY="195.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="114.0" text="Add to Notepaper" />
+                        <ScrollPane layoutX="352.0" layoutY="236.0" prefHeight="65.0" prefViewportHeight="109.0" prefViewportWidth="200.0" prefWidth="141.0">
+                           <content>
+                              <ListView fx:id="selectedNotepaperLoot" layoutX="399.0" layoutY="216.0" prefHeight="64.0" prefWidth="128.0" />
+                           </content>
+                        </ScrollPane>
+                        <Label layoutX="378.0" layoutY="309.0" text="Notepaper Items" />
                      </children>
                   </AnchorPane>
               </content>
@@ -215,6 +222,8 @@
                         <ListView fx:id="selectedBoosts" layoutX="413.0" layoutY="45.0" prefHeight="200.0" prefWidth="200.0" />
                         <Label layoutX="471.0" layoutY="23.0" text="Selected Boosts" />
                         <Label layoutX="65.0" layoutY="269.0" text="Boosts will be refreshed if you have the item and your level falls significantly below the boosted level" />
+                        <Slider fx:id="boostRefreshPercentage" layoutX="261.0" layoutY="193.0" showTickLabels="true" />
+                        <Label layoutX="262.0" layoutY="149.0" prefHeight="42.0" prefWidth="138.0" text="Percentage of maximum boost to refresh around:" wrapText="true" />
                      </children>
                   </AnchorPane>
               </content>
