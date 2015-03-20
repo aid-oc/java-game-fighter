@@ -21,7 +21,7 @@ public class MagicNotepaper extends Task {
     });
 
     public boolean validate() {
-        return Inventory.contains("Magic notepaper") && !noteableItemQuery.results().isEmpty();
+        return Inventory.isFull() && Inventory.contains("Magic notepaper") && !noteableItemQuery.results().isEmpty();
     }
 
     @Override
@@ -30,7 +30,7 @@ public class MagicNotepaper extends Task {
         SpriteItem targetItem = noteableItemQuery.results().random();
         SpriteItem notepaper = Inventory.getItems("Magic notepaper").first();
         if (notepaper != null && targetItem != null) {
-            if (targetItem.click()) {
+            if (targetItem.interact("Use")) {
                 if (notepaper.click()) {
                     Execution.delayUntil(() -> Inventory.getQuantity(targetItem.getId()) == 0, 1000, 2000);
                 }
