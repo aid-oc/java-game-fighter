@@ -1,5 +1,6 @@
 package scripts.MassFighter.Framework;
 
+import com.runemate.game.api.hybrid.entities.details.Interactable;
 import com.runemate.game.api.hybrid.entities.details.Locatable;
 import com.runemate.game.api.hybrid.local.Camera;
 import com.runemate.game.api.hybrid.location.navigation.Path;
@@ -7,17 +8,23 @@ import com.runemate.game.api.hybrid.location.navigation.Traversal;
 import com.runemate.game.api.hybrid.location.navigation.cognizant.RegionPath;
 import com.runemate.game.api.hybrid.util.calculations.Distance;
 import com.runemate.game.api.hybrid.util.calculations.Random;
+import com.runemate.game.api.script.Execution;
+
+import java.util.concurrent.Future;
 
 public class Movement {
 
-    public static void moveToLocatable(Locatable l) {
-        if (l != null) {
+    public static void moveToInteractable(Interactable i) {
+        if (i != null && i instanceof Locatable) {
+            Locatable l = (Locatable) i;
             if (Distance.to(l) > Random.nextInt(8, 10)) {
                 pathToLocatable(l);
-            } else if (Random.nextBoolean()) {
-                Camera.turnTo(l);
             } else {
-                pathToLocatable(l);
+                Future<Boolean> cameraMovement = Camera.passivelyTurnTo(l);
+                Execution.delayUntil(cameraMovement::get, 2000, 4000);
+                if (!i.isVisible()) {
+                    pathToLocatable(l);
+                }
             }
         }
     }

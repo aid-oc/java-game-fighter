@@ -12,37 +12,51 @@ import scripts.MassFighter.Framework.Movement;
 import scripts.MassFighter.MassFighter;
 
 import static scripts.MassFighter.MassFighter.settings;
+import static scripts.MassFighter.Framework.Methods.*;
 
 public class Store extends Task {
 
     @Override
     public boolean validate() {
-        return  (Inventory.isFull() || !MassFighter.methods.readyToFight());
+        return (Inventory.isFull() || !MassFighter.methods.readyToFight());
     }
 
     @Override
     public void execute() {
         MassFighter.status = "Banking";
         final Area bankArea = MassFighter.userProfile.getBankArea();
-
         if (!bankArea.contains(Players.getLocal()) && (Inventory.isFull() || !MassFighter.methods.readyToFight())) {
+            out("Store: Moving to the bank area");
             Movement.pathToLocatable(bankArea);
         } else if (bankArea.contains(Players.getLocal())) {
             LocatableEntity bank = Banks.getLoaded().nearest();
+            out("Store: We're at the bank area");
             if (bank != null) {
                 if (bank.isVisible()) {
                     if (Bank.open()) {
+                        out("Store: Opened the bank");
                         if (Bank.depositInventory()) {
-                            Execution.delayUntil(() -> !Inventory.isFull(), 800,1000);
+                            out("Store: Deposited Inventory");
+                            Execution.delayUntil(() -> !Inventory.isFull(), 800, 1000);
                         }
                         if (settings.useFood && Inventory.getQuantity(settings.foodName) < settings.foodAmount) {
+                            out("Store: Withdrew Food");
                             Bank.withdraw(settings.foodName, settings.foodAmount);
                         }
-                        Bank.close();
+                        if (Bank.close()) {
+                            out("Store: Closed the bank");
+                        } else {
+                            out("Store: Failed to close the bank");
+                        }
+                    } else {
+                        out("Store: Failed to open the bank");
                     }
                 } else {
-                    Movement.moveToLocatable(bank);
+                    out("Store: The bank is not visible");
+                    Movement.moveToInteractable(bank);
                 }
+            } else {
+                out("Store: The bank is invalid");
             }
         }
     }

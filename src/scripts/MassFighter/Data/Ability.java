@@ -96,20 +96,20 @@ public enum Ability {
     private int cooldownSeconds;
     private int textureID;
 
+    Ability(int abilityID, String abilityType, String abilityCategory, int cooldownSeconds, int textureID) {
+        this.abilityID = abilityID;
+        this.abilityType = abilityType;
+        this.abilityCategory = abilityCategory;
+        this.cooldownSeconds = cooldownSeconds;
+        this.textureID = textureID;
+    }
+
     public String getAbilityCategory() {
         return abilityCategory;
     }
 
     public String getName() {
         return name();
-    }
-
-    private Ability(int abilityID, String abilityType, String abilityCategory, int cooldownSeconds, int textureID) {
-        this.abilityID = abilityID;
-        this.abilityType = abilityType;
-        this.abilityCategory = abilityCategory;
-        this.cooldownSeconds = cooldownSeconds;
-        this.textureID = textureID;
     }
 
 

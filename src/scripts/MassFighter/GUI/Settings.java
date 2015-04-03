@@ -24,6 +24,9 @@ public class Settings {
     public Boolean bypassReachable = false;
     public Boolean revolutionMode = false;
     public Boolean lootByValue = false;
+    public Boolean equipAmmunition = false;
+    public Boolean soulsplitPermanent = false;
+    public int soulsplitPercentage = 100;
     public double lootValue = 0;
     public int tagSelection = 0;
     public int foodAmount = 0;
@@ -33,7 +36,7 @@ public class Settings {
     public int prayValue = 0;
     public int criticalHitpoints = 0;
     public List<Potion> selectedPotions = new ArrayList<>();
-    public double boostRefreshPercentage;
+    public double boostRefreshPercentage = 55;
 
 
 }

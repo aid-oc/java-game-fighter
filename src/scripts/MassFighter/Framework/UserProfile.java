@@ -11,6 +11,7 @@ import java.util.List;
 
 public class UserProfile {
 
+    public Settings settings;
     private String profileName;
     private String[] npcNames;
     private String[] lootNames;
@@ -19,20 +20,20 @@ public class UserProfile {
     private List<XMLCoordinate> fightAreaCoords = new ArrayList<>();
     private List<XMLCoordinate> bankAreaCoords = new ArrayList<>();
 
-    public void setAlchLoot(String[] loot) {
-        alchLoot = loot;
-    }
-
     public String[] getAlchLoot() {
         return alchLoot;
     }
 
-    public void setNotepaperLoot(String[] loot) {
-        notepaperLoot = loot;
+    public void setAlchLoot(String[] loot) {
+        alchLoot = loot;
     }
 
     public String[] getNotepaperLoot() {
         return notepaperLoot;
+    }
+
+    public void setNotepaperLoot(String[] loot) {
+        notepaperLoot = loot;
     }
 
     public Area getBankArea() {
@@ -57,26 +58,20 @@ public class UserProfile {
         return new Area.Circular(Players.getLocal().getPosition(), settings.fightRadius);
     }
 
-    public Settings settings;
-
-    public void setProfileName(String name) {
-        profileName = name;
-    }
-
     public String getProfileName() {
         return profileName;
     }
 
-    public void setNpcNames(String[] names) {
-        npcNames = names;
+    public void setProfileName(String name) {
+        profileName = name;
     }
 
     public String[] getNpcNames() {
         return npcNames;
     }
 
-    public void setLootNames(String[] names) {
-        lootNames = names;
+    public void setNpcNames(String[] names) {
+        npcNames = names;
     }
 
     public String[] getLootNames() {
@@ -87,15 +82,15 @@ public class UserProfile {
         return lowercaseLoot;
     }
 
-    public void setFightAreaCoords(List<Coordinate> coords) {
-        for (Coordinate c : coords) {
-             XMLCoordinate xmlCoordinate = new XMLCoordinate(c);
-            fightAreaCoords.add(xmlCoordinate);
-        }
+    public void setLootNames(String[] names) {
+        lootNames = names;
     }
 
-    public List<XMLCoordinate> getFightAreaCoords() {
-        return fightAreaCoords;
+    public void setFightAreaCoords(List<Coordinate> coords) {
+        for (Coordinate c : coords) {
+            XMLCoordinate xmlCoordinate = new XMLCoordinate(c);
+            fightAreaCoords.add(xmlCoordinate);
+        }
     }
 
     public void setBankAreaCoords(List<Coordinate> coords) {
@@ -103,10 +98,6 @@ public class UserProfile {
             XMLCoordinate xmlCoordinate = new XMLCoordinate(c);
             bankAreaCoords.add(xmlCoordinate);
         }
-    }
-
-    public List<XMLCoordinate> getBankAreaCoords() {
-        return bankAreaCoords;
     }
 
 

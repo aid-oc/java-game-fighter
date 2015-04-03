@@ -10,7 +10,7 @@ public enum Potion {
     OSRS_ATTACK_POTION("Attack potion", getIncrease(Skill.ATTACK, 3, 10), Skill.ATTACK),
     OSRS_SUPER_ATTACK("Super attack", getIncrease(Skill.ATTACK, 5, 15), Skill.ATTACK),
     // STRENGTH POTIONS
-    OSRS_STRENGTH_POTION("Strength potion", getIncrease(Skill.STRENGTH, 3, 10),  Skill.STRENGTH),
+    OSRS_STRENGTH_POTION("Strength potion", getIncrease(Skill.STRENGTH, 3, 10), Skill.STRENGTH),
     OSRS_SUPER_STRENGTH("Super strength", getIncrease(Skill.STRENGTH, 5, 15), Skill.STRENGTH),
     // DEFENCE POTIONS
     OSRS_DEFENCE_POTION("Defence potion", getIncrease(Skill.DEFENCE, 3, 10), Skill.DEFENCE),
@@ -33,8 +33,8 @@ public enum Potion {
     SUPER_ATTACK_MIX("Super attack mix", getIncrease(Skill.ATTACK, 2, 12), Skill.ATTACK),
     EXTREME_ATTACK("Extreme attack", getIncrease(Skill.ATTACK, 3, 15), Skill.ATTACK),
     // STRENGTH POTIONS
-    STRENGTH_POTION("Strength potion", getIncrease(Skill.STRENGTH, 1, 8),  Skill.STRENGTH),
-    STRENGTH_MIX("Strength mix", getIncrease(Skill.STRENGTH, 1, 8),  Skill.STRENGTH),
+    STRENGTH_POTION("Strength potion", getIncrease(Skill.STRENGTH, 1, 8), Skill.STRENGTH),
+    STRENGTH_MIX("Strength mix", getIncrease(Skill.STRENGTH, 1, 8), Skill.STRENGTH),
     SUPER_STRENGTH("Super strength", getIncrease(Skill.STRENGTH, 2, 12), Skill.STRENGTH),
     SUPER_STRENGTH_MIX("Super strength mix", getIncrease(Skill.STRENGTH, 2, 12), Skill.STRENGTH),
     EXTREME_STRENGTH("Extreme strength", getIncrease(Skill.STRENGTH, 3, 15), Skill.STRENGTH),
@@ -48,6 +48,7 @@ public enum Potion {
     RANGING_POTION("Ranging potion", getIncrease(Skill.RANGED, 1, 8), Skill.RANGED),
     RANGING_MIX("Ranging mix", getIncrease(Skill.RANGED, 1, 8), Skill.RANGED),
     SUPER_RANGING_POTION("Super ranging potion", getIncrease(Skill.RANGED, 2, 12), Skill.RANGED),
+    SUPER_RANGING_FLASK("Super ranging flask", getIncrease(Skill.RANGED, 2, 12), Skill.RANGED),
     SUPER_RANGING_MIX("Super ranging mix", getIncrease(Skill.RANGED, 2, 12), Skill.RANGED),
     EXTREME_RANGING("Extreme ranging", getIncrease(Skill.RANGED, 3, 15), Skill.RANGED),
     // MAGIC POTIONS
@@ -61,6 +62,17 @@ public enum Potion {
     private Skill[] potionSkills;
     private double potionBoost;
 
+    Potion(String name, double boost, Skill... skills) {
+        potionName = name;
+        potionBoost = boost;
+        potionSkills = skills;
+    }
+
+    private static float getIncrease(Skill skill, int increase, int percent) {
+        float percentOf = ((float) percent) / ((float) skill.getBaseLevel());
+        return increase + (percentOf * 100);
+    }
+
     public double getBoost() {
         return potionBoost;
     }
@@ -72,20 +84,6 @@ public enum Potion {
     public String getPotionName() {
         return potionName;
     }
-
-    private Potion(String name, double boost,  Skill... skills) {
-        potionName = name;
-        potionBoost = boost;
-        potionSkills = skills;
-    }
-
-    private static float getIncrease(Skill skill, int increase, int percent) {
-        float percentOf = ((float) percent) / ((float) skill.getBaseLevel());
-        return increase + (percentOf * 100);
-    }
-
-
-
 
 
 }

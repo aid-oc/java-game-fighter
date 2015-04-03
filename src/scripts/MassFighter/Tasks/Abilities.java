@@ -11,6 +11,8 @@ import scripts.MassFighter.MassFighter;
 import java.util.ArrayList;
 import java.util.List;
 
+import static scripts.MassFighter.Framework.Methods.*;
+
 public class Abilities extends Task implements Runnable {
 
 
@@ -28,7 +30,7 @@ public class Abilities extends Task implements Runnable {
 
     @Override
     public boolean validate() {
-         return Players.getLocal().getTarget() != null;
+        return Players.getLocal().getTarget() != null;
     }
 
     @Override
@@ -38,6 +40,7 @@ public class Abilities extends Task implements Runnable {
                 if (ability != null) {
                     if (ability.getName() != null && ability.isActivatable() && ability.isReady()) {
                         if (ability.activate()) {
+                            out("Abilities: Used: " + ability.getName());
                             Execution.delayUntil(() -> !ability.isReady(), 1000, 1600);
                             break;
                         }
@@ -86,6 +89,8 @@ public class Abilities extends Task implements Runnable {
         sortedAbilities.addAll(ultimates);
         sortedAbilities.addAll(thresholds);
         sortedAbilities.addAll(basics);
+
+        if (!ActionBar.isLocked()) ActionBar.toggleLock();
 
         return sortedAbilities;
     }

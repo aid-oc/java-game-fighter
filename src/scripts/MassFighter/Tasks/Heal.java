@@ -11,6 +11,7 @@ import com.runemate.game.api.script.framework.task.TaskScript;
 import scripts.MassFighter.MassFighter;
 
 import static scripts.MassFighter.MassFighter.settings;
+import static scripts.MassFighter.Framework.Methods.*;
 
 public class Heal extends Task {
 
@@ -21,26 +22,31 @@ public class Heal extends Task {
     @Override
     public void execute() {
         MassFighter.status = "Eating";
+        out("Heal: We need to use food");
         if (Inventory.contains(settings.foodName)) {
             final int startHealth = Health.getCurrent();
             SpriteItem i = Inventory.getItems(settings.foodName).random();
             if (i != null) {
                 if (i.isValid() && i.interact("Eat")) {
-                    Execution.delayUntil(() -> Health.getCurrent() != startHealth, 1600,2000);
+                    out("Heal: Ate something nice");
+                    Execution.delayUntil(() -> Health.getCurrent() != startHealth, 1600, 2000);
                     if (Random.nextInt(100) > 90) {
+                        out("Heal: Eating extra");
                         execute();
                     }
                 }
+            } else {
+                out("Heal: Food item is invalid");
             }
         } else if (settings.exitOutFood) {
-            System.out.println("Food: We're out - exiting");
+            out("Heal: We're out of food, exiting");
             MassFighter.methods.logout();
         } else if (MassFighter.userProfile.getBankArea() == null) {
             settings.useFood = false;
-            System.out.println("Trying to remove Food Handler");
+            out("Heal: Attempting to remove heal task");
             TaskScript rootScript = (TaskScript) Environment.getScript();
             rootScript.getTasks().stream().filter(task -> task != null && task instanceof Heal).forEach(task -> {
-                System.out.println("Removed Food Handler");
+                out("Heal: Successfully removed heal task");
                 rootScript.remove(task);
                 MassFighter.getSimpleTasks(rootScript.getTasks());
             });

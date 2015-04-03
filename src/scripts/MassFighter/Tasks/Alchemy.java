@@ -18,6 +18,8 @@ import scripts.MassFighter.MassFighter;
 
 import java.util.Arrays;
 
+import static scripts.MassFighter.Framework.Methods.*;
+
 public class Alchemy extends Task {
 
     private SpriteItemQueryBuilder alchItems = Inventory.newQuery().filter(new Filter<SpriteItem>() {
@@ -58,28 +60,32 @@ public class Alchemy extends Task {
                     SlotAction highAlch = ActionBar.getFirstAction("High Level Alchemy");
                     if (highAlch != null && highAlch.isValid() && highAlch.isActivatable()) {
                         if (highAlch.activate()) {
+                            out("Alchemy: Spell Activated");
                             int itemCount = Inventory.getQuantity(targetItemName);
                             if (alchItem.click()) {
-                                System.out.println("Alched: " + targetItemName);
+                                out("Alchemy: Successful cast on " + targetItemName);
                                 Execution.delayUntil(() -> Inventory.getQuantity(targetItemName) < itemCount, 2000, 2200);
                             }
                         }
                     } else {
                         if ((Environment.isRS3() && Powers.Magic.HIGH_LEVEL_ALCHEMY.activate()) || (Environment.isOSRS() && Magic.HIGH_LEVEL_ALCHEMY.activate())) {
                             Execution.delay(600, 800);
-                            System.out.println("Activated Alchemy");
+                            out("Alchemy: Spell Activated");
                             int itemCount = Inventory.getQuantity(targetItemName);
                             if (alchItem.click()) {
-                                System.out.println("Alched: " + targetItemName);
+                                out("Alchemy: Successful cast on " + targetItemName);
                                 Execution.delayUntil(() -> Inventory.getQuantity(targetItemName) < itemCount, 2000, 2200);
                             }
                         } else {
                             if (Menu.isOpen()) Menu.close();
-                            System.out.println("Failed to activate high alchemy");
                         }
                     }
+                } else {
+                    out("Alchemy: Target item is invalid");
                 }
             }
+        } else {
+            out("Alchemy: Tried to alch, but your level is too low");
         }
     }
 }

@@ -11,6 +11,8 @@ import scripts.MassFighter.MassFighter;
 
 import java.util.Arrays;
 
+import static scripts.MassFighter.Framework.Methods.*;
+
 public class MagicNotepaper extends Task {
 
     private SpriteItemQueryBuilder noteableItemQuery = Inventory.newQuery().filter(new Filter<SpriteItem>() {
@@ -31,15 +33,18 @@ public class MagicNotepaper extends Task {
         SpriteItem notepaper = Inventory.getItems("Magic notepaper").first();
         if (notepaper != null && targetItem != null) {
             if (targetItem.interact("Use")) {
+                out("MagicNotepaper: Used an item");
                 if (notepaper.click()) {
+                    out("MagicNotepaper: Clicked the notepaper");
                     Execution.delayUntil(() -> Inventory.getQuantity(targetItem.getId()) == 0, 1000, 2000);
                 }
             }
+        } else {
+            out("MagicNotepaper: Invalid items");
         }
     }
 
-    private boolean itemIsStacked(SpriteItem i)
-    {
+    private boolean itemIsStacked(SpriteItem i) {
         if (i != null) {
             final ItemDefinition def = i.getDefinition();
             if (def != null) {
