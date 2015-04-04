@@ -68,8 +68,8 @@ public class Combat extends Task {
                 if (targetNpc != null) {
                     final NpcDefinition targetNpcDefinition = targetNpc.getDefinition();
                     if (targetNpcDefinition != null) {
-                        MassFighter.targetEntity = targetNpc;
                         if (targetNpc.isVisible()) {
+                            MassFighter.targetEntity = targetNpc;
                             if (targetNpc.interact("Attack", targetNpcDefinition.getName())) {
                                 out("Combat: Attacked a target");
                                 Execution.delayUntil(() -> targetNpc.getTarget() != null, 1000, 2000);
