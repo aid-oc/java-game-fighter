@@ -63,31 +63,37 @@ public class Attack extends Task {
             if (!validTargetResults.isEmpty()) {
                 out("Combat: We need a new target");
                 MassFighter.status = "Finding Target";
-                final Npc targetNpc = validTargetResults.sortByDistance().limit(settings.targetSelection).random();
+                Npc targetNpc;
+                if (npcsTargettingUs.isEmpty()) {
+                    targetNpc = validTargetResults.sortByDistance().limit(settings.targetSelection).random();
+                } else {
+                    targetNpc = npcsTargettingUs.random();
+                }
                 if (targetNpc != null) {
-                    final NpcDefinition targetNpcDefinition = targetNpc.getDefinition();
-                    if (targetNpcDefinition != null) {
-                        if (targetNpc.isVisible()) {
-                            MassFighter.targetEntity = targetNpc;
-                            if (targetNpc.interact("Attack", targetNpcDefinition.getName())) {
-                                out("Combat: Attacked a target");
-                                Execution.delayUntil(() -> targetNpc.getTarget() != null, 1000, 2000);
-                                if (!timeSinceLastCombat.isRunning()) {
-                                    timeSinceLastCombat.start();
-                                }
-                                timeSinceLastCombat.reset();
-                            } else {
-                                out("Combat: NPC interaction failed");
+                final NpcDefinition targetNpcDefinition = targetNpc.getDefinition();
+                if (targetNpcDefinition != null) {
+                    if (targetNpc.isVisible()) {
+                        MassFighter.targetEntity = targetNpc;
+                        if (targetNpc.interact("Attack", targetNpcDefinition.getName())) {
+                            out("Combat: Attacked a target");
+                            final Npc target = targetNpc;
+                            Execution.delayUntil(() -> target.getTarget() != null, 1000, 2000);
+                            if (!timeSinceLastCombat.isRunning()) {
+                                timeSinceLastCombat.start();
                             }
+                            timeSinceLastCombat.reset();
                         } else {
-                            Movement.moveToInteractable(targetNpc);
+                            out("Combat: NPC interaction failed");
                         }
                     } else {
-                        out("Combat: Failed to get info on our target");
+                        Movement.moveToInteractable(targetNpc);
                     }
                 } else {
-                    out("Combat: Invalid Target");
+                    out("Combat: Failed to get info on our target");
                 }
+            } else {
+                out("Combat: Invalid Target");
+            }
             } else {
                 out("Combat: Waiting for new targets");
                 MassFighter.status = "No Targets";
