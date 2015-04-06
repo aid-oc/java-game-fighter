@@ -13,10 +13,9 @@ import com.runemate.game.api.hybrid.region.Npcs;
 import com.runemate.game.api.hybrid.region.Players;
 import com.runemate.game.api.hybrid.util.Filter;
 import com.runemate.game.api.hybrid.util.StopWatch;
-import com.runemate.game.api.hybrid.util.calculations.Random;
 import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.task.Task;
-import scripts.MassFighter.Framework.Movement;
+import helpers.Movement;
 import scripts.MassFighter.MassFighter;
 
 import java.util.Arrays;
@@ -26,7 +25,7 @@ import static scripts.MassFighter.MassFighter.settings;
 import static scripts.MassFighter.MassFighter.userProfile;
 import static scripts.MassFighter.Framework.Methods.*;
 
-public class Combat extends Task {
+public class Attack extends Task {
 
     private GroundItemQueryBuilder validLoot = GroundItems.newQuery().within(userProfile.getFightArea()).filter(new Filter<GroundItem>() {
         @Override
@@ -55,11 +54,11 @@ public class Combat extends Task {
 
     @Override
     public void execute() {
+
         final Player player = Players.getLocal();
         final LocatableEntityQueryResults<Npc> npcsTargettingUs = underAttackQuery.results();
 
-        if (npcsTargettingUs.isEmpty() || (MassFighter.settings.tagMode && npcsTargettingUs.size() < MassFighter.settings.tagSelection) || ((!timeSinceLastCombat.isRunning()
-                || timeSinceLastCombat.getRuntime(TimeUnit.SECONDS) > Random.nextInt(2, 4)) && player.getTarget() == null && player.getAnimationId() == -1 && player.getHealthGauge() == null)) {
+        if (!isBusy() || npcsTargettingUs.isEmpty() || (MassFighter.settings.tagMode && npcsTargettingUs.size() < MassFighter.settings.tagSelection)) {
             final LocatableEntityQueryResults<Npc> validTargetResults = validTargets.results();
             if (!validTargetResults.isEmpty()) {
                 out("Combat: We need a new target");
@@ -103,5 +102,10 @@ public class Combat extends Task {
         }
 
     }
+
+    private boolean isBusy() {
+        return Players.getLocal().getTarget() != null || Players.getLocal().getAnimationId() != -1;
+    }
+
 }
 

@@ -47,14 +47,7 @@ public class UserProfile {
     }
 
     public Area getFightArea() {
-        if (fightAreaCoords != null && !fightAreaCoords.isEmpty()) {
-            List<Coordinate> coords = new ArrayList<>();
-            for (XMLCoordinate c : fightAreaCoords) {
-                Coordinate coordinate = new Coordinate(c.x, c.y, c.z);
-                coords.add(coordinate);
-            }
-            return new Area.Polygonal(coords.toArray(new Coordinate[coords.size()]));
-        }
+        // need to rework custom areas
         return new Area.Circular(Players.getLocal().getPosition(), settings.fightRadius);
     }
 

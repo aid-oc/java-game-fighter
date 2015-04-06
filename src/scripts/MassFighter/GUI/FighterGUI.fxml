@@ -102,7 +102,7 @@
                               </AnchorPane>
                           </content>
                         </TitledPane>
-                        <TitledPane animated="false" collapsible="false" layoutX="276.0" layoutY="45.0" prefHeight="316.0" prefWidth="371.0" text="Custom Area">
+                        <TitledPane animated="false" collapsible="false" disable="true" layoutX="276.0" layoutY="45.0" prefHeight="316.0" prefWidth="371.0" text="Custom Area - Being reworked">
                           <content>
                             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="247.0" prefWidth="369.0">
                                  <children>

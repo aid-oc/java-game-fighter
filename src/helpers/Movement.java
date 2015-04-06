@@ -1,4 +1,4 @@
-package scripts.MassFighter.Framework;
+package helpers;
 
 import com.runemate.game.api.hybrid.entities.details.Interactable;
 import com.runemate.game.api.hybrid.entities.details.Locatable;

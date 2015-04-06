@@ -3,7 +3,7 @@ package scripts.MassFighter.Tasks;
 import com.runemate.game.api.hybrid.location.Coordinate;
 import com.runemate.game.api.hybrid.region.Players;
 import com.runemate.game.api.script.framework.task.Task;
-import scripts.MassFighter.Framework.Movement;
+import helpers.Movement;
 import scripts.MassFighter.MassFighter;
 
 

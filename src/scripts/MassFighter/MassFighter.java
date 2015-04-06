@@ -123,7 +123,7 @@ public class MassFighter extends TaskScript implements PaintListener, InventoryL
                 add(new Boost());
             }
             add(new ReturnToArea());
-            add(new Combat());
+            add(new Attack());
             if (settings.useAbilities && Environment.isRS3()) {
                 if (!ActionBar.isExpanded()) {
                     ActionBar.toggleExpansion();
