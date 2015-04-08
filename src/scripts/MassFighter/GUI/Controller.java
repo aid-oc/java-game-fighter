@@ -1,57 +1,31 @@
 package scripts.MassFighter.GUI;
 
-import com.runemate.game.api.client.paint.PaintListener;
 import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.entities.Npc;
 import com.runemate.game.api.hybrid.entities.Player;
-import com.runemate.game.api.hybrid.input.Mouse;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Health;
 import com.runemate.game.api.hybrid.location.Area;
-import com.runemate.game.api.hybrid.location.Coordinate;
 import com.runemate.game.api.hybrid.queries.NpcQueryBuilder;
 import com.runemate.game.api.hybrid.region.Npcs;
 import com.runemate.game.api.hybrid.region.Players;
+import com.runemate.game.api.hybrid.util.io.ManagedProperties;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.*;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
-import scripts.MassFighter.Data.Food;
 import scripts.MassFighter.Data.Potion;
 import scripts.MassFighter.Framework.UserProfile;
 import scripts.MassFighter.MassFighter;
 
-import javax.swing.*;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.io.File;
-import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 
-public class Controller implements MouseListener, PaintListener {
+public class Controller {
 
-    public UserProfile userProfile;
     @FXML
     private ListView<String> availableMonsters;
     @FXML
@@ -71,7 +45,7 @@ public class Controller implements MouseListener, PaintListener {
     @FXML
     private TextField tileRange;
     @FXML
-    private ListView<Food> foodSelection;
+    private ListView<String> foodSelection;
     @FXML
     private CheckBox abilities;
     @FXML
@@ -107,31 +81,13 @@ public class Controller implements MouseListener, PaintListener {
     @FXML
     private Slider tagSlider;
     @FXML
-    private TextField foodAmount;
-    @FXML
-    private Label txtProfileName;
-    @FXML
     private Button btnStart;
-    @FXML
-    private Button btnLoad;
     @FXML
     private Button btnSave;
     @FXML
-    private Label txtProfileSaved;
-    @FXML
-    private TextField txtSetProfileName;
-    @FXML
-    private Button btnSaveFightArea;
-    @FXML
-    private Button btnSaveBankArea;
-    @FXML
-    private Label txtAreaStatus;
+    private Button btnLoad;
     @FXML
     private Tab tabAreas;
-    @FXML
-    private CheckBox showArea;
-    @FXML
-    private Button btnResetArea;
     @FXML
     private CheckBox revolutionMode;
     @FXML
@@ -168,11 +124,16 @@ public class Controller implements MouseListener, PaintListener {
     private CheckBox soulsplitPerm;
     @FXML
     private Slider soulsplitPercentage;
+    @FXML
+    private TextField txtFoodInput;
+    @FXML
+    private Button btnAddFood;
+    @FXML
+    private Button btnRemoveFood;
+    @FXML
+    private Label settingsStatus;
 
-
-    private List<Coordinate> areaCoords = new LinkedList<>();
-    private List<Coordinate> fightAreaCoords = new LinkedList<>();
-    private List<Coordinate> bankAreaCoords = new LinkedList<>();
+    private UserProfile currentProfile;
 
     private List<String> getAvailableMonsters(Area area, String action) {
         List<String> availableNpcs = new ArrayList<>();
@@ -189,10 +150,16 @@ public class Controller implements MouseListener, PaintListener {
     // Initial setup
     public void initialize() {
 
-        Environment.getScript().getEventDispatcher().addListener(this);
+        ManagedProperties storedSettings = Environment.getScript().getSettings();
+        if (storedSettings.contains("selectedNpcs")) {
+            settingsStatus.setText("You have settings available in the cloud.");
+        } else {
+            settingsStatus.setText("You do not have any stored cloud settings.");
+        }
 
         // Temporary Updates Solution
         List<String> updates = new ArrayList<>();
+        updates.add("07/04/2015: Saving rework, blocked experiment (level 51)");
         updates.add("06/04/2015: Custom areas DISABLED for rework");
         updates.add("06/04/2015: Combat improvements");
         updates.add("18/03/2015: Notepaper support");
@@ -209,11 +176,8 @@ public class Controller implements MouseListener, PaintListener {
             updatesList.getItems().add(n);
         });
 
-
-        txtProfileName.setText("None Selected");
         availableBoosts.getItems().addAll(Potion.values());
-        // Add onAction event handlers
-        // update
+
         refreshButton.setOnAction(event -> {
             availableMonsters.getItems().remove(0, availableMonsters.getItems().size());
             final Player player = Players.getLocal();
@@ -247,35 +211,35 @@ public class Controller implements MouseListener, PaintListener {
             }
         });
 
-        btnSave.setOnAction(event -> saveProfile());
-
-        btnLoad.setOnAction(event -> {
-            File chosenProfile = chooseProfile();
-            UserProfile builtProfile = buildProfile(chosenProfile);
-            if (builtProfile != null) {
-                userProfile = builtProfile;
-                txtProfileName.setText(userProfile.getProfileName());
+        btnAddFood.setOnAction(event -> {
+            if (!txtFoodInput.getText().isEmpty() && !foodSelection.getItems().contains(txtFoodInput.getText())) {
+                foodSelection.getItems().add(txtFoodInput.getText());
+                txtFoodInput.clear();
             }
         });
 
-        btnSaveFightArea.setOnAction(event -> {
-            if (!areaCoords.isEmpty()) {
-                fightAreaCoords.addAll(areaCoords);
-                areaCoords.clear();
-                txtAreaStatus.setText("Saved as fight area!");
+        btnRemoveFood.setOnAction(event -> {
+            if (!foodSelection.getSelectionModel().isEmpty()) {
+                foodSelection.getItems().removeAll(foodSelection.getSelectionModel().getSelectedItems());
             }
         });
 
-        btnSaveBankArea.setOnAction(event -> {
-            if (!areaCoords.isEmpty()) {
-                bankAreaCoords.addAll(areaCoords);
-                areaCoords.clear();
-                txtAreaStatus.setText("Saved as bank area!");
+        btnSave.setOnAction(event -> {
+            if (save()) {
+                settingsStatus.setText("Your settings have been saved to the cloud and loaded for you.");
+                currentProfile = load();
+            } else {
+                settingsStatus.setText("Unable to save your settings, check you have setup correctly.");
             }
         });
 
-        btnResetArea.setOnAction(event -> {
-            areaCoords.clear();
+        btnLoad.setOnAction(event ->  {
+            UserProfile loadedProfile = load();
+            if (loadedProfile != null) {
+                currentProfile = loadedProfile;
+                populateUI(currentProfile);
+                settingsStatus.setText("Your settings have been downloaded.");
+            }
         });
 
         abilities.setOnAction(event -> {
@@ -326,8 +290,6 @@ public class Controller implements MouseListener, PaintListener {
         btnStart.setOnAction(this::start);
 
         // Init fields
-        foodSelection.getItems().addAll(Food.values());
-        foodAmount.setText("0");
         tileRange.setText("10");
         eatValue.setText(Integer.toString(Health.getMaximum() / 2));
         if (Environment.isRS3()) {
@@ -343,7 +305,9 @@ public class Controller implements MouseListener, PaintListener {
 
     private void populateUI(UserProfile profile) {
         if (profile != null) {
-            selectedMonsters.getItems().setAll(profile.getNpcNames());
+            if (profile.getNpcNames() != null) {
+                selectedMonsters.getItems().addAll(profile.getNpcNames());
+            }
             if (!profile.settings.selectedPotions.isEmpty()) {
                 selectedBoosts.getItems().addAll(profile.settings.selectedPotions);
                 boostRefreshPercentage.setValue(profile.settings.boostRefreshPercentage);
@@ -354,23 +318,26 @@ public class Controller implements MouseListener, PaintListener {
             criticalHitpoints.setText(Integer.toString(profile.settings.criticalHitpoints));
             abilities.setSelected(profile.settings.useAbilities);
             revolutionMode.setSelected(profile.settings.revolutionMode);
-            if (!profile.settings.foodName.isEmpty()) {
-                if (Food.valueOf(profile.settings.foodName.toUpperCase()) != null) {
-                    foodSelection.getSelectionModel().select(Food.valueOf(profile.settings.foodName.toUpperCase()));
-                }
+            if (profile.settings.foodNames != null && profile.settings.foodNames.length > 0) {
+                foodSelection.getItems().addAll(profile.settings.foodNames);
             }
             eatValue.setText(Integer.toString(profile.settings.eatValue));
             stopWhenOutOfFood.setSelected(profile.settings.exitOutFood);
-            foodAmount.setText(Integer.toString(profile.settings.foodAmount));
             lootByValue.setSelected(profile.settings.lootByValue);
             lootValue.setText(Double.toString(profile.settings.lootValue));
             lootInCombat.setSelected(profile.settings.lootInCombat);
             buryBones.setSelected(profile.settings.buryBones);
             waitLoot.setSelected(profile.settings.waitForLoot);
             reequipAmmunition.setSelected(profile.settings.equipAmmunition);
-            selectedLoot.getItems().setAll(profile.getLootNames());
-            selectedAlchLoot.getItems().setAll(profile.getAlchLoot());
-            selectedNotepaperLoot.getItems().setAll(profile.getNotepaperLoot());
+            if (profile.getLootNames() != null && profile.getLootNames().length > 0) {
+                selectedLoot.getItems().setAll(profile.getLootNames());
+            }
+            if (profile.getAlchLoot() != null && profile.getAlchLoot().length > 0) {
+                selectedAlchLoot.getItems().setAll(profile.getAlchLoot());
+            }
+            if (profile.getNotepaperLoot() != null && profile.getNotepaperLoot().length > 0) {
+                selectedNotepaperLoot.getItems().setAll(profile.getNotepaperLoot());
+            }
             soulsplit.setSelected(profile.settings.useSoulsplit);
             attackCombatMonsters.setSelected(profile.settings.attackCombatMonsters);
             bypassReachable.setSelected(profile.settings.bypassReachable);
@@ -381,17 +348,6 @@ public class Controller implements MouseListener, PaintListener {
             quickPray.setSelected(profile.settings.quickPray);
             prayValue.setText(Integer.toString(profile.settings.prayValue));
             exitPrayer.setSelected(profile.settings.exitOnPrayerOut);
-
-            if (profile.getFightArea() != null) {
-                fightAreaCoords = profile.getFightArea().getCoordinates();
-            }
-            if (profile.getBankArea() != null) {
-                bankAreaCoords = profile.getBankArea().getCoordinates();
-            }
-
-            txtProfileName.setText(profile.getProfileName());
-            txtSetProfileName.setText(profile.getProfileName());
-            txtProfileSaved.setText("Profile loaded and ready to go!");
         }
     }
 
@@ -406,21 +362,93 @@ public class Controller implements MouseListener, PaintListener {
 
     // Start button pressed, start the script
     public void start(ActionEvent actionEvent) {
-        if (userProfile == null) {
-            txtSetProfileName.setText("Quick Run");
-            userProfile = createProfile();
-        }
-        if (userProfile != null) {
-            MassFighter.userProfile = userProfile;
+        if (currentProfile != null && currentProfile.getNpcNames() != null) {
+            MassFighter.userProfile = currentProfile;
             MassFighter.setupRunning = false;
             closeUI();
         } else {
-            txtProfileSaved.setText("Invalid Profile!");
-            System.out.println("Profile Invalid");
-            eatValue.setText("3000");
-            tileRange.setText("20");
-            criticalHitpoints.setText("10");
+            if (createNoSave()) {
+                MassFighter.userProfile = currentProfile;
+                MassFighter.setupRunning = false;
+                closeUI();
+            } else {
+                System.out.println("Failed to start, incorrect settings?");
+            }
         }
+    }
+
+    public boolean createNoSave() {
+        if (Pattern.matches("\\d+", tileRange.getText())) {
+            if (!selectedMonsters.getItems().isEmpty()) {
+                if (Pattern.matches("\\d+", prayValue.getText()) && Pattern.matches("\\d+", eatValue.getText()) && Pattern.matches("\\d+", criticalHitpoints.getText())) {
+                    UserProfile profile = new UserProfile();
+                    // Create a settings object and store the settings
+                    Settings settings = new Settings();
+                    if (!foodSelection.getItems().isEmpty()) {
+                        settings.useFood = true;
+                        List<String> foodNames = foodSelection.getItems().stream().map(String::toLowerCase).collect(Collectors.toList());
+                        settings.foodNames = foodNames.toArray(new String[foodNames.size()]);
+                        settings.eatValue = Integer.valueOf(eatValue.getText());
+                    } else {
+                        settings.useFood = false;
+                    }
+                    if (quickPray.isSelected() || soulsplit.isSelected()) {
+                        settings.prayValue = Integer.valueOf(prayValue.getText());
+                    }
+                    if (tagMode.isSelected()) {
+                        settings.tagMode = true;
+                        settings.tagSelection = (int) tagSlider.getValue();
+                    }
+                    settings.attackCombatMonsters = attackCombatMonsters.isSelected();
+                    settings.bypassReachable = bypassReachable.isSelected();
+                    settings.showOutline = showOutline.isSelected();
+                    settings.waitForLoot = waitLoot.isSelected();
+                    settings.targetSelection = (int) targetSlider.getValue();
+                    settings.lootInCombat = lootInCombat.isSelected();
+                    settings.useAbilities = abilities.isSelected();
+                    settings.fightRadius = Integer.valueOf(tileRange.getText());
+                    settings.revolutionMode = revolutionMode.isSelected();
+                    settings.soulsplitPermanent = soulsplitPerm.isSelected();
+                    settings.soulsplitPercentage = (int)soulsplitPercentage.getValue();
+                    settings.quickPray = quickPray.isSelected();
+                    settings.useSoulsplit = soulsplit.isSelected();
+                    settings.exitOnPrayerOut = exitPrayer.isSelected();
+                    settings.criticalHitpoints = Integer.valueOf(criticalHitpoints.getText());
+                    settings.exitOutFood = stopWhenOutOfFood.isSelected();
+                    settings.buryBones = buryBones.isSelected();
+                    settings.equipAmmunition = reequipAmmunition.isSelected();
+                    if (!selectedBoosts.getItems().isEmpty()) {
+                        settings.selectedPotions = selectedBoosts.getItems();
+                        settings.boostRefreshPercentage = boostRefreshPercentage.getValue();
+                    }
+                    if (!selectedLoot.getItems().isEmpty() || lootByValue.isSelected() && Pattern.matches("\\d+", lootValue.getText())) {
+                        if (lootByValue.isSelected() && Pattern.matches("\\d+", lootValue.getText())) {
+                            settings.lootByValue = true;
+                            settings.lootValue = Double.valueOf(lootValue.getText());
+                        }
+                        settings.looting = true;
+                    }
+                    if (!selectedAlchLoot.getItems().isEmpty()) {
+                        List<String> alchLoot = new ArrayList<>();
+                        alchLoot.addAll(selectedAlchLoot.getItems().stream().map(String::toLowerCase).collect(Collectors.toList()));
+                        profile.setAlchLoot(alchLoot.toArray(new String[alchLoot.size()]));
+                    }
+                    if (!selectedNotepaperLoot.getItems().isEmpty()) {
+                        List<String> notepaperLoot = new ArrayList<>();
+                        notepaperLoot.addAll(selectedNotepaperLoot.getItems().stream().map(String::toLowerCase).collect(Collectors.toList()));
+                        profile.setNotepaperLoot(notepaperLoot.toArray(new String[notepaperLoot.size()]));
+                    }
+                    profile.settings = settings;
+                    List<String> lootNames = new ArrayList<>();
+                    lootNames.addAll(selectedLoot.getItems().stream().map(String::toLowerCase).collect(Collectors.toList()));
+                    profile.setLootNames(lootNames.toArray(new String[lootNames.size()]));
+                    profile.setNpcNames(selectedMonsters.getItems().toArray(new String[(selectedMonsters.getItems().size())]));
+                    currentProfile = profile;
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 
@@ -448,756 +476,222 @@ public class Controller implements MouseListener, PaintListener {
         }
     }
 
-    private Double getDoubleValue(String s) {
-        if (s != null) {
-            try {
-                return Double.parseDouble(s);
-            } catch (NumberFormatException e) {
-                e.printStackTrace();
+    public UserProfile load() {
+        // Get managed properties
+        ManagedProperties properties = Environment.getScript().getSettings();
+        UserProfile profile = new UserProfile();
+        Settings settings = new Settings();
+        if (properties.containsKey("tileRange")) {
+            settings.fightRadius = Integer.valueOf(properties.getProperty("tileRange"));
+        }
+        if (properties.containsKey("showOutline")) {
+            settings.showOutline = Boolean.valueOf(properties.getProperty("showOutline"));
+        }
+        if (properties.containsKey("targetLimit")) {
+            settings.targetSelection = Double.valueOf(properties.getProperty("targetLimit")).intValue();
+        }
+        if (properties.containsKey("tagMode")) {
+            settings.tagMode = Boolean.valueOf(properties.getProperty("tagMode"));
+        }
+        if (properties.containsKey("tagLimit")) {
+            settings.tagSelection = Double.valueOf(properties.getProperty("tagLimit")).intValue();
+        }
+        if (properties.containsKey("attackCombatMonsters")) {
+            settings.attackCombatMonsters = Boolean.valueOf(properties.getProperty("attackCombatMonsters"));
+        }
+        if (properties.containsKey("attackUnreachable")) {
+            settings.bypassReachable = Boolean.valueOf(properties.getProperty("attackUnreachable"));
+        }
+        if (properties.containsKey("criticalHitpoints")) {
+            settings.criticalHitpoints = Integer.valueOf(properties.getProperty("criticalHitpoints"));
+        }
+        if (properties.containsKey("selectedNpcs")) {
+            String[] npcNames = properties.getProperty("selectedNpcs").split(",");
+            profile.setNpcNames(npcNames);
+        }
+        if (properties.containsKey("useAbilities")) {
+            settings.useAbilities = Boolean.valueOf(properties.getProperty("useAbilities"));
+        }
+        if (properties.containsKey("revolutionMode")) {
+            settings.revolutionMode = Boolean.valueOf(properties.getProperty("revolutionMode"));
+        }
+        if (properties.containsKey("selectedFood")) {
+            String[] foodNames = properties.getProperty("selectedFood").split(",");
+            for (int i = 0; i < foodNames.length; i++) {
+                foodNames[i] = foodNames[i].toLowerCase();
             }
+            settings.useFood = true;
+            settings.foodNames = foodNames;
         }
-        return null;
+        if (properties.containsKey("eatValue")) {
+            settings.eatValue = Integer.valueOf(properties.getProperty("eatValue"));
+        }
+        if (properties.containsKey("stopWhenOutOfFood")) {
+            settings.exitOutFood = Boolean.valueOf(properties.getProperty("stopWhenOutOfFood"));
+        }
+        if (properties.containsKey("lootByValue")) {
+            settings.lootByValue = Boolean.valueOf(properties.getProperty("lootByValue"));
+        }
+        if (properties.containsKey("lootValue")) {
+            settings.lootValue = Double.valueOf(properties.getProperty("lootValue"));
+        }
+        if (properties.containsKey("lootInCombat")) {
+            settings.lootInCombat = Boolean.valueOf(properties.getProperty("lootInCombat"));
+        }
+        if (properties.containsKey("buryBones")) {
+            settings.buryBones = Boolean.valueOf(properties.getProperty("buryBones"));
+        }
+        if (properties.containsKey("reequipAmmunition")) {
+            settings.equipAmmunition = Boolean.valueOf(properties.getProperty("reequipAmmunition"));
+        }
+        if (properties.containsKey("selectedLoot")) {
+            String[] lootNames = properties.getProperty("selectedLoot").split(",");
+            for (int i = 0; i < lootNames.length; i++) {
+                lootNames[i] = lootNames[i].toLowerCase();
+            }
+            profile.setLootNames(lootNames);
+        }
+        if (properties.containsKey("selectedNotepaperLoot")) {
+            String[] notepaperLootNames = properties.getProperty("selectedLootNames").split(",");
+            for (int i = 0; i < notepaperLootNames.length; i++) {
+                notepaperLootNames[i] = notepaperLootNames[i].toLowerCase();
+            }
+            profile.setNotepaperLoot(notepaperLootNames);
+        }
+        if (properties.containsKey("selectedAlchLoot")) {
+            String[] alchLootNames = properties.getProperty("selectedAlchLoot").split(",");
+            for (int i = 0; i < alchLootNames.length; i++) {
+                alchLootNames[i] = alchLootNames[i].toLowerCase();
+            }
+            profile.setAlchLoot(alchLootNames);
+        }
+        if (properties.containsKey("useSoulsplit")) {
+            settings.useSoulsplit = Boolean.valueOf(properties.getProperty("useSoulsplit"));
+        }
+        if (properties.containsKey("soulsplitPerm")) {
+            settings.soulsplitPermanent = Boolean.valueOf(properties.getProperty("soulsplitPerm"));
+        }
+        if (properties.containsKey("soulsplitPercentage")) {
+            settings.soulsplitPercentage = Double.valueOf(properties.getProperty("soulsplitPercentage")).intValue();
+        }
+        if (properties.containsKey("useQuickPrayers")) {
+            settings.quickPray = Boolean.valueOf(properties.getProperty("useQuickPrayers"));
+        }
+        if (properties.containsKey("prayValue")) {
+            settings.prayValue = Integer.valueOf(properties.getProperty("prayValue"));
+        }
+        if (properties.containsKey("exitOnPrayerOut")) {
+            settings.exitOnPrayerOut = Boolean.valueOf(properties.getProperty("exitOnPrayerOut"));
+        }
+        if (properties.containsKey("selectedBoosts")) {
+            List<Potion> potions = new ArrayList<>();
+            String[] potionNames = properties.getProperty("selectedBoosts").split(",");
+            for (String potionName : potionNames) {
+                potions.add(Potion.valueOf(potionName));
+            }
+            settings.selectedPotions = potions;
+        }
+        if (properties.containsKey("boostRefreshPercentage")) {
+            settings.boostRefreshPercentage = Double.valueOf(properties.getProperty("boostRefreshPercentage"));
+        }
+        profile.settings = settings;
+        System.out.println("Loaded saved settings");
+        return profile;
     }
 
-    private Node getNode(NodeList list, int position) {
-        if (list != null) {
-            Node node = list.item(position);
-            if (node != null) return node;
-        }
-        return null;
-    }
-
-    public UserProfile buildProfile(File chosenProfile)
+    public boolean save()
     {
-        if (chosenProfile.getName().contains("xml")) {
-            try {
-
-                DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
-                DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
-                Document document = documentBuilder.parse(chosenProfile);
-
-                UserProfile profile = new UserProfile();
-                Settings settings = new Settings();
-
-                document.getDocumentElement().normalize();
-
-                NodeList settingsList = document.getElementsByTagName("settings");
-                if (settingsList != null) {
-                    Node settingsNode = settingsList.item(0);
-                    if (settingsNode != null) {
-                        Element element = (Element) settingsNode;
-
-                        Node tagNode = getNode(element.getElementsByTagName("targetSelection"), 0);
-                        if (tagNode != null) {
-                            Double tagValue = getDoubleValue(tagNode.getTextContent());
-                            if (tagValue != null) settings.tagSelection = tagValue.intValue();
-                        }
-
-                        Node useFoodNode = getNode(element.getElementsByTagName("useFood"), 0);
-                        if (useFoodNode != null) {
-                            settings.useFood = Boolean.valueOf(useFoodNode.getTextContent());
-                        }
-
-                        Node exitOutFoodNode = getNode(element.getElementsByTagName("exitOutFood"), 0);
-                        if (exitOutFoodNode != null) {
-                            settings.exitOutFood = Boolean.valueOf(exitOutFoodNode.getTextContent());
-                        }
-
-                        Node foodNameNode = getNode(element.getElementsByTagName("food"), 0);
-                        if (foodNameNode != null) {
-                            settings.foodName = element.getElementsByTagName("food").item(0).getTextContent();
-                        }
-
-                        Node showOutlineNode = getNode(element.getElementsByTagName("showOutline"), 0);
-                        if (showOutlineNode != null) {
-                            settings.showOutline = Boolean.valueOf(showOutlineNode.getTextContent());
-                        }
-
-                        Node lootInCombatNode = getNode(element.getElementsByTagName("combatLooting"), 0);
-                        if (lootInCombatNode != null) {
-                            settings.lootInCombat = Boolean.valueOf(lootInCombatNode.getTextContent());
-                        }
-
-                        Node useAbilitiesNode = getNode(element.getElementsByTagName("useAbilities"), 0);
-                        if (useAbilitiesNode  != null) {
-                            settings.useAbilities = Boolean.valueOf(useAbilitiesNode.getTextContent());
-                        }
-
-                        Node useSoulsplitNode = getNode(element.getElementsByTagName("useSoulsplit"), 0);
-                        if (useSoulsplitNode != null) {
-                            settings.useSoulsplit = Boolean.valueOf(useSoulsplitNode.getTextContent());
-                        }
-
-                        Node waitForLootNode = getNode(element.getElementsByTagName("waitForLoot"), 0);
-                        if (waitForLootNode != null) {
-                            settings.waitForLoot = Boolean.valueOf(waitForLootNode.getTextContent());
-                        }
-
-                        Node lootingNode = getNode(element.getElementsByTagName("looting"), 0);
-                        if (lootingNode != null) {
-                            settings.looting = Boolean.valueOf(lootingNode.getTextContent());
-                        }
-
-                        Node equipAmmunitionNode = getNode(element.getElementsByTagName("reequipAmmunition"), 0);
-                        if (equipAmmunitionNode != null) {
-                            settings.equipAmmunition = Boolean.valueOf(equipAmmunitionNode.getTextContent());
-                        }
-
-                        Node lootByValueNode = getNode(element.getElementsByTagName("lootByValue"), 0);
-                        if (lootByValueNode != null) {
-                            settings.lootByValue = Boolean.valueOf(lootByValueNode.getTextContent());
-                        }
-
-                        Node lootValueNode = getNode(element.getElementsByTagName("lootValue"), 0);
-                        if (lootValueNode != null && !lootValueNode.getTextContent().isEmpty()) {
-                            Double retrievedLootValue = getDoubleValue(lootValueNode.getTextContent());
-                            if (retrievedLootValue != null) {
-                                settings.lootValue = retrievedLootValue;
-                            }
-                        }
-
-                        Node buryBonesNode = getNode(element.getElementsByTagName("buryBones"), 0);
-                        if (buryBonesNode != null) {
-                            settings.buryBones = Boolean.valueOf(element.getElementsByTagName("buryBones").item(0).getTextContent());
-                        }
-
-                        Node soulsplitPercentageNode = getNode(element.getElementsByTagName("soulsplitPercentage"), 0);
-                        if (soulsplitPercentageNode != null) {
-                            Double percentageValue = getDoubleValue(soulsplitPercentageNode.getTextContent());
-                            if (percentageValue != null) settings.soulsplitPercentage = percentageValue.intValue();
-                        }
-
-                        Node soulsplitPermNode = getNode(element.getElementsByTagName("soulsplitPerm"), 0);
-                        if (soulsplitPermNode != null) {
-                            settings.soulsplitPermanent = Boolean.valueOf(soulsplitPermNode.getTextContent());
-                        }
-
-                        Node quickPrayNode = getNode(element.getElementsByTagName("quickPray"), 0);
-                        if (quickPrayNode != null) {
-                            settings.quickPray = Boolean.valueOf(quickPrayNode.getTextContent());
-                        }
-
-                        Node exitOnPrayerOutNode = getNode(element.getElementsByTagName("exitOnPrayerOut"), 0);
-                        if (exitOnPrayerOutNode != null) {
-                            settings.exitOnPrayerOut = Boolean.valueOf(exitOnPrayerOutNode.getTextContent());
-                        }
-
-                        Node tagModeNode = getNode(element.getElementsByTagName("tagMode"), 0);
-                        if (tagModeNode != null) {
-                            settings.tagMode = Boolean.valueOf(tagModeNode.getTextContent());
-                        }
-
-                        Node attackCombatMonstersNode = getNode(element.getElementsByTagName("attackCombatMonsters"), 0);
-                        if (attackCombatMonstersNode != null) {
-                            settings.attackCombatMonsters = Boolean.valueOf(attackCombatMonstersNode.getTextContent());
-                        }
-
-                        Node bypassReachableNode = getNode(element.getElementsByTagName("bypassReachable"), 0);
-                        if (bypassReachableNode != null) {
-                            settings.bypassReachable = Boolean.valueOf(bypassReachableNode.getTextContent());
-                        }
-
-                        Node revolutionModeNode = getNode(element.getElementsByTagName("revolutionMode"), 0);
-                        if (revolutionModeNode != null) {
-                            settings.revolutionMode = Boolean.valueOf(revolutionModeNode.getTextContent());
-                        }
-
-                        Node foodAmountNode = getNode(element.getElementsByTagName("foodAmount"), 0);
-                        if (foodAmountNode != null) {
-                            Double foodAmountValue = getDoubleValue(foodAmountNode.getTextContent());
-                            if (foodAmountValue != null) settings.foodAmount = foodAmountValue.intValue();
-                        }
-
-                        Node fightRadiusNode = getNode(element.getElementsByTagName("fightRadius"), 0);
-                        if (fightRadiusNode != null) {
-                            Double fightRadiusValue = getDoubleValue(fightRadiusNode.getTextContent());
-                            if (fightRadiusValue != null) settings.fightRadius = fightRadiusValue.intValue();
-                        }
-
-                        Node eatValueNode = getNode(element.getElementsByTagName("eatValue"), 0);
-                        if (eatValueNode != null) {
-                            Double eatValue = getDoubleValue(eatValueNode.getTextContent());
-                            if (eatValue != null) settings.eatValue = eatValue.intValue();
-                        }
-
-                        Node prayValueNode = getNode(element.getElementsByTagName("prayValue"), 0);
-                        if (prayValueNode != null) {
-                            Double prayValue = getDoubleValue(prayValueNode.getTextContent());
-                            if (prayValue != null) settings.prayValue = prayValue.intValue();
-                        }
-
-                        Node criticalHitpointsNode = getNode(element.getElementsByTagName("criticalHitpoints"), 0);
-                        if (criticalHitpointsNode != null) {
-                            Double criticalHitpointsValue = getDoubleValue(criticalHitpointsNode.getTextContent());
-                            if (criticalHitpointsValue != null)
-                                settings.criticalHitpoints = criticalHitpointsValue.intValue();
-                        }
-
-
-                        List<Potion> potions = new ArrayList<>();
-                        NodeList potionList = document.getElementsByTagName("selectedPotions");
-                        if (potionList != null) {
-                            Node potionNode = getNode(potionList, 0);
-                            if (potionNode != null) {
-                                NodeList potionNodes = potionNode.getChildNodes();
-                                if (potionNodes != null) {
-                                    for (int i = 0; i < potionNodes.getLength(); i++) {
-                                        Node potion = getNode(potionNodes, i);
-                                        if (potion != null) {
-                                            try {
-                                                Potion potionEnumValue = Potion.valueOf(potion.getTextContent());
-                                                if (potionEnumValue != null) potions.add(potionEnumValue);
-                                            } catch (IllegalArgumentException e) {
-                                                e.printStackTrace();
-                                            }
-                                        }
-                                    }
-                                    if (!potions.isEmpty()) {
-                                        settings.selectedPotions = potions;
-                                        Node boostRefreshPercentageNode = getNode(element.getElementsByTagName("boostRefreshPercentage"), 0);
-                                        if (boostRefreshPercentageNode != null) {
-                                            Double boostRefreshPercentageValue = getDoubleValue(boostRefreshPercentageNode.getTextContent());
-                                            if (boostRefreshPercentageValue != null) {
-                                                settings.boostRefreshPercentage = boostRefreshPercentageValue;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        profile.settings = settings;
-
-                        // End of settings
-                        // Start of user profile
-
-                        Node profileNameNode = getNode(document.getElementsByTagName("profileName"), 0);
-                        if (profileNameNode != null) {
-                            String profileName = profileNameNode.getTextContent();
-                            profile.setProfileName(profileName);
-                        }
-
-                        List<String> npcNames = new ArrayList<>();
-                        NodeList npcList = document.getElementsByTagName("npcNames");
-                        if (npcList != null) {
-                            Node npcNodesParent = getNode(npcList, 0);
-                            if (npcNodesParent != null) {
-                                NodeList npcChildNodes = npcNodesParent.getChildNodes();
-                                if (npcChildNodes != null) {
-                                    for (int i = 0; i < npcChildNodes.getLength(); i++) {
-                                        Node npcNode = getNode(npcChildNodes, i);
-                                        if (npcNode != null) {
-                                            npcNames.add(npcNode.getTextContent());
-                                        }
-                                    }
-                                    profile.setNpcNames(npcNames.toArray(new String[npcNames.size()]));
-                                }
-                            }
-                        }
-
-                        List<String> lootNames = new ArrayList<>();
-                        NodeList lootList = document.getElementsByTagName("lootNames");
-                        if (lootList != null) {
-                            Node lootNodesParent = getNode(lootList, 0);
-                            if (lootNodesParent != null) {
-                                NodeList lootChildNodes = lootNodesParent.getChildNodes();
-                                if (lootChildNodes != null) {
-                                    for (int i = 0; i < lootChildNodes.getLength(); i++) {
-                                        Node lootNode = getNode(lootChildNodes, i);
-                                        if (lootNode != null) {
-                                            lootNames.add(lootNode.getTextContent().toLowerCase());
-                                        }
-                                    }
-                                    profile.setLootNames(lootNames.toArray(new String[lootNames.size()]));
-                                }
-                            }
-                        }
-
-                        List<String> alchLootNames = new ArrayList<>();
-                        NodeList alchLootList = document.getElementsByTagName("alchLoot");
-                        if (alchLootList != null) {
-                            Node alchNodesParent = getNode(alchLootList, 0);
-                            if (alchNodesParent != null) {
-                                NodeList alchLootChildNodes = alchNodesParent.getChildNodes();
-                                if (alchLootChildNodes != null) {
-                                    for (int i = 0; i < alchLootChildNodes.getLength(); i++) {
-                                        Node alchLootNode = getNode(alchLootChildNodes, i);
-                                        if (alchLootNode != null) {
-                                            alchLootNames.add(alchLootNode.getTextContent().toLowerCase());
-                                        }
-                                    }
-                                    profile.setAlchLoot(alchLootNames.toArray(new String[alchLootNames.size()]));
-                                }
-                            }
-                        }
-
-                        List<String> notepaperLootNames = new ArrayList<>();
-                        NodeList notepaperLootList = document.getElementsByTagName("notepaperLoot");
-                        if (notepaperLootList != null) {
-                            Node notepaperLootParent = getNode(notepaperLootList, 0);
-                            if (notepaperLootParent != null) {
-                                NodeList notepaperLootChildNodes = notepaperLootParent.getChildNodes();
-                                if (notepaperLootChildNodes != null) {
-                                    for (int i = 0; i < notepaperLootChildNodes.getLength(); i++) {
-                                        Node notepaperLoot = getNode(notepaperLootChildNodes, i);
-                                        if (notepaperLoot != null) {
-                                            notepaperLootNames.add(notepaperLoot.getTextContent().toLowerCase());
-                                        }
-                                    }
-                                    profile.setNotepaperLoot(notepaperLootNames.toArray(new String[notepaperLootNames.size()]));
-                                }
-                            }
-                        }
-
-
-                        List<Coordinate> fightAreaLocations = new ArrayList<>();
-                        Node fightAreaNode = getNode(document.getElementsByTagName("fightArea"), 0);
-                        if (fightAreaNode != null) {
-                            NodeList coordinateNodes = fightAreaNode.getChildNodes();
-                            if (coordinateNodes != null) {
-                                for (int i = 0; i < coordinateNodes.getLength(); i++) {
-                                    Node coordinateParent = getNode(coordinateNodes, i);
-                                    if (coordinateParent != null) {
-                                        NodeList coordinateComponents = coordinateParent.getChildNodes();
-                                        if (coordinateComponents != null) {
-                                            Node xNode = getNode(coordinateComponents, 0);
-                                            if (xNode != null) {
-                                                int x = Integer.parseInt(xNode.getTextContent());
-                                                Node yNode = getNode(coordinateComponents, 1);
-                                                if (yNode != null) {
-                                                    int y = Integer.parseInt(yNode.getTextContent());
-                                                    Node zNode = getNode(coordinateComponents, 2);
-                                                    if (zNode != null) {
-                                                        int z = Integer.parseInt(zNode.getTextContent());
-                                                        fightAreaLocations.add(new Coordinate(x, y, z));
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                if (!fightAreaLocations.isEmpty()) {
-                                    // Remove duplicates
-                                    HashSet<Coordinate> fightAreas = new HashSet<>();
-                                    fightAreas.addAll(fightAreaLocations);
-                                    fightAreaLocations.clear();
-                                    fightAreaLocations.addAll(fightAreas);
-                                    profile.setFightAreaCoords(fightAreaLocations);
-                                }
-                            }
-                        }
-
-
-
-                        List<Coordinate> bankAreaLocations = new ArrayList<>();
-                        Node bankAreaNode = getNode(document.getElementsByTagName("bankArea"), 0);
-                        if (bankAreaNode != null) {
-                            NodeList bankCoordinateNodes = bankAreaNode.getChildNodes();
-                            if (bankCoordinateNodes != null) {
-                                for (int i = 0; i < bankCoordinateNodes.getLength(); i++) {
-                                    Node coordinateNode = getNode(bankCoordinateNodes, i);
-                                    if (coordinateNode != null) {
-                                        NodeList coordinateComponents = coordinateNode.getChildNodes();
-                                        if (coordinateComponents != null) {
-                                            Node xNode = getNode(coordinateComponents, 0);
-                                            if (xNode != null) {
-                                                int x = Integer.parseInt(xNode.getTextContent());
-                                                Node yNode = getNode(coordinateComponents, 1);
-                                                if (yNode != null) {
-                                                    int y = Integer.parseInt(yNode.getTextContent());
-                                                    Node zNode = getNode(coordinateComponents, 2);
-                                                    if (zNode != null) {
-                                                        int z = Integer.parseInt(zNode.getTextContent());
-                                                        bankAreaLocations.add(new Coordinate(x, y, z));
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                if (!bankAreaLocations.isEmpty()) {
-                                    // remove duplicates
-                                    HashSet<Coordinate> bankAreas = new HashSet<>();
-                                    bankAreas.addAll(bankAreaLocations);
-                                    bankAreaLocations.clear();
-                                    bankAreaLocations.addAll(bankAreas);
-                                    profile.setBankAreaCoords(bankAreaLocations);
-                                }
-                            }
-                        }
-                        populateUI(profile);
-                        return profile;
-                    }
-                }
-            } catch(ParserConfigurationException | SAXException | IOException e){
-                e.printStackTrace();
+        String numericRegex = "\\d+";
+        // Must-have settings
+        String profileTileRange = tileRange.getText();
+        List<String> profileMonsters = selectedMonsters.getItems();
+        if (!profileTileRange.isEmpty() && profileTileRange.matches(numericRegex) && !profileMonsters.isEmpty()) {
+            // Get managed properties
+            ManagedProperties properties = Environment.getScript().getSettings();
+            // Fight radius
+            properties.setProperty("tileRange", profileTileRange);
+            // Draw area whilst running
+            properties.setProperty("showOutline", Boolean.toString(showOutline.isSelected()));
+            // Target limits
+            properties.setProperty("targetLimit", Double.toString(targetSlider.getValue()));
+            // Tag mode
+            properties.setProperty("tagMode", Boolean.toString(tagMode.isSelected()));
+            // If they are using tag mode, get the limit they set
+            if (tagMode.isSelected()) {
+                properties.setProperty("tagLimit", Double.toString(tagSlider.getValue()));
             }
-        }
-        return null;
-    }
-
-    /**
-     * Loads an XML file and attempts to construct UserProfile/Settings objects from the values contained within
-     */
-    public File chooseProfile() {
-        final JFileChooser fileChooser = new JFileChooser();
-        Main.stage.toBack();
-        fileChooser.setCurrentDirectory(Environment.getStorageDirectory());
-        int response = fileChooser.showOpenDialog(null);
-        if (response == JFileChooser.APPROVE_OPTION) {
-            File chosenProfile = fileChooser.getSelectedFile();
-            System.out.println("Opened: " + chosenProfile.getName());
-            return chosenProfile;
-        }
-        Main.stage.toFront();
-        return null;
-    }
-
-    /**
-     * Takes the GUI settings and constructs an XML file which can then be read to construct a UserProfile
-     * Saves to: ~/RuneMate/bots/storage/MassFighter
-     *
-     * @return if the save was successful
-     */
-    public Boolean saveProfile() {
-
-        if (!fightAreaCoords.isEmpty() || Pattern.matches("\\d+", tileRange.getText())) {
-            if (!selectedMonsters.getItems().isEmpty()) {
-                if (Pattern.matches("\\d+", prayValue.getText()) && Pattern.matches("\\d+", foodAmount.getText()) && Pattern.matches("\\d+", eatValue.getText()) && Pattern.matches("\\d+", criticalHitpoints.getText())) {
-                    if (!txtSetProfileName.getText().isEmpty()) {
-                        File file;
-                        try {
-                            file = new File(Environment.getStorageDirectory().getAbsolutePath() + "/" + txtSetProfileName.getText() + ".xml");
-                            if (file.exists()) {
-                                file.delete();
-                                file.createNewFile();
-                            }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                            return false;
-                        }
-                        try {
-                            DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
-                            DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
-
-                            // Add "userProfile" root element
-                            Document document = documentBuilder.newDocument();
-                            Element rootElement = document.createElement("userProfile");
-                            document.appendChild(rootElement);
-
-                        /* START OF SETTINGS */
-                            Element settings = document.createElement("settings");
-                            rootElement.appendChild(settings);
-
-                            // Populate settings element
-                            Element targetSelection = document.createElement("targetSelection");
-                            targetSelection.appendChild(document.createTextNode(Double.toString(targetSlider.getValue())));
-                            settings.appendChild(targetSelection);
-
-                            Element useFood = document.createElement("useFood");
-                            useFood.appendChild(document.createTextNode(Boolean.toString(!foodSelection.getSelectionModel().isEmpty())));
-                            settings.appendChild(useFood);
-
-                            Element areaOutline = document.createElement("showOutline");
-                            areaOutline.appendChild(document.createTextNode(Boolean.toString(showOutline.isSelected())));
-                            settings.appendChild(areaOutline);
-
-
-                            if (!foodSelection.getSelectionModel().isEmpty()) {
-                                Element food = document.createElement("food");
-                                food.appendChild(document.createTextNode(foodSelection.getSelectionModel().getSelectedItem().getName()));
-                                settings.appendChild(food);
-
-                                Element exitOutFood = document.createElement("exitOutFood");
-                                exitOutFood.appendChild(document.createTextNode(Boolean.toString(stopWhenOutOfFood.isSelected())));
-                                settings.appendChild(exitOutFood);
-                            }
-
-                            Element combatLooting = document.createElement("combatLooting");
-                            combatLooting.appendChild(document.createTextNode(Boolean.toString(lootInCombat.isSelected())));
-                            settings.appendChild(combatLooting);
-
-                            Element useAbilities = document.createElement("useAbilities");
-                            useAbilities.appendChild(document.createTextNode(Boolean.toString(abilities.isSelected())));
-                            settings.appendChild(useAbilities);
-
-                            Element useSoulsplit = document.createElement("useSoulsplit");
-                            useSoulsplit.appendChild(document.createTextNode(Boolean.toString(soulsplit.isSelected())));
-                            settings.appendChild(useSoulsplit);
-
-                            Element waitForLoot = document.createElement("waitForLoot");
-                            waitForLoot.appendChild(document.createTextNode(Boolean.toString(waitLoot.isSelected())));
-                            settings.appendChild(waitForLoot);
-
-                            Element looting = document.createElement("looting");
-                            looting.appendChild(document.createTextNode(Boolean.toString((!selectedLoot.getItems().isEmpty() || lootByValue.isSelected() && Pattern.matches("\\d+", lootValue.getText())))));
-                            settings.appendChild(looting);
-
-                            Element equipAmmunition = document.createElement("reequipAmmunition");
-                            equipAmmunition.appendChild(document.createTextNode(Boolean.toString(reequipAmmunition.isSelected())));
-                            settings.appendChild(equipAmmunition);
-
-                            Element lootingByValue = document.createElement("lootByValue");
-                            lootingByValue.appendChild(document.createTextNode(Boolean.toString(lootByValue.isSelected())));
-                            settings.appendChild(lootingByValue);
-
-                            Element lootingValue = document.createElement("lootValue");
-                            lootingValue.appendChild(document.createTextNode(lootValue.getText()));
-                            settings.appendChild(lootingValue);
-
-                            Element buryingBones = document.createElement("buryBones");
-                            buryingBones.appendChild(document.createTextNode(Boolean.toString(buryBones.isSelected())));
-                            settings.appendChild(buryingBones);
-
-                            Element quickPraying = document.createElement("quickPray");
-                            quickPraying.appendChild(document.createTextNode(Boolean.toString(quickPray.isSelected())));
-                            settings.appendChild(quickPraying);
-
-                            Element exitOnPrayerOut = document.createElement("exitOnPrayerOut");
-                            exitOnPrayerOut.appendChild(document.createTextNode(Boolean.toString(exitPrayer.isSelected())));
-                            settings.appendChild(exitOnPrayerOut);
-
-                            Element useTagMode = document.createElement("tagMode");
-                            useTagMode.appendChild(document.createTextNode(Boolean.toString(tagMode.isSelected())));
-                            settings.appendChild(useTagMode);
-
-                            Element attackCombatNpcs = document.createElement("attackCombatMonsters");
-                            attackCombatNpcs.appendChild(document.createTextNode(Boolean.toString(attackCombatMonsters.isSelected())));
-                            settings.appendChild(attackCombatNpcs);
-
-                            Element attackUnreachable = document.createElement("bypassReachable");
-                            attackUnreachable.appendChild(document.createTextNode(Boolean.toString(bypassReachable.isSelected())));
-                            settings.appendChild(attackUnreachable);
-
-                            Element useRevolutionMode = document.createElement("revolutionMode");
-                            useRevolutionMode.appendChild(document.createTextNode(Boolean.toString(revolutionMode.isSelected())));
-                            settings.appendChild(useRevolutionMode);
-
-                            Element tagModeQuantity = document.createElement("tagSelection");
-                            tagModeQuantity.appendChild(document.createTextNode(Double.toString(tagSlider.getValue())));
-                            settings.appendChild(tagModeQuantity);
-
-                            Element foodWithdrawQuantity = document.createElement("foodAmount");
-                            foodWithdrawQuantity.appendChild(document.createTextNode(foodAmount.getText()));
-                            settings.appendChild(foodWithdrawQuantity);
-
-                            Element fightRadius = document.createElement("fightRadius");
-                            fightRadius.appendChild(document.createTextNode(tileRange.getText()));
-                            settings.appendChild(fightRadius);
-
-                            Element eatAtValue = document.createElement("eatValue");
-                            eatAtValue.appendChild(document.createTextNode(eatValue.getText()));
-                            settings.appendChild(eatAtValue);
-
-                            Element soulsplitPermanentValue = document.createElement("soulsplitPerm");
-                            soulsplitPermanentValue.appendChild(document.createTextNode(Boolean.toString(soulsplitPerm.isSelected())));
-                            settings.appendChild(soulsplitPermanentValue);
-
-                            Element soulsplitPercentageValue = document.createElement("soulsplitPercentage");
-                            soulsplitPercentageValue.appendChild(document.createTextNode(Double.toString(soulsplitPercentage.getValue())));
-                            settings.appendChild(soulsplitPercentageValue);
-
-                            Element prayRefreshValue = document.createElement("prayValue");
-                            prayRefreshValue.appendChild(document.createTextNode(prayValue.getText()));
-                            settings.appendChild(prayRefreshValue);
-
-                            Element criticalHp = document.createElement("criticalHitpoints");
-                            criticalHp.appendChild(document.createTextNode(criticalHitpoints.getText()));
-                            settings.appendChild(criticalHp);
-
-                            Element boostPercentage = document.createElement("boostRefreshPercentage");
-                            boostPercentage.appendChild(document.createTextNode(Double.toString(boostRefreshPercentage.getValue())));
-                            settings.appendChild(boostPercentage);
-
-                        /* END OF SETTINGS */
-
-                            Element bankArea = document.createElement("bankArea");
-                            for (Coordinate coordinate : bankAreaCoords) {
-                                Element coord = document.createElement("coordinate");
-                                Element x = document.createElement("x");
-                                Element y = document.createElement("y");
-                                Element z = document.createElement("z");
-                                x.appendChild(document.createTextNode(Integer.toString(coordinate.getX())));
-                                y.appendChild(document.createTextNode(Integer.toString(coordinate.getY())));
-                                z.appendChild(document.createTextNode(Integer.toString(coordinate.getPlane())));
-                                coord.appendChild(x);
-                                coord.appendChild(y);
-                                coord.appendChild(z);
-                                bankArea.appendChild(coord);
-                            }
-                            rootElement.appendChild(bankArea);
-
-                            Element fightArea = document.createElement("fightArea");
-                            for (Coordinate coordinate : fightAreaCoords) {
-                                Element coord = document.createElement("coordinate");
-                                Element x = document.createElement("x");
-                                Element y = document.createElement("y");
-                                Element z = document.createElement("z");
-                                x.appendChild(document.createTextNode(Integer.toString(coordinate.getX())));
-                                y.appendChild(document.createTextNode(Integer.toString(coordinate.getY())));
-                                z.appendChild(document.createTextNode(Integer.toString(coordinate.getPlane())));
-                                coord.appendChild(x);
-                                coord.appendChild(y);
-                                coord.appendChild(z);
-                                fightArea.appendChild(coord);
-                            }
-                            rootElement.appendChild(fightArea);
-
-                            Element loot = document.createElement("lootNames");
-                            for (String lootName : selectedLoot.getItems()) {
-                                Element lootItem = document.createElement("item");
-                                lootItem.appendChild(document.createTextNode(lootName));
-                                loot.appendChild(lootItem);
-                            }
-                            rootElement.appendChild(loot);
-
-                            Element selectedPotions = document.createElement("selectedPotions");
-                            if (!selectedBoosts.getItems().isEmpty()) {
-                                for (Potion p : selectedBoosts.getItems()) {
-                                    Element potionItem = document.createElement("selectedPotion");
-                                    potionItem.appendChild(document.createTextNode(p.name()));
-                                    selectedPotions.appendChild(potionItem);
-                                }
-                            }
-                            rootElement.appendChild(selectedPotions);
-
-
-                            Element alchLoot = document.createElement("alchLoot");
-                            for (String alchLootName : selectedAlchLoot.getItems()) {
-                                Element alchItem = document.createElement("alchItem");
-                                alchItem.appendChild(document.createTextNode(alchLootName));
-                                alchLoot.appendChild(alchItem);
-                            }
-                            rootElement.appendChild(alchLoot);
-
-                            Element notepaperLoot = document.createElement("notepaperLoot");
-                            for (String notePaperLootName : selectedNotepaperLoot.getItems()) {
-                                Element notepaperItem = document.createElement("notepaperItem");
-                                notepaperItem.appendChild(document.createTextNode(notePaperLootName));
-                                notepaperLoot.appendChild(notepaperItem);
-                            }
-                            rootElement.appendChild(notepaperLoot);
-
-                            Element npcs = document.createElement("npcNames");
-                            for (String npcName : selectedMonsters.getItems()) {
-                                Element npcItem = document.createElement("npc");
-                                npcItem.appendChild(document.createTextNode(npcName));
-                                npcs.appendChild(npcItem);
-                            }
-                            rootElement.appendChild(npcs);
-
-                            Element profileName = document.createElement("profileName");
-                            profileName.appendChild(document.createTextNode(txtSetProfileName.getText()));
-                            rootElement.appendChild(profileName);
-
-                        /* CREATE XML FILE */
-
-                            TransformerFactory transformerFactory = TransformerFactory.newInstance();
-                            Transformer transformer = transformerFactory.newTransformer();
-                            DOMSource source = new DOMSource(document);
-                            StreamResult result = new StreamResult(file);
-                            transformer.transform(source, result);
-
-                            // Load that profile
-                            UserProfile builtProfile = buildProfile(file);
-                            if (builtProfile != null) {
-                                userProfile = builtProfile;
-                                populateUI(userProfile);
-                                System.out.println("Profile saved and loaded");
-                                return true;
-                            }
-                        } catch (ParserConfigurationException | TransformerException pce) {
-                            pce.printStackTrace();
-                        }
-                    }
-                }
+            // Attack monsters that are in combat
+            properties.setProperty("attackCombatMonsters", Boolean.toString(attackCombatMonsters.isSelected()));
+            // Attack unreachable monsters (caged etc.)
+            properties.setProperty("attackUnreachable", Boolean.toString(bypassReachable.isSelected()));
+            // Critical hipoints value (logout)
+            if (criticalHitpoints.getText().matches(numericRegex)) {
+                properties.setProperty("criticalHitpoints", criticalHitpoints.getText());
             }
+            // Selected NPC's
+            String npcString = String.join(",", selectedMonsters.getItems());
+            properties.setProperty("selectedNpcs", npcString);
+            // Use abilities
+            properties.setProperty("useAbilities", Boolean.toString(abilities.isSelected()));
+            // Revolution mode
+            properties.setProperty("revolutionMode", Boolean.toString(revolutionMode.isSelected()));
+
+            // Food options
+            if (!foodSelection.getItems().isEmpty() && !eatValue.getText().isEmpty() && eatValue.getText().matches(numericRegex)) {
+                String foodString = String.join(",", foodSelection.getItems());
+                properties.setProperty("selectedFood", foodString);
+                properties.setProperty("eatValue", eatValue.getText());
+                properties.setProperty("stopWhenOutOfFood", Boolean.toString(stopWhenOutOfFood.isSelected()));
+            }
+
+            // Loot options
+            // Get loot value if selected
+            if (lootByValue.isSelected() && !lootValue.getText().isEmpty() && lootValue.getText().matches(numericRegex)) {
+                properties.setProperty("lootByValue", Boolean.toString(lootByValue.isSelected()));
+                properties.setProperty("lootValue", lootValue.getText());
+            }
+            properties.setProperty("lootInCombat", Boolean.toString(lootInCombat.isSelected()));
+            properties.setProperty("buryBones", Boolean.toString(buryBones.isSelected()));
+            properties.setProperty("reequipAmmunition", Boolean.toString(reequipAmmunition.isSelected()));
+
+            if (!selectedLoot.getItems().isEmpty()) {
+                String lootString = String.join(",", selectedLoot.getItems());
+                properties.setProperty("selectedLoot", lootString);
+            }
+            if (!selectedNotepaperLoot.getItems().isEmpty()) {
+                String notepaperLootString = String.join(",", selectedNotepaperLoot.getItems());
+                properties.setProperty("selectedNotepaperLoot", notepaperLootString);
+            }
+            if (!selectedAlchLoot.getItems().isEmpty()) {
+                String alchLootString = String.join(",", selectedAlchLoot.getItems());
+                properties.setProperty("selectedAlchLoot", alchLootString);
+            }
+
+            // Prayer options
+            properties.setProperty("useSoulsplit", Boolean.toString(soulsplit.isSelected()));
+            properties.setProperty("soulsplitPerm", Boolean.toString(soulsplitPerm.isSelected()));
+            // Get soulsplit activation value
+            if (!soulsplitPerm.isSelected()) {
+                properties.setProperty("soulsplitPercentage", Double.toString(soulsplitPercentage.getValue()));
+            }
+            properties.setProperty("useQuickPrayers", Boolean.toString(quickPray.isSelected()));
+            if (!prayValue.getText().isEmpty() && prayValue.getText().matches(numericRegex)) {
+                properties.setProperty("prayValue", prayValue.getText());
+            }
+            properties.setProperty("exitOnPrayerOut", Boolean.toString(exitPrayer.isSelected()));
+
+            // Boost options
+            if (!selectedBoosts.getItems().isEmpty()) {
+                List<String> potionNames = selectedBoosts.getItems().stream().map(Potion::toString).collect(Collectors.toList());
+                String potionNamesString = String.join(",", potionNames);
+                properties.setProperty("selectedBoosts", potionNamesString);
+                properties.setProperty("boostRefreshPercentage", Double.toString(boostRefreshPercentage.getValue()));
+            }
+            System.out.println("Save successful");
+            return true;
         }
+        System.out.println("Save unsuccessful");
         return false;
-    }
-
-    public UserProfile createProfile() {
-        if (!fightAreaCoords.isEmpty() || Pattern.matches("\\d+", tileRange.getText())) {
-            if (!selectedMonsters.getItems().isEmpty()) {
-                if (Pattern.matches("\\d+", prayValue.getText()) && Pattern.matches("\\d+", foodAmount.getText()) && Pattern.matches("\\d+", eatValue.getText()) && Pattern.matches("\\d+", criticalHitpoints.getText())) {
-                    if (!txtSetProfileName.getText().isEmpty()) {
-                        UserProfile profile = new UserProfile();
-
-                        // Create a settings object and store the settings
-                        Settings settings = new Settings();
-                        if (!foodSelection.getSelectionModel().isEmpty()) {
-                            settings.useFood = true;
-                            settings.foodName = foodSelection.getSelectionModel().getSelectedItem().getName();
-                            settings.eatValue = Integer.valueOf(eatValue.getText());
-                            settings.foodAmount = Integer.valueOf(foodAmount.getText());
-                        } else {
-                            settings.useFood = false;
-                        }
-                        if (quickPray.isSelected() || soulsplit.isSelected()) {
-                            settings.prayValue = Integer.valueOf(prayValue.getText());
-                        }
-                        if (tagMode.isSelected()) {
-                            settings.tagMode = true;
-                            settings.tagSelection = (int) tagSlider.getValue();
-                        }
-                        settings.attackCombatMonsters = attackCombatMonsters.isSelected();
-                        settings.bypassReachable = bypassReachable.isSelected();
-                        settings.showOutline = showOutline.isSelected();
-                        settings.waitForLoot = waitLoot.isSelected();
-                        settings.targetSelection = (int) targetSlider.getValue();
-                        settings.lootInCombat = lootInCombat.isSelected();
-                        settings.useAbilities = abilities.isSelected();
-                        settings.fightRadius = Integer.valueOf(tileRange.getText());
-                        settings.revolutionMode = revolutionMode.isSelected();
-                        settings.soulsplitPermanent = soulsplitPerm.isSelected();
-                        settings.soulsplitPercentage = (int)soulsplitPercentage.getValue();
-                        settings.quickPray = quickPray.isSelected();
-                        settings.useSoulsplit = soulsplit.isSelected();
-                        settings.exitOnPrayerOut = exitPrayer.isSelected();
-                        settings.criticalHitpoints = Integer.valueOf(criticalHitpoints.getText());
-                        settings.exitOutFood = stopWhenOutOfFood.isSelected();
-                        settings.buryBones = buryBones.isSelected();
-                        settings.equipAmmunition = reequipAmmunition.isSelected();
-                        if (!selectedBoosts.getItems().isEmpty()) {
-                            settings.selectedPotions = selectedBoosts.getItems();
-                            settings.boostRefreshPercentage = boostRefreshPercentage.getValue();
-                        }
-                        if (!selectedLoot.getItems().isEmpty() || lootByValue.isSelected() && Pattern.matches("\\d+", lootValue.getText())) {
-                            if (lootByValue.isSelected() && Pattern.matches("\\d+", lootValue.getText())) {
-                                settings.lootByValue = true;
-                                settings.lootValue = Double.valueOf(lootValue.getText());
-                            }
-                            settings.looting = true;
-                        }
-                        if (!selectedAlchLoot.getItems().isEmpty()) {
-                            List<String> alchLoot = new ArrayList<>();
-                            alchLoot.addAll(selectedAlchLoot.getItems().stream().map(String::toLowerCase).collect(Collectors.toList()));
-                            profile.setAlchLoot(alchLoot.toArray(new String[alchLoot.size()]));
-                        }
-                        if (!selectedNotepaperLoot.getItems().isEmpty()) {
-                            List<String> notepaperLoot = new ArrayList<>();
-                            notepaperLoot.addAll(selectedNotepaperLoot.getItems().stream().map(String::toLowerCase).collect(Collectors.toList()));
-                            profile.setNotepaperLoot(notepaperLoot.toArray(new String[notepaperLoot.size()]));
-                        }
-                        profile.settings = settings;
-                        profile.setFightAreaCoords(fightAreaCoords);
-                        if (!bankAreaCoords.isEmpty()) {
-                            profile.setBankAreaCoords(bankAreaCoords);
-                        }
-                        List<String> lootNames = new ArrayList<>();
-                        lootNames.addAll(selectedLoot.getItems().stream().map(String::toLowerCase).collect(Collectors.toList()));
-                        profile.setLootNames(lootNames.toArray(new String[lootNames.size()]));
-                        profile.setNpcNames(selectedMonsters.getItems().toArray(new String[(selectedMonsters.getItems().size())]));
-                        profile.setProfileName(txtSetProfileName.getText());
-                        return profile;
-                    } else {
-                        txtProfileSaved.setText("Please give your profile a name");
-                    }
-                }
-            }
-        } else {
-            txtProfileSaved.setText("You need to make a fight area first!");
-        }
-        return null;
     }
 
     public void closeUI() {
@@ -1207,63 +701,4 @@ public class Controller implements MouseListener, PaintListener {
         }
     }
 
-    @Override
-    public void mouseClicked(MouseEvent e) {
-        if (tabAreas.isSelected()) {
-            if (e.getButton() == 2) {
-                final Point mousePosition = Mouse.getPosition();
-                final Player player = Players.getLocal();
-                if (player != null) {
-                    Area aroundPlayer = new Area.Circular(player.getPosition(), 15);
-                    if (mousePosition != null) {
-                        Optional<Coordinate> coordinate =  aroundPlayer.getCoordinates().stream().filter(coord -> coord != null && coord.contains(mousePosition)).findFirst();
-                        if (coordinate.isPresent()) {
-                            areaCoords.add(coordinate.get());
-                        }
-                    }
-                }
-            }
-        }
-
-    }
-
-    @Override
-    public void mousePressed(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
-
-    }
-
-    @Override
-    public void onPaint(Graphics2D graphics2D) {
-        List<Coordinate> renderCoords = areaCoords;
-        if (!renderCoords.isEmpty()) {
-            graphics2D.setColor(Color.WHITE);
-            renderCoords.parallelStream().forEach(coord -> {
-                if (coord != null) {
-                    coord.render(graphics2D);
-                }
-            });
-            if (showArea.isSelected()) {
-                graphics2D.setColor(Color.GREEN);
-                Area area = new Area.Polygonal(renderCoords.toArray(new Coordinate[(renderCoords.size())]));
-                if (area.getCoordinates() != null) {
-                    area.render(graphics2D);
-                }
-            }
-        }
-    }
 }

@@ -30,7 +30,7 @@ public class Settings {
     public double lootValue = 0;
     public int tagSelection = 0;
     public int foodAmount = 0;
-    public String foodName = "";
+    public String[] foodNames;
     public int fightRadius = 20;
     public int eatValue = 0;
     public int prayValue = 0;

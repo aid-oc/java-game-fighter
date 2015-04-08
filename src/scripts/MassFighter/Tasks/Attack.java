@@ -12,18 +12,16 @@ import com.runemate.game.api.hybrid.region.GroundItems;
 import com.runemate.game.api.hybrid.region.Npcs;
 import com.runemate.game.api.hybrid.region.Players;
 import com.runemate.game.api.hybrid.util.Filter;
-import com.runemate.game.api.hybrid.util.StopWatch;
 import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.task.Task;
 import helpers.Movement;
 import scripts.MassFighter.MassFighter;
 
 import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
 
+import static scripts.MassFighter.Framework.Methods.out;
 import static scripts.MassFighter.MassFighter.settings;
 import static scripts.MassFighter.MassFighter.userProfile;
-import static scripts.MassFighter.Framework.Methods.*;
 
 public class Attack extends Task {
 
@@ -32,21 +30,21 @@ public class Attack extends Task {
         public boolean accepts(GroundItem groundItem) {
             if (MassFighter.methods.hasRoomForItem(groundItem)) {
                 String itemName = groundItem.getDefinition().getName().toLowerCase();
-                return ((settings.lootByValue && MassFighter.methods.isWorthLooting(groundItem)) || Arrays.asList(userProfile.getLootNames()).contains(itemName) || (settings.buryBones && (itemName.contains("bones") || itemName.contains("ashes"))));
+                return ((settings.lootByValue && MassFighter.methods.isWorthLooting(groundItem)) || Arrays.asList(userProfile.getLootNames()).contains(itemName));
             }
             return false;
         }
-    });
+    }).reachable();
     private final NpcQueryBuilder underAttackQuery = Npcs.newQuery().targeting(Players.getLocal()).reachable();
+
     private final NpcQueryBuilder validTargets = Npcs.newQuery().within(userProfile.getFightArea()).names(userProfile.getNpcNames())
             .filter(new Filter<Npc>() {
                 @Override
                 public boolean accepts(Npc npc) {
                     return (settings.attackCombatMonsters ? npc != null && npc.isValid()
-                            : npc != null && npc.isValid() && npc.getTarget() == null && npc.getHealthGauge() == null) && (settings.bypassReachable || npc.getPosition().isReachable());
+                            : npc != null && npc.isValid() && npc.getId() != 1273 && npc.getTarget() == null && npc.getHealthGauge() == null) && (settings.bypassReachable || npc.getPosition().isReachable());
                 }
             });
-    private final StopWatch timeSinceLastCombat = new StopWatch();
 
     public boolean validate() {
         return MassFighter.methods.readyToFight() && validLoot.results().isEmpty();
@@ -56,9 +54,9 @@ public class Attack extends Task {
     public void execute() {
 
         final Player player = Players.getLocal();
-        final LocatableEntityQueryResults<Npc> npcsTargettingUs = underAttackQuery.results();
+        LocatableEntityQueryResults<Npc> npcsTargettingUs = underAttackQuery.results();
 
-        if (!isBusy() || npcsTargettingUs.isEmpty() || (MassFighter.settings.tagMode && npcsTargettingUs.size() < MassFighter.settings.tagSelection)) {
+        if (!isBusy() || npcsTargettingUs.isEmpty() && player.getTarget() == null || (MassFighter.settings.tagMode && npcsTargettingUs.size() < MassFighter.settings.tagSelection)) {
             final LocatableEntityQueryResults<Npc> validTargetResults = validTargets.results();
             if (!validTargetResults.isEmpty()) {
                 out("Combat: We need a new target");
@@ -78,10 +76,6 @@ public class Attack extends Task {
                             out("Combat: Attacked a target");
                             final Npc target = targetNpc;
                             Execution.delayUntil(() -> target.getTarget() != null, 1000, 2000);
-                            if (!timeSinceLastCombat.isRunning()) {
-                                timeSinceLastCombat.start();
-                            }
-                            timeSinceLastCombat.reset();
                         } else {
                             out("Combat: NPC interaction failed");
                         }
@@ -100,9 +94,6 @@ public class Attack extends Task {
             }
         } else {
             MassFighter.status = "In Combat";
-            if (timeSinceLastCombat.isRunning() && (timeSinceLastCombat.getRuntime(TimeUnit.SECONDS) % 5 == 0)) {
-                out("Combat: Fighting - Last interaction was " + timeSinceLastCombat.getRuntime(TimeUnit.SECONDS) + " seconds ago");
-            }
             LocatableEntity target = player.getTarget();
             if (target != null) MassFighter.targetEntity = target;
         }

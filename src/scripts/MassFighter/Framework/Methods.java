@@ -4,17 +4,17 @@ import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.RuneScape;
 import com.runemate.game.api.hybrid.entities.GroundItem;
 import com.runemate.game.api.hybrid.entities.definitions.ItemDefinition;
-import com.runemate.game.api.hybrid.local.hud.interfaces.Health;
-import com.runemate.game.api.hybrid.local.hud.interfaces.InterfaceComponent;
-import com.runemate.game.api.hybrid.local.hud.interfaces.Interfaces;
-import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
+import com.runemate.game.api.hybrid.local.hud.interfaces.*;
+import com.runemate.game.api.hybrid.queries.SpriteItemQueryBuilder;
 import com.runemate.game.api.hybrid.region.Npcs;
 import com.runemate.game.api.hybrid.region.Players;
+import com.runemate.game.api.hybrid.util.Filter;
 import com.runemate.game.api.osrs.net.Zybez;
 import com.runemate.game.api.rs3.local.hud.Powers;
 import com.runemate.game.api.rs3.net.GrandExchange;
 import scripts.MassFighter.MassFighter;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 import static scripts.MassFighter.MassFighter.settings;
@@ -22,6 +22,13 @@ import static scripts.MassFighter.MassFighter.settings;
 public class Methods {
 
     public HashMap<String, Integer> itemPrices = new HashMap<>();
+
+    public SpriteItemQueryBuilder foodItems = Inventory.newQuery().filter(new Filter<SpriteItem>() {
+        @Override
+        public boolean accepts(SpriteItem spriteItem) {
+            return Arrays.asList(settings.foodNames).contains(spriteItem.getDefinition().getName().toLowerCase());
+        }
+    });
 
     public Boolean isInCombat() {
         return RuneScape.isLoggedIn() && !Npcs.newQuery().actions("Attack").targeting(Players.getLocal()).results().isEmpty();
@@ -54,7 +61,7 @@ public class Methods {
             if (settings.useSoulsplit || settings.quickPray) {
                 return getPrayPoints() >= settings.prayValue;
             } else if (settings.useFood) {
-                return Inventory.contains(settings.foodName) && Health.getCurrent() >= settings.eatValue;
+                return !foodItems.results().isEmpty() && Health.getCurrent() >= settings.eatValue;
             } else if (Health.getCurrent() < settings.criticalHitpoints) {
                 logout();
                 return false;

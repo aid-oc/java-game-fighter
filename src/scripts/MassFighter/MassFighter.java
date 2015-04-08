@@ -3,6 +3,7 @@ package scripts.MassFighter;
 import com.runemate.game.api.client.paint.PaintListener;
 import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.entities.LocatableEntity;
+import com.runemate.game.api.hybrid.entities.definitions.ItemDefinition;
 import com.runemate.game.api.hybrid.local.Skill;
 import com.runemate.game.api.hybrid.location.Area;
 import com.runemate.game.api.hybrid.location.Coordinate;
@@ -18,10 +19,10 @@ import com.runemate.game.api.script.framework.listeners.events.ItemEvent;
 import com.runemate.game.api.script.framework.task.Task;
 import com.runemate.game.api.script.framework.task.TaskScript;
 import javafx.application.Platform;
+import scripts.MassFighter.Framework.Methods;
 import scripts.MassFighter.Framework.UserProfile;
 import scripts.MassFighter.GUI.Main;
 import scripts.MassFighter.GUI.Settings;
-import scripts.MassFighter.Framework.Methods;
 import scripts.MassFighter.Tasks.*;
 
 import java.awt.*;
@@ -146,8 +147,9 @@ public class MassFighter extends TaskScript implements PaintListener, InventoryL
     @Override
     public void onItemAdded(ItemEvent event) {
         if (methods != null && event.getItem() != null) {
-            String itemName = event.getItem().getDefinition().getName();
-            int itemId = event.getItem().getId();
+            ItemDefinition itemDefinition = event.getItem().getDefinition();
+            String itemName = itemDefinition .getName();
+            int itemId = itemDefinition .getId();
             int itemValue = 0;
             if (methods.itemPrices.containsKey(itemName)) {
                 itemValue = methods.itemPrices.get(itemName);
@@ -208,10 +210,9 @@ public class MassFighter extends TaskScript implements PaintListener, InventoryL
                 // Timers
                 g2d.setFont(plainSmall);
                 // Core info
-                g2d.drawString("Status: " + status, 7, 79);
-                g2d.drawString("Runtime: " + runningTime.getRuntimeAsString(), 7, 96);
-                g2d.drawString("Profile: " + userProfile.getProfileName(), 7, 61);
-                g2d.drawString("Running Tasks: " + runningTaskNames, 7, 145);
+                g2d.drawString("Status: " + status, 7, 61);
+                g2d.drawString("Runtime: " + runningTime.getRuntimeAsString(), 7, 75);
+                g2d.drawString("Running Tasks: " + runningTaskNames, 7, 140);
                 // Level info
                 g2d.drawString("Constitution: " + Skill.CONSTITUTION.getCurrentLevel() + "(" + getLevelGain(constitutionLevel, Skill.CONSTITUTION) + ")", 161, 61);
                 g2d.drawString("Attack: " + Skill.ATTACK.getCurrentLevel() + "(" + getLevelGain(attackLevel, Skill.ATTACK) + ")", 161, 75);

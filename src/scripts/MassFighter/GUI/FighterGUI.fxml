@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import javafx.scene.effect.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.effect.Blend?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-
 <Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" opacity="0.89" prefHeight="426.0" prefWidth="672.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
     <children>
         <TabPane layoutX="7.0" layoutY="7.0" prefHeight="410.0" prefWidth="661.0" tabClosingPolicy="UNAVAILABLE">
@@ -20,37 +17,21 @@
                                         <Font size="21.0" />
                                     </font>
                                 </Label>
-                                <Button fx:id="btnLoad" layoutX="544.0" layoutY="164.0" mnemonicParsing="false" prefHeight="32.0" prefWidth="103.0" text="Load Profile">
+                                <Button fx:id="btnSave" layoutX="337.0" layoutY="149.0" mnemonicParsing="false" prefHeight="32.0" prefWidth="103.0" text="Sync to Cloud">
                                     <font>
                                         <Font size="13.0" />
                                     </font>
                                 </Button>
-                                <Label layoutX="378.0" layoutY="92.0" prefHeight="35.0" prefWidth="112.0" text="Selected Profile:" wrapText="true">
-                                    <font>
-                                        <Font size="15.0" />
-                                    </font>
-                                </Label>
-                                <Label fx:id="txtProfileName" layoutX="503.0" layoutY="99.0" text="profileName">
-                                    <font>
-                                        <Font size="15.0" />
-                                    </font>
-                                </Label>
-                                <Button fx:id="btnSave" layoutX="434.0" layoutY="164.0" mnemonicParsing="false" prefHeight="32.0" prefWidth="103.0" text="Save Profile">
+                                <Button fx:id="btnStart" layoutX="440.0" layoutY="289.0" mnemonicParsing="false" prefHeight="10.0" prefWidth="102.0" text="Start Bot">
                                     <font>
                                         <Font size="13.0" />
                                     </font>
                                 </Button>
-                                <Button fx:id="btnStart" layoutX="414.0" layoutY="234.0" mnemonicParsing="false" prefHeight="57.0" prefWidth="145.0" text="Start Bot">
-                                    <font>
-                                        <Font size="13.0" />
-                                    </font>
-                                </Button>
-                                <Label fx:id="txtProfileSaved" layoutX="347.0" layoutY="298.0" prefHeight="58.0" prefWidth="287.0" text="For the best experience, please enable AutoRetaliation (OSRS), this is done for you on RS3." textFill="#5e1717" wrapText="true">
+                                <Label fx:id="txtProfileSaved" layoutX="388.0" layoutY="303.0" prefHeight="58.0" prefWidth="206.0" text="Auto-retaliation is recommended" textFill="#5e1717" wrapText="true">
                                     <font>
                                         <Font name="System Bold" size="13.0" />
                                     </font>
                                 </Label>
-                                <TextField fx:id="txtSetProfileName" layoutX="325.0" layoutY="168.0" prefHeight="25.0" prefWidth="101.0" promptText="profile name" />
                                 <TitledPane fx:id="updatesBox" animated="false" collapsible="false" layoutX="14.0" layoutY="6.0" prefHeight="336.0" prefWidth="292.0" text="Recent Updates">
                                     <content>
                                         <AnchorPane fx:id="recentUpdates" minHeight="0.0" minWidth="0.0" prefHeight="310.0" prefWidth="184.0">
@@ -60,16 +41,18 @@
                                         </AnchorPane>
                                     </content>
                                 </TitledPane>
-                                <Label layoutX="337.0" layoutY="136.0" text="If you don't want to save your settings, just hit start.">
+                                <Label layoutX="327.0" layoutY="118.0" text="You can store your ideal settings to the RuneMate Cloud.">
                                     <font>
                                         <Font size="13.0" />
                                     </font>
                                 </Label>
-                        <Label fx:id="txtProfileSaved1" layoutX="330.0" layoutY="193.0" prefHeight="42.0" prefWidth="320.0" text="Re-save and load your profile if you made changes!" textFill="#1a7943" wrapText="true">
+                        <Button fx:id="btnLoad" layoutX="488.0" layoutY="149.0" mnemonicParsing="false" prefHeight="32.0" prefWidth="159.0" text="Download from Cloud">
                            <font>
-                              <Font name="System Bold" size="13.0" />
+                              <Font size="13.0" />
                            </font>
-                        </Label>
+                        </Button>
+                        <Label layoutX="337.0" layoutY="218.0" text="Settings status:" />
+                        <Label fx:id="settingsStatus" layoutX="431.0" layoutY="191.0" prefHeight="72.0" prefWidth="223.0" text="Status of stored settings" wrapText="true" />
                             </children>
                         </AnchorPane>
                     </content>
@@ -78,22 +61,22 @@
                     <content>
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                             <children>
-                        <TitledPane animated="false" collapsible="false" layoutX="32.0" layoutY="154.0" prefHeight="207.0" prefWidth="203.0" text="Easy Area">
+                        <TitledPane animated="false" collapsible="false" layoutX="99.0" layoutY="117.0" prefHeight="219.0" prefWidth="439.0" text="Easy Area">
                           <content>
                             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="172.0" prefWidth="200.0">
                                  <children>
-                                            <Label layoutX="51.0" layoutY="76.0" text="Kill NPCs within:">
+                                            <Label layoutX="168.0" layoutY="95.0" text="Kill NPCs within:">
                                                 <font>
                                                     <Font size="14.0" />
                                                 </font>
                                             </Label>
-                                            <TextField fx:id="tileRange" layoutX="62.0" layoutY="102.0" prefHeight="25.0" prefWidth="78.0" />
-                                            <Label layoutX="20.0" layoutY="136.0" text="tiles of where I'm standing">
+                                            <TextField fx:id="tileRange" layoutX="179.0" layoutY="121.0" prefHeight="25.0" prefWidth="78.0" />
+                                            <Label layoutX="137.0" layoutY="155.0" text="tiles of where I'm standing">
                                                 <font>
                                                     <Font size="14.0" />
                                                 </font>
                                             </Label>
-                                    <Label layoutX="30.0" prefHeight="51.0" prefWidth="144.0" text="This will create an area that moves with you" wrapText="true">
+                                    <Label layoutX="147.0" layoutY="19.0" prefHeight="51.0" prefWidth="144.0" text="This will create an area that moves with you" wrapText="true">
                                        <font>
                                           <Font size="14.0" />
                                        </font>
@@ -102,40 +85,7 @@
                               </AnchorPane>
                           </content>
                         </TitledPane>
-                        <TitledPane animated="false" collapsible="false" disable="true" layoutX="276.0" layoutY="45.0" prefHeight="316.0" prefWidth="371.0" text="Custom Area - Being reworked">
-                          <content>
-                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="247.0" prefWidth="369.0">
-                                 <children>
-                                            <Label layoutX="15.0" layoutY="48.0" prefHeight="41.0" prefWidth="252.0" text="1) Turn on mouse input in the client" wrapText="true">
-                                                <font>
-                                                    <Font size="14.0" />
-                                                </font>
-                                            </Label>
-                                    <Label layoutX="15.0" layoutY="76.0" prefHeight="41.0" prefWidth="342.0" text="2) Click your scroll wheel to select a point in your area" wrapText="true">
-                                       <font>
-                                          <Font size="14.0" />
-                                       </font>
-                                    </Label>
-                                    <Label layoutX="15.0" layoutY="110.0" prefHeight="41.0" prefWidth="342.0" text="3) Draw a polygon that covers everything you need, and then hit save." wrapText="true">
-                                       <font>
-                                          <Font size="14.0" />
-                                       </font>
-                                    </Label>
-                                            <CheckBox fx:id="showArea" layoutX="41.0" layoutY="20.0" mnemonicParsing="false" text="Click this to show the area as you create it in game" />
-                                            <Button fx:id="btnSaveFightArea" layoutX="41.0" layoutY="216.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="132.0" text="Save as fighting area" />
-                                            <Button fx:id="btnSaveBankArea" disable="true" layoutX="196.0" layoutY="216.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="134.0" text="Banking is being reworked">
-                                       <font>
-                                          <Font size="10.0" />
-                                       </font>
-                                    </Button>
-                                            <Label fx:id="txtAreaStatus" layoutX="102.0" layoutY="264.0" text="Status: " />
-                                            <Button fx:id="btnResetArea" layoutX="127.0" layoutY="174.0" mnemonicParsing="false" prefHeight="31.0" prefWidth="118.0" text="Reset current area" wrapText="true" />
-                                 </children>
-                              </AnchorPane>
-                          </content>
-                        </TitledPane>
-                                <CheckBox fx:id="showOutline" layoutX="37.0" layoutY="54.0" mnemonicParsing="false" prefHeight="49.0" prefWidth="194.0" text="Show area when the script is running (may cause a bit of lag)" wrapText="true" />
-                        <Label layoutX="23.0" layoutY="14.0" prefHeight="39.0" prefWidth="235.0" text="You only have to choose one of these area types." wrapText="true" />
+                                <CheckBox fx:id="showOutline" layoutX="227.0" layoutY="54.0" mnemonicParsing="false" prefHeight="49.0" prefWidth="194.0" text="Show area when the script is running (may cause a bit of lag)" wrapText="true" />
                             </children>
                         </AnchorPane>
                     </content>
@@ -183,14 +133,16 @@
                     <content>
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="278.0" prefWidth="661.0">
                             <children>
-                                <Label layoutX="14.0" layoutY="14.0" text="Food Selection:" />
-                                <ListView fx:id="foodSelection" editable="true" layoutX="105.0" layoutY="14.0" prefHeight="202.0" prefWidth="200.0" />
+                                <Label layoutX="398.0" layoutY="24.0" text="Selected Food" />
+                                <ListView fx:id="foodSelection" editable="true" layoutX="348.0" layoutY="48.0" prefHeight="202.0" prefWidth="200.0" />
                                 <CheckBox fx:id="stopWhenOutOfFood" layoutX="14.0" layoutY="266.0" mnemonicParsing="false" text="Stop when out of food" />
                                 <Label layoutX="14.0" layoutY="236.0" text="Eat at" />
                                 <TextField fx:id="eatValue" layoutX="48.0" layoutY="232.0" prefHeight="25.0" prefWidth="76.0" />
                                 <Label layoutX="132.0" layoutY="236.0" text="hitpoints" />
-                                <Label layoutX="14.0" layoutY="295.0" text="Withdraw Quantity:" />
-                                <TextField fx:id="foodAmount" layoutX="132.0" layoutY="291.0" prefHeight="25.0" prefWidth="76.0" />
+                        <TextField fx:id="txtFoodInput" layoutX="81.0" layoutY="88.0" />
+                        <Label layoutX="12.0" layoutY="92.0" text="Food Name:" />
+                        <Button fx:id="btnAddFood" layoutX="247.0" layoutY="88.0" mnemonicParsing="false" text="Add" />
+                        <Button fx:id="btnRemoveFood" layoutX="557.0" layoutY="125.0" mnemonicParsing="false" text="-" />
                             </children>
                         </AnchorPane>
                     </content>

@@ -11,11 +11,10 @@ import com.runemate.game.api.script.framework.task.Task;
 import helpers.Movement;
 import scripts.MassFighter.MassFighter;
 
-
 import java.util.Arrays;
 
+import static scripts.MassFighter.Framework.Methods.out;
 import static scripts.MassFighter.MassFighter.settings;
-import static scripts.MassFighter.Framework.Methods.*;
 import static scripts.MassFighter.MassFighter.userProfile;
 
 public class Loot extends Task {
@@ -25,11 +24,11 @@ public class Loot extends Task {
         public boolean accepts(GroundItem groundItem) {
             if (MassFighter.methods.hasRoomForItem(groundItem)) {
                 String itemName = groundItem.getDefinition().getName().toLowerCase();
-                return ((settings.lootByValue && MassFighter.methods.isWorthLooting(groundItem)) || Arrays.asList(userProfile.getLootNames()).contains(itemName) || (settings.buryBones && (itemName.contains("bones") || itemName.contains("ashes"))));
+                return ((settings.lootByValue && MassFighter.methods.isWorthLooting(groundItem)) || Arrays.asList(userProfile.getLootNames()).contains(itemName));
             }
             return false;
         }
-    });
+    }).reachable();
 
     @Override
     public boolean validate() {
