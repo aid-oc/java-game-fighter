@@ -12,6 +12,7 @@ import com.runemate.game.api.hybrid.util.Filter;
 import com.runemate.game.api.osrs.net.Zybez;
 import com.runemate.game.api.rs3.local.hud.Powers;
 import com.runemate.game.api.rs3.net.GrandExchange;
+import com.runemate.game.api.script.framework.AbstractScript;
 import scripts.MassFighter.MassFighter;
 
 import java.util.Arrays;
@@ -40,7 +41,10 @@ public class Methods {
                 if (RuneScape.logout()) {
                     if (!RuneScape.isLoggedIn()) {
                         MassFighter.status = "Logged you out";
-                        Environment.getScript().pause();
+                        AbstractScript runningScript = Environment.getScript();
+                        if (runningScript != null) {
+                            runningScript.pause();
+                        }
                     }
                 }
             }
@@ -78,9 +82,11 @@ public class Methods {
     public Boolean hasRoomForItem(GroundItem groundItem) {
         if (groundItem != null) {
             ItemDefinition itemDefinition = groundItem.getDefinition();
-            int itemId = itemDefinition.getId();
-            int notedId = itemDefinition.getNotedId();
-            return !Inventory.isFull() || (itemId == notedId && Inventory.contains(notedId)) || (notedId == -1 && Inventory.contains(itemId));
+            if (itemDefinition != null) {
+                int itemId = itemDefinition.getId();
+                int notedId = itemDefinition.getNotedId();
+                return !Inventory.isFull() || (itemId == notedId && Inventory.contains(notedId)) || (notedId == -1 && Inventory.contains(itemId));
+            }
         }
         out("Loot: We don't have room for that item");
         return false;
