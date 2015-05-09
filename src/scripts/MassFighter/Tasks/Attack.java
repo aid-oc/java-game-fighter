@@ -101,7 +101,8 @@ public class Attack extends Task {
     }
 
     private boolean isBusy() {
-        return Players.getLocal().getTarget() != null || Players.getLocal().getAnimationId() != -1;
+        Player player = Players.getLocal();
+        return player != null && (player.getTarget() != null || player.getAnimationId() != -1);
     }
 
 }

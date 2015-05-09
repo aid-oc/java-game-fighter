@@ -33,7 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class MassFighter extends TaskScript implements PaintListener, InventoryListener, MouseListener {
+public class MassFighter extends TaskScript implements PaintListener, MouseListener {
 
     public static Methods methods;
     public static Settings settings;
@@ -144,6 +144,7 @@ public class MassFighter extends TaskScript implements PaintListener, InventoryL
         }
     }
 
+    /*
     @Override
     public void onItemAdded(ItemEvent event) {
         if (methods != null && event.getItem() != null) {
@@ -167,6 +168,7 @@ public class MassFighter extends TaskScript implements PaintListener, InventoryL
             profit += itemValue;
         }
     }
+    */
 
     @Override
     public void onPaint(Graphics2D g2d) {

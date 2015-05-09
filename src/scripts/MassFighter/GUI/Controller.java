@@ -159,6 +159,7 @@ public class Controller {
 
         // Temporary Updates Solution
         List<String> updates = new ArrayList<>();
+        updates.add("09/05/2015: Profit calc temporarily disabled");
         updates.add("07/04/2015: Saving rework, blocked experiment (level 51)");
         updates.add("06/04/2015: Custom areas DISABLED for rework");
         updates.add("06/04/2015: Combat improvements");
