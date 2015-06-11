@@ -180,6 +180,8 @@ public class Controller {
         // List was adding 2 of each item for some reason
         updates.stream().filter(n -> !updatesList.getItems().contains(n)).forEach(n -> updatesList.getItems().add(n));
 
+        availableBoosts.getItems().addAll(Potion.values());
+
         listFamiliars.getItems().addAll(Summoning.Familiar.values());
         listFamiliars.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         btnDeselectFamiliar.setOnAction(event -> listFamiliars.getSelectionModel().getSelectedItems().clear());

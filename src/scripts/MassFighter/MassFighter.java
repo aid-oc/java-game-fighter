@@ -41,7 +41,6 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
     public static UserProfile userProfile;
     public static Boolean setupRunning;
     public static boolean debug = false;
-    private static Graphics2D graphics;
     private static List<String> runningTaskNames;
 
     private final StopWatch runningTime = new StopWatch();
@@ -179,7 +178,6 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
                         + Skill.PRAYER.getExperience() - startExpNoHp;
                 int expGained = Skill.STRENGTH.getExperience() + Skill.RANGED.getExperience() + Skill.MAGIC.getExperience() + Skill.ATTACK.getExperience() + Skill.DEFENCE.getExperience()
                         + Skill.CONSTITUTION.getExperience() + Skill.PRAYER.getExperience() - startExp;
-                graphics = g2d;
 
                 BasicStroke onepxStroke = new BasicStroke(1);
                 Font boldLarge = new Font("Arial", Font.BOLD, 16);
