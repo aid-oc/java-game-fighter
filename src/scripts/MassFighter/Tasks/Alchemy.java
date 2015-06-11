@@ -22,13 +22,13 @@ import static scripts.MassFighter.Framework.Methods.*;
 
 public class Alchemy extends Task {
 
-    private SpriteItemQueryBuilder alchItems = Inventory.newQuery().filter(new Filter<SpriteItem>() {
+    private final SpriteItemQueryBuilder alchItems = Inventory.newQuery().filter(new Filter<SpriteItem>() {
         @Override
         public boolean accepts(SpriteItem spriteItem) {
             return Arrays.asList(MassFighter.userProfile.getAlchLoot()).contains(spriteItem.getDefinition().getName().toLowerCase());
         }
     });
-    private SpriteItemQueryBuilder validStaff = Equipment.newQuery().filter(new Filter<SpriteItem>() {
+    private final SpriteItemQueryBuilder validStaff = Equipment.newQuery().filter(new Filter<SpriteItem>() {
         @Override
         public boolean accepts(SpriteItem spriteItem) {
             if (spriteItem.getDefinition().getEquipmentSlot().equals(Equipment.Slot.WEAPON)) {

@@ -14,7 +14,7 @@ import static scripts.MassFighter.Framework.Methods.*;
 
 public class Boost extends Task {
 
-    Potion potionToBoost;
+    private Potion potionToBoost;
 
     @Override
     public boolean validate() {

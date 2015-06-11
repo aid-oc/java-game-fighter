@@ -62,7 +62,7 @@ public class Attack extends Task {
                 out("Combat: We need a new target");
                 MassFighter.status = "Finding Target";
                 Npc targetNpc;
-                if (npcsTargettingUs.isEmpty()) {
+                if (npcsTargettingUs.isEmpty() || MassFighter.settings.tagMode && npcsTargettingUs.size() < MassFighter.settings.tagSelection) {
                     targetNpc = validTargetResults.sortByDistance().limit(settings.targetSelection).random();
                 } else {
                     targetNpc = npcsTargettingUs.random();

@@ -58,8 +58,8 @@ public enum Potion {
     SUPER_MAGIC_MIX("Super magic mix", getIncrease(Skill.MAGIC, 2, 12), Skill.MAGIC),
     EXTREME_MAGIC("Extreme magic", getIncrease(Skill.MAGIC, 3, 15), Skill.MAGIC);
 
-    private String potionName;
-    private Skill[] potionSkills;
+    private final String potionName;
+    private final Skill[] potionSkills;
     private double potionBoost;
 
     Potion(String name, double boost, Skill... skills) {

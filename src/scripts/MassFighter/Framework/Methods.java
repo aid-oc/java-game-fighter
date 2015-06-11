@@ -3,6 +3,7 @@ package scripts.MassFighter.Framework;
 import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.RuneScape;
 import com.runemate.game.api.hybrid.entities.GroundItem;
+import com.runemate.game.api.hybrid.entities.Item;
 import com.runemate.game.api.hybrid.entities.definitions.ItemDefinition;
 import com.runemate.game.api.hybrid.local.hud.interfaces.*;
 import com.runemate.game.api.hybrid.queries.SpriteItemQueryBuilder;
@@ -22,9 +23,9 @@ import static scripts.MassFighter.MassFighter.settings;
 
 public class Methods {
 
-    public HashMap<String, Integer> itemPrices = new HashMap<>();
+    public final HashMap<String, Integer> itemPrices = new HashMap<>();
 
-    public SpriteItemQueryBuilder foodItems = Inventory.newQuery().filter(new Filter<SpriteItem>() {
+    public final SpriteItemQueryBuilder foodItems = Inventory.newQuery().filter(new Filter<SpriteItem>() {
         @Override
         public boolean accepts(SpriteItem spriteItem) {
             return Arrays.asList(settings.foodNames).contains(spriteItem.getDefinition().getName().toLowerCase());
@@ -76,12 +77,14 @@ public class Methods {
     }
 
     public static void out(String s) {
-        System.out.println("MassFighter - " + s);
+        if (MassFighter.debug) {
+            System.out.println("MassFighter - " + s);
+        }
     }
 
-    public Boolean hasRoomForItem(GroundItem groundItem) {
-        if (groundItem != null) {
-            ItemDefinition itemDefinition = groundItem.getDefinition();
+    public Boolean hasRoomForItem(Item item) {
+        if (item != null) {
+            ItemDefinition itemDefinition = item.getDefinition();
             if (itemDefinition != null) {
                 int itemId = itemDefinition.getId();
                 int notedId = itemDefinition.getNotedId();

@@ -11,7 +11,7 @@ import java.io.InputStream;
 
 public class Main extends Stage {
 
-    public static Controller controller;
+    private static Controller controller;
     public static Stage stage;
 
     public Main() {
@@ -22,7 +22,7 @@ public class Main extends Stage {
         }
     }
 
-    public void start(Stage stage) throws Exception {
+    private void start(Stage stage) throws Exception {
         InputStream input = MassFighter.class.getResourceAsStream("/scripts/MassFighter/GUI/FighterGUI.fxml");
         if (input != null) {
             FXMLLoader loader = new FXMLLoader();

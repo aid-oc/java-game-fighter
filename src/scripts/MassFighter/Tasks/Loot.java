@@ -6,6 +6,7 @@ import com.runemate.game.api.hybrid.queries.GroundItemQueryBuilder;
 import com.runemate.game.api.hybrid.queries.results.LocatableEntityQueryResults;
 import com.runemate.game.api.hybrid.region.GroundItems;
 import com.runemate.game.api.hybrid.util.Filter;
+import com.runemate.game.api.rs3.local.hud.interfaces.LootInventory;
 import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.task.Task;
 import helpers.Movement;
@@ -47,20 +48,18 @@ public class Loot extends Task {
         }
     }
 
-    private Boolean takeGroundItem(GroundItem item) {
+    private void takeGroundItem(GroundItem item) {
         int invCount = Inventory.getQuantity();
         String itemName = item.getDefinition().getName();
         if (item.isVisible()) {
             if (item.interact("Take", itemName)) {
                 out("Loot: Successful");
-                Execution.delayUntil(() -> Inventory.getQuantity() > invCount, 1500, 2000);
-                return true;
+                Execution.delayUntil(() -> Inventory.getQuantity() > invCount || LootInventory.isOpen(), 1500, 2000);
             }
         } else {
             out("Loot: We need to move to the item");
             Movement.moveToInteractable(item);
         }
         out("Loot: Unsuccessful");
-        return false;
     }
 }

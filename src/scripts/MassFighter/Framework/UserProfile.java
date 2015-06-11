@@ -4,8 +4,6 @@ import com.runemate.game.api.hybrid.location.Area;
 import com.runemate.game.api.hybrid.region.Players;
 import scripts.MassFighter.GUI.Settings;
 
-
-
 public class UserProfile {
 
     public Settings settings;

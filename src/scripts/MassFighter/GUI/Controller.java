@@ -9,6 +9,7 @@ import com.runemate.game.api.hybrid.queries.NpcQueryBuilder;
 import com.runemate.game.api.hybrid.region.Npcs;
 import com.runemate.game.api.hybrid.region.Players;
 import com.runemate.game.api.hybrid.util.io.ManagedProperties;
+import com.runemate.game.api.rs3.local.hud.interfaces.Summoning;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -20,6 +21,7 @@ import scripts.MassFighter.MassFighter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -132,22 +134,23 @@ public class Controller {
     private Button btnRemoveFood;
     @FXML
     private Label settingsStatus;
+    @FXML
+    private ListView<Summoning.Familiar> listFamiliars;
+    @FXML
+    private Button btnDeselectFamiliar;
 
     private UserProfile currentProfile;
 
     private List<String> getAvailableMonsters(Area area, String action) {
         List<String> availableNpcs = new ArrayList<>();
-        NpcQueryBuilder getNearbyNpcs = Npcs.newQuery().within(area).actions("Attack");
+        NpcQueryBuilder getNearbyNpcs = Npcs.newQuery().within(area).actions(action);
         Collection<Npc> npcs = getNearbyNpcs.results();
         if (!npcs.isEmpty()) {
-            npcs.stream().filter(n -> n != null && !availableNpcs.contains(n.getName())).forEach(n -> {
-                availableNpcs.add(n.getName());
-            });
+            npcs.stream().filter(n -> n != null && !availableNpcs.contains(n.getName())).forEach(n -> availableNpcs.add(n.getName()));
         }
         return availableNpcs;
     }
 
-    // Initial setup
     public void initialize() {
 
         ManagedProperties storedSettings = Environment.getScript().getSettings();
@@ -159,6 +162,8 @@ public class Controller {
 
         // Temporary Updates Solution
         List<String> updates = new ArrayList<>();
+        updates.add("11/05/2015: Fix for 'click here to continue'");
+        updates.add("06/06/2015: Profit calc re-enabled, new loot interface support added, bug fixes");
         updates.add("09/05/2015: Profit calc temporarily disabled");
         updates.add("07/04/2015: Saving rework, blocked experiment (level 51)");
         updates.add("06/04/2015: Custom areas DISABLED for rework");
@@ -173,11 +178,11 @@ public class Controller {
         updates.add("03/03/2015: Added potion support + quickpraying for OSRS");
         updates.add("02/03/2015: Added more target finding options, you may need to remake profiles ");
         // List was adding 2 of each item for some reason
-        updates.stream().filter(n -> !updatesList.getItems().contains(n)).forEach(n -> {
-            updatesList.getItems().add(n);
-        });
+        updates.stream().filter(n -> !updatesList.getItems().contains(n)).forEach(n -> updatesList.getItems().add(n));
 
-        availableBoosts.getItems().addAll(Potion.values());
+        listFamiliars.getItems().addAll(Summoning.Familiar.values());
+        listFamiliars.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+        btnDeselectFamiliar.setOnAction(event -> listFamiliars.getSelectionModel().getSelectedItems().clear());
 
         refreshButton.setOnAction(event -> {
             availableMonsters.getItems().remove(0, availableMonsters.getItems().size());
@@ -190,18 +195,14 @@ public class Controller {
             if (!selectedMonsters.getSelectionModel().getSelectedItems().isEmpty()) {
                 selectedMonsters.getItems().removeAll(selectedMonsters.getSelectionModel().getSelectedItems());
             } else if (!availableMonsters.getSelectionModel().getSelectedItems().isEmpty()) {
-                availableMonsters.getSelectionModel().getSelectedItems().stream().filter(s -> !selectedMonsters.getItems().contains(s)).forEach(s -> {
-                    selectedMonsters.getItems().add(s);
-                });
+                availableMonsters.getSelectionModel().getSelectedItems().stream().filter(s -> !selectedMonsters.getItems().contains(s)).forEach(s -> selectedMonsters.getItems().add(s));
             }
         });
         boostButton.setOnAction(event -> {
             if (!selectedBoosts.getSelectionModel().getSelectedItems().isEmpty()) {
                 selectedBoosts.getItems().removeAll(selectedBoosts.getSelectionModel().getSelectedItems());
             } else if (!availableBoosts.getSelectionModel().getSelectedItems().isEmpty()) {
-                availableBoosts.getSelectionModel().getSelectedItems().stream().filter(s -> !selectedBoosts.getItems().contains(s)).forEach(s -> {
-                    selectedBoosts.getItems().add(s);
-                });
+                availableBoosts.getSelectionModel().getSelectedItems().stream().filter(s -> !selectedBoosts.getItems().contains(s)).forEach(s -> selectedBoosts.getItems().add(s));
             }
         });
         tagMode.setOnAction(event -> {
@@ -234,13 +235,19 @@ public class Controller {
             }
         });
 
-        btnLoad.setOnAction(event ->  {
+        btnLoad.setOnAction(event -> {
+
+            ManagedProperties managedProperties = Environment.getScript().getSettings();
+            for (Map.Entry<Object, Object> entry : managedProperties.entrySet()) {
+                System.out.println(entry.getKey() + " : " + entry.getValue());
+            }
             UserProfile loadedProfile = load();
             if (loadedProfile != null) {
                 currentProfile = loadedProfile;
                 populateUI(currentProfile);
                 settingsStatus.setText("Your settings have been downloaded.");
             }
+
         });
 
         abilities.setOnAction(event -> {
@@ -344,7 +351,7 @@ public class Controller {
             bypassReachable.setSelected(profile.settings.bypassReachable);
             soulsplitPerm.setSelected(profile.settings.soulsplitPermanent);
             if (!profile.settings.soulsplitPermanent) {
-                soulsplitPercentage.setValue((double)profile.settings.soulsplitPercentage);
+                soulsplitPercentage.setValue((double) profile.settings.soulsplitPercentage);
             }
             quickPray.setSelected(profile.settings.quickPray);
             prayValue.setText(Integer.toString(profile.settings.prayValue));
@@ -362,7 +369,7 @@ public class Controller {
 
 
     // Start button pressed, start the script
-    public void start(ActionEvent actionEvent) {
+    private void start(ActionEvent actionEvent) {
         if (currentProfile != null && currentProfile.getNpcNames() != null) {
             MassFighter.userProfile = currentProfile;
             MassFighter.setupRunning = false;
@@ -378,7 +385,7 @@ public class Controller {
         }
     }
 
-    public boolean createNoSave() {
+    private boolean createNoSave() {
         if (Pattern.matches("\\d+", tileRange.getText())) {
             if (!selectedMonsters.getItems().isEmpty()) {
                 if (Pattern.matches("\\d+", prayValue.getText()) && Pattern.matches("\\d+", eatValue.getText()) && Pattern.matches("\\d+", criticalHitpoints.getText())) {
@@ -410,7 +417,7 @@ public class Controller {
                     settings.fightRadius = Integer.valueOf(tileRange.getText());
                     settings.revolutionMode = revolutionMode.isSelected();
                     settings.soulsplitPermanent = soulsplitPerm.isSelected();
-                    settings.soulsplitPercentage = (int)soulsplitPercentage.getValue();
+                    settings.soulsplitPercentage = (int) soulsplitPercentage.getValue();
                     settings.quickPray = quickPray.isSelected();
                     settings.useSoulsplit = soulsplit.isSelected();
                     settings.exitOnPrayerOut = exitPrayer.isSelected();
@@ -418,6 +425,10 @@ public class Controller {
                     settings.exitOutFood = stopWhenOutOfFood.isSelected();
                     settings.buryBones = buryBones.isSelected();
                     settings.equipAmmunition = reequipAmmunition.isSelected();
+                    if (!listFamiliars.getSelectionModel().getSelectedItems().isEmpty()) {
+                        settings.useSummoning = true;
+                        settings.chosenFamiliar = listFamiliars.getSelectionModel().getSelectedItem();
+                    }
                     if (!selectedBoosts.getItems().isEmpty()) {
                         settings.selectedPotions = selectedBoosts.getItems();
                         settings.boostRefreshPercentage = boostRefreshPercentage.getValue();
@@ -453,7 +464,7 @@ public class Controller {
     }
 
 
-    public void lootChange(ActionEvent actionEvent) {
+    private void lootChange(ActionEvent actionEvent) {
         if (actionEvent.getSource().equals(addLoot)) {
             String itemName = lootName.getText();
             if (!itemName.isEmpty() && !selectedLoot.getItems().contains(itemName)) {
@@ -477,8 +488,7 @@ public class Controller {
         }
     }
 
-    public UserProfile load() {
-        // Get managed properties
+    private UserProfile load() {
         ManagedProperties properties = Environment.getScript().getSettings();
         UserProfile profile = new UserProfile();
         Settings settings = new Settings();
@@ -595,13 +605,23 @@ public class Controller {
         if (properties.containsKey("boostRefreshPercentage")) {
             settings.boostRefreshPercentage = Double.valueOf(properties.getProperty("boostRefreshPercentage"));
         }
+
+
+        if (properties.containsKey("useSummoning")) {
+            String name = properties.getProperty("chosenFamiliar");
+            Summoning.Familiar familiar = Summoning.Familiar.valueOf(name);
+            if (familiar != null) {
+                settings.useSummoning = true;
+                settings.chosenFamiliar = familiar;
+            }
+        }
+
         profile.settings = settings;
         System.out.println("Loaded saved settings");
         return profile;
     }
 
-    public boolean save()
-    {
+    private boolean save() {
         String numericRegex = "\\d+";
         // Must-have settings
         String profileTileRange = tileRange.getText();
@@ -688,14 +708,19 @@ public class Controller {
                 properties.setProperty("selectedBoosts", potionNamesString);
                 properties.setProperty("boostRefreshPercentage", Double.toString(boostRefreshPercentage.getValue()));
             }
+
+            properties.setProperty("useSummoning", Boolean.toString(!listFamiliars.getSelectionModel().isEmpty()));
+            properties.setProperty("chosenFamiliar", listFamiliars.getSelectionModel().getSelectedItem().toString());
+
             System.out.println("Save successful");
             return true;
         }
         System.out.println("Save unsuccessful");
         return false;
+
     }
 
-    public void closeUI() {
+    private void closeUI() {
         Stage stage = Main.stage;
         if (stage != null && stage.isShowing()) {
             stage.close();

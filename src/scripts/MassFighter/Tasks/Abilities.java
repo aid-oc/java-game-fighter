@@ -15,18 +15,7 @@ import static scripts.MassFighter.Framework.Methods.*;
 
 public class Abilities extends Task implements Runnable {
 
-
-    private List<SlotAction> ultimates = new ArrayList<>();
-    private List<SlotAction> thresholds = new ArrayList<>();
-    private List<SlotAction> basics = new ArrayList<>();
-    private List<SlotAction> specials = new ArrayList<>();
-
     private List<SlotAction> abilities = new ArrayList<>();
-
-
-    public Abilities() {
-        abilities = sortAbilities(ActionBar.getActions());
-    }
 
     @Override
     public boolean validate() {
@@ -35,6 +24,9 @@ public class Abilities extends Task implements Runnable {
 
     @Override
     public void execute() {
+        if (!ActionBar.isExpanded()) ActionBar.toggleExpansion();
+        if (!ActionBar.isLocked()) ActionBar.toggleLock();
+        if (!ActionBar.isAutoRetaliating()) ActionBar.toggleAutoRetaliation();
         if (!abilities.isEmpty()) {
             for (SlotAction ability : abilities) {
                 if (ability != null) {
@@ -54,9 +46,11 @@ public class Abilities extends Task implements Runnable {
 
 
     private List<SlotAction> sortAbilities(List<SlotAction> abilities) {
-
+        List<SlotAction> ultimates = new ArrayList<>();
+        List<SlotAction> thresholds = new ArrayList<>();
+        List<SlotAction> basics = new ArrayList<>();
+        List<SlotAction> specials = new ArrayList<>();
         List<SlotAction> sortedAbilities = new ArrayList<>();
-
         for (Ability enumAbility : Ability.values()) {
             for (SlotAction barAbility : abilities) {
                 if (barAbility.getName() != null && barAbility.getType().equals(SlotAction.Type.ABILITY)) {
@@ -84,14 +78,10 @@ public class Abilities extends Task implements Runnable {
                 }
             }
         }
-
         sortedAbilities.addAll(specials);
         sortedAbilities.addAll(ultimates);
         sortedAbilities.addAll(thresholds);
         sortedAbilities.addAll(basics);
-
-        if (!ActionBar.isLocked()) ActionBar.toggleLock();
-
         return sortedAbilities;
     }
 
