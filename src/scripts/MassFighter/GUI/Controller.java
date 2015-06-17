@@ -154,7 +154,7 @@ public class Controller {
     public void initialize() {
 
         ManagedProperties storedSettings = Environment.getScript().getSettings();
-        if (storedSettings.contains("npcNames")) {
+        if (storedSettings.containsKey("npcNames")) {
             settingsStatus.setText("You have settings available in the cloud.");
         } else {
             settingsStatus.setText("You do not have any stored cloud settings.");
@@ -162,6 +162,7 @@ public class Controller {
 
         // Temporary Updates Solution
         List<String> updates = new ArrayList<>();
+        updates.add("17/06/2015: Saving, Pet, Potion fixes");
         updates.add("11/05/2015: Fix for 'click here to continue'");
         updates.add("06/06/2015: Profit calc re-enabled, new loot interface support added, bug fixes");
         updates.add("09/05/2015: Profit calc temporarily disabled");
