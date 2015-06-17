@@ -35,7 +35,7 @@ public class Attack extends Task {
             return false;
         }
     }).reachable();
-    private final NpcQueryBuilder underAttackQuery = Npcs.newQuery().targeting(Players.getLocal()).reachable();
+    private final NpcQueryBuilder underAttackQuery = Npcs.newQuery().actions("Attack").targeting(Players.getLocal()).reachable();
 
     private final NpcQueryBuilder validTargets = Npcs.newQuery().within(userProfile.getFightArea()).names(userProfile.getNpcNames())
             .filter(new Filter<Npc>() {

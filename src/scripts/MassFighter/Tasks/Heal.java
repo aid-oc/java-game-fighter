@@ -16,7 +16,7 @@ import static scripts.MassFighter.MassFighter.settings;
 public class Heal extends Task {
 
     public boolean validate() {
-        return settings.useFood && Health.getCurrent() < settings.eatValue;
+        return settings.useFood && Health.getCurrent() < settings.eatValue + Random.nextInt(0, 4);
     }
 
     @Override

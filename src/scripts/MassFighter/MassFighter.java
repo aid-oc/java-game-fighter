@@ -81,7 +81,7 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
                 add(new LootMenu());
                 if (settings.useSoulsplit) add(new Soulsplit());
                 if (settings.useAbilities) new LoopingThread(new Abilities(), 1000, 1200).start();
-                if (userProfile.getNotepaperLoot() != null && userProfile.getNotepaperLoot().length > 0) {
+                if (arrayIsValid(userProfile.getNotepaperLoot())) {
                     add(new MagicNotepaper());
                 }
                // if (settings.useSummoning && settings.chosenFamiliar != null) add(new SummonFamiliar());
@@ -96,10 +96,10 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
             if (settings.useFood) {
                 add(new Heal());
             }
-            if (userProfile.getAlchLoot() != null && userProfile.getAlchLoot().length > 0) {
+            if (arrayIsValid(userProfile.getAlchLoot())) {
                 add(new Alchemy());
             }
-            if (userProfile.getLootNames() != null && userProfile.getLootNames().length > 0) {
+            if (arrayIsValid(userProfile.getLootNames())) {
                 add(new Loot());
             }
             if (settings.equipAmmunition) {
@@ -108,7 +108,7 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
             if (settings.buryBones) {
                 add(new BuryBones());
             }
-            if (!settings.selectedPotions.isEmpty()) {
+            if (arrayIsValid(settings.selectedPotions)) {
                 add(new Boost());
             }
             add(new ReturnToArea());
@@ -126,6 +126,10 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
 
     }
 
+    private boolean arrayIsValid(String[] array) {
+        return array != null && array.length > 0 && array[0].length() > 0;
+    }
+
     private void showAndWaitGUI() {
         // Don't change this
         Platform.runLater(() -> new Main());
@@ -137,9 +141,9 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
 
     @Override
     public void onItemAdded(ItemEvent event) {
-        if (methods != null && event.getItem() != null) {
+        if (methods != null && event != null && event.getItem() != null) {
             ItemDefinition itemDefinition = event.getItem().getDefinition();
-            String itemName = itemDefinition .getName();
+            String itemName = itemDefinition.getName();
             int itemId = itemDefinition .getId();
             int itemValue = 0;
             if (methods.itemPrices.containsKey(itemName)) {

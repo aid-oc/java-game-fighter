@@ -15,7 +15,7 @@
                     <content>
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="389.0" prefWidth="661.0">
                             <children>
-                                <Label layoutX="430.0" layoutY="14.0" prefHeight="84.0" prefWidth="120.0" text="Welcome to MassFighter" textFill="#1e8f33" wrapText="true">
+                                <Label layoutX="417.0" layoutY="14.0" prefHeight="84.0" prefWidth="120.0" text="Welcome to MassFighter" textFill="#1e8f33" wrapText="true">
                                     <font>
                                         <Font size="21.0" />
                                     </font>
@@ -44,7 +44,7 @@
                                         </AnchorPane>
                                     </content>
                                 </TitledPane>
-                                <Label layoutX="327.0" layoutY="118.0" text="You can store your ideal settings to the RuneMate Cloud.">
+                                <Label layoutX="395.0" layoutY="98.0" prefHeight="43.0" prefWidth="165.0" text="Save your favourite settings.">
                                     <font>
                                         <Font size="13.0" />
                                     </font>
@@ -248,13 +248,13 @@
                         </AnchorPane>
                     </content>
                 </Tab>
-            <Tab text="Summoning">
+            <Tab disable="true" text="Summoning">
               <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
-                        <ListView fx:id="listFamiliars" disable="true" layoutX="44.0" layoutY="45.0" prefHeight="288.0" prefWidth="265.0" />
+                        <ListView fx:id="listFamiliars" layoutX="44.0" layoutY="45.0" prefHeight="288.0" prefWidth="265.0" />
                         <Label layoutX="130.0" layoutY="21.0" text="Select a familiar" />
-                        <Button fx:id="btnDeselectFamiliar" disable="true" layoutX="331.0" layoutY="150.0" mnemonicParsing="false" text="Deselect" />
+                        <Button fx:id="btnDeselectFamiliar" layoutX="331.0" layoutY="150.0" mnemonicParsing="false" text="Deselect" />
                         <Label layoutX="419.0" layoutY="81.0" prefHeight="138.0" prefWidth="211.0" text="The bot will attempt to resummon familiars, however make sure you have summoning potions/flasks so that you have enough points to do so. " wrapText="true" />
                         <Label layoutX="331.0" layoutY="21.0" prefHeight="74.0" prefWidth="321.0" text="Coming soon." wrapText="true">
                            <font>

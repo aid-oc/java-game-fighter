@@ -13,6 +13,7 @@ import com.runemate.game.api.hybrid.util.Filter;
 import com.runemate.game.api.osrs.net.Zybez;
 import com.runemate.game.api.rs3.local.hud.Powers;
 import com.runemate.game.api.rs3.net.GrandExchange;
+import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.AbstractScript;
 import scripts.MassFighter.MassFighter;
 
@@ -40,7 +41,7 @@ public class Methods {
         if (!MassFighter.methods.isInCombat()) {
             if (RuneScape.isLoggedIn()) {
                 if (RuneScape.logout()) {
-                    if (!RuneScape.isLoggedIn()) {
+                    if (Execution.delayUntil(() -> !RuneScape.isLoggedIn(), 3000)) {
                         MassFighter.status = "Logged you out";
                         AbstractScript runningScript = Environment.getScript();
                         if (runningScript != null) {
@@ -50,6 +51,7 @@ public class Methods {
                 }
             }
         }
+        Environment.getScript().stop();
     }
 
     public int getPrayPoints() {

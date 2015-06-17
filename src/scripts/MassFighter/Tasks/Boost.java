@@ -18,8 +18,8 @@ public class Boost extends Task {
 
     @Override
     public boolean validate() {
-        if (!MassFighter.settings.selectedPotions.isEmpty()) {
-            for (Potion p : MassFighter.settings.selectedPotions) {
+            for (String s : MassFighter.settings.selectedPotions) {
+                Potion p = Potion.valueOf(s);
                 Skill skill = p.getPotionSkills()[0];
 
                 double currentBoost = skill.getCurrentLevel() - skill.getBaseLevel();
@@ -34,7 +34,6 @@ public class Boost extends Task {
                     return true;
                 }
             }
-        }
         return false;
     }
 

@@ -1,10 +1,6 @@
 package scripts.MassFighter.GUI;
 
 import com.runemate.game.api.rs3.local.hud.interfaces.Summoning;
-import scripts.MassFighter.Data.Potion;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class Settings {
 
@@ -35,7 +31,7 @@ public class Settings {
     public int eatValue = 0;
     public int prayValue = 0;
     public int criticalHitpoints = 0;
-    public List<Potion> selectedPotions = new ArrayList<>();
+    public String[] selectedPotions;
     public double boostRefreshPercentage = 55;
     public boolean useSummoning = false;
     public Summoning.Familiar chosenFamiliar = null;
