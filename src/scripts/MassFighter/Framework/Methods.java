@@ -41,17 +41,15 @@ public class Methods {
         if (!MassFighter.methods.isInCombat()) {
             if (RuneScape.isLoggedIn()) {
                 if (RuneScape.logout()) {
-                    if (Execution.delayUntil(() -> !RuneScape.isLoggedIn(), 3000)) {
-                        MassFighter.status = "Logged you out";
-                        AbstractScript runningScript = Environment.getScript();
-                        if (runningScript != null) {
-                            runningScript.pause();
-                        }
-                    }
+                    Execution.delayUntil(() -> !RuneScape.isLoggedIn(), 3000);
                 }
             }
         }
-        Environment.getScript().stop();
+        AbstractScript script = Environment.getScript();
+        if (script != null) {
+            script.stop();
+        }
+
     }
 
     public int getPrayPoints() {

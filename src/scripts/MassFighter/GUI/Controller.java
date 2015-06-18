@@ -10,6 +10,7 @@ import com.runemate.game.api.hybrid.region.Npcs;
 import com.runemate.game.api.hybrid.region.Players;
 import com.runemate.game.api.hybrid.util.io.ManagedProperties;
 import com.runemate.game.api.rs3.local.hud.interfaces.Summoning;
+import com.runemate.game.api.script.framework.AbstractScript;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -153,11 +154,17 @@ public class Controller {
 
     public void initialize() {
 
-        ManagedProperties storedSettings = Environment.getScript().getSettings();
-        if (storedSettings.containsKey("npcNames")) {
-            settingsStatus.setText("You have settings available in the cloud.");
-        } else {
-            settingsStatus.setText("You do not have any stored cloud settings.");
+        AbstractScript script = Environment.getScript();
+        if (script != null) {
+            ManagedProperties managedProperties = script.getSettings();
+            if (managedProperties != null) {
+                String npcProperty = managedProperties.getProperty("npcNames");
+                if (npcProperty != null && npcProperty.length() > 0) {
+                    settingsStatus.setText("Cloud settings are available");
+                } else {
+                    settingsStatus.setText("You currently have no stored settings");
+                }
+            }
         }
 
         // Temporary Updates Solution

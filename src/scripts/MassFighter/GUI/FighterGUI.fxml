@@ -55,7 +55,7 @@
                            </font>
                         </Button>
                         <Label layoutX="337.0" layoutY="218.0" text="Settings status:" />
-                        <Label fx:id="settingsStatus" layoutX="431.0" layoutY="191.0" prefHeight="72.0" prefWidth="223.0" text="Status of stored settings" wrapText="true" />
+                        <Label fx:id="settingsStatus" layoutX="431.0" layoutY="191.0" prefHeight="87.0" prefWidth="178.0" text="Status of stored settings" wrapText="true" />
                             </children>
                         </AnchorPane>
                     </content>
