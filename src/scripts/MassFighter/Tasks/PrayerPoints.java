@@ -9,39 +9,43 @@ import com.runemate.game.api.hybrid.util.calculations.Random;
 import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.task.Task;
 import com.runemate.game.api.script.framework.task.TaskScript;
+import scripts.MassFighter.Framework.Methods;
+import scripts.MassFighter.GUI.Settings;
 import scripts.MassFighter.MassFighter;
 
-import static scripts.MassFighter.MassFighter.settings;
-import static scripts.MassFighter.Framework.Methods.*;
+import static scripts.MassFighter.Framework.Methods.out;
 
 public class PrayerPoints extends Task {
 
     private final SpriteItemQueryBuilder validPrayerItems = Inventory.newQuery().filter(new Filter<SpriteItem>() {
         @Override
         public boolean accepts(SpriteItem spriteItem) {
-            String name = spriteItem.getDefinition().getName();
-            return name.contains("Prayer potion") ||
-                    name.contains("Prayer flask");
+            if (spriteItem != null && spriteItem.getDefinition() != null) {
+                String name = spriteItem.getDefinition().getName();
+                return name.contains("Prayer potion") ||
+                        name.contains("Prayer flask");
+            }
+            return false;
         }
     });
 
     public boolean validate() {
-        return (MassFighter.methods.getPrayPoints() < settings.prayValue);
+        return (Methods.getPrayPoints() < Settings.prayValue);
     }
 
     @Override
     public void execute() {
 
-        out("PrayerPoints: Need to top up prayer points, current = " + MassFighter.methods.getPrayPoints() + " target = " + settings.prayValue);
+        out("PrayerPoints: Need to top up prayer points, current = " + Methods.getPrayPoints() + " target = " + Settings.prayValue);
         if (validPrayerItems.results().isEmpty()) {
             out("PrayerPoints: We have no prayer pots");
-            if (settings.exitOnPrayerOut) {
+            if (Settings.exitOnPrayerOut) {
                 out("PrayerPoints: Out of pots, logging out");
-                MassFighter.methods.logout();
+                Methods.logout();
             } else {
                 out("PrayerPoints: Turning off script prayer usage");
-                settings.useSoulsplit = false;
-                settings.quickPray = false;
+                Settings.useSoulsplit = false;
+                Settings.quickPray = false;
                 System.out.println("PrayerPoints: Trying to remove pray task");
                 TaskScript rootScript = (TaskScript) Environment.getScript();
                 rootScript.getTasks().stream().filter(task -> task != null && task instanceof PrayerPoints).forEach(task -> {
@@ -50,14 +54,14 @@ public class PrayerPoints extends Task {
                     MassFighter.getSimpleTasks(rootScript.getTasks());
                 });
             }
-        } else if (MassFighter.methods.getPrayPoints() != -1) {
+        } else if (Methods.getPrayPoints() != -1) {
             out("PrayerPoints: We have pots, getting prayer points");
-            final int startPP = MassFighter.methods.getPrayPoints();
+            final int startPP = Methods.getPrayPoints();
             final SpriteItem targetPrayerFuel = validPrayerItems.results().random();
             if (targetPrayerFuel != null) {
                 if (targetPrayerFuel.interact("Drink", targetPrayerFuel.getDefinition().getName())) {
                     out("PrayerPoints: Successfully used a prayer pot");
-                    Execution.delayUntil(() -> MassFighter.methods.getPrayPoints() > startPP, Random.nextInt(1600, 2000));
+                    Execution.delayUntil(() -> Methods.getPrayPoints() > startPP, Random.nextInt(1600, 2000));
                 }
             } else {
                 out("PrayerPoints: The target prayer pot is invalid");

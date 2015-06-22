@@ -8,26 +8,37 @@ import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
 import com.runemate.game.api.hybrid.local.hud.interfaces.SpriteItem;
 import com.runemate.game.api.hybrid.queries.SpriteItemQueryBuilder;
 import com.runemate.game.api.hybrid.util.Filter;
+import com.runemate.game.api.hybrid.util.Filters;
 import com.runemate.game.api.osrs.local.hud.interfaces.Magic;
 import com.runemate.game.api.rs3.local.hud.Powers;
 import com.runemate.game.api.rs3.local.hud.interfaces.eoc.ActionBar;
 import com.runemate.game.api.rs3.local.hud.interfaces.eoc.SlotAction;
 import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.task.Task;
+import scripts.MassFighter.Framework.Methods;
+import scripts.MassFighter.GUI.Settings;
 import scripts.MassFighter.MassFighter;
 
 import java.util.Arrays;
 
-import static scripts.MassFighter.Framework.Methods.*;
+import static scripts.MassFighter.Framework.Methods.out;
 
 public class Alchemy extends Task {
 
-    private final SpriteItemQueryBuilder alchItems = Inventory.newQuery().filter(new Filter<SpriteItem>() {
-        @Override
-        public boolean accepts(SpriteItem spriteItem) {
-            return Arrays.asList(MassFighter.userProfile.getAlchLoot()).contains(spriteItem.getDefinition().getName().toLowerCase());
+    private SpriteItemQueryBuilder getAlchableItems() {
+        SpriteItemQueryBuilder alchableItemQuery = Inventory.newQuery().filter(Filters.DECLINE_ALL);
+        String[] alchLootNames = Settings.alchLoot;
+        if (Methods.arrayIsValid(alchLootNames)) {
+            alchableItemQuery = Inventory.newQuery().filter(new Filter<SpriteItem>() {
+                @Override
+                public boolean accepts(SpriteItem spriteItem) {
+                    return Arrays.asList(alchLootNames).contains(spriteItem.getDefinition().getName().toLowerCase());
+                }
+            });
         }
-    });
+        return alchableItemQuery;
+    }
+
     private final SpriteItemQueryBuilder validStaff = Equipment.newQuery().filter(new Filter<SpriteItem>() {
         @Override
         public boolean accepts(SpriteItem spriteItem) {
@@ -45,7 +56,7 @@ public class Alchemy extends Task {
 
 
     public boolean validate() {
-        return MassFighter.userProfile.getAlchLoot() != null && !alchItems.results().isEmpty() && hasAlchReqs();
+        return !getAlchableItems().results().isEmpty() && hasAlchReqs();
     }
 
     @Override
@@ -54,7 +65,7 @@ public class Alchemy extends Task {
         MassFighter.status = "Alching";
         if (Skill.MAGIC.getCurrentLevel() >= 55) {
             if ((Environment.isRS3() && Powers.Magic.Book.getCurrent().equals(Powers.Magic.Book.STANDARD) || (Environment.isOSRS() && Magic.Book.getCurrent().equals(Magic.Book.STANDARD)))) {
-                SpriteItem alchItem = alchItems.results().limit(3).random();
+                SpriteItem alchItem = getAlchableItems().results().limit(3).random();
                 if (alchItem != null) {
                     String targetItemName = alchItem.getDefinition().getName();
                     SlotAction highAlch = ActionBar.getFirstAction("High Level Alchemy");

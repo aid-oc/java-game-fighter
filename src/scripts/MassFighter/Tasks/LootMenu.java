@@ -1,15 +1,18 @@
 package scripts.MassFighter.Tasks;
 
 import com.runemate.game.api.hybrid.local.hud.interfaces.SpriteItem;
+import com.runemate.game.api.hybrid.location.Area;
 import com.runemate.game.api.hybrid.location.Coordinate;
+import com.runemate.game.api.hybrid.queries.SpriteItemQueryBuilder;
 import com.runemate.game.api.hybrid.queries.results.SpriteItemQueryResults;
 import com.runemate.game.api.hybrid.util.Filter;
+import com.runemate.game.api.hybrid.util.Filters;
 import com.runemate.game.api.rs3.local.hud.interfaces.LootInventory;
 import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.task.Task;
 import helpers.Movement;
 import scripts.MassFighter.Framework.Methods;
-import scripts.MassFighter.MassFighter;
+import scripts.MassFighter.GUI.Settings;
 
 import java.util.Arrays;
 import java.util.List;
@@ -19,7 +22,20 @@ import java.util.List;
  */
 public class LootMenu extends Task {
 
-    private List<String> selectedLoot = Arrays.asList(MassFighter.userProfile.getLootNames());
+    private SpriteItemQueryBuilder getLootOnInventory() {
+        SpriteItemQueryBuilder lootOnInventoryQuery = LootInventory.newQuery().filter(Filters.DECLINE_ALL);
+        String[] lootNames = Settings.lootNames;
+        if (Methods.arrayIsValid(lootNames)) {
+            List<String> lootList = Arrays.asList(lootNames);
+            lootOnInventoryQuery = LootInventory.newQuery().filter(new Filter<SpriteItem>() {
+                @Override
+                public boolean accepts(SpriteItem spriteItem) {
+                    return spriteItem != null && spriteItem.getDefinition() != null && lootList.contains(spriteItem.getDefinition().getName().toLowerCase()) && Methods.hasRoomForItem(spriteItem);
+                }
+            });
+        }
+        return lootOnInventoryQuery;
+    }
 
     public boolean validate() {
         return LootInventory.isOpen();
@@ -27,12 +43,7 @@ public class LootMenu extends Task {
 
     @Override
     public void execute() {
-        SpriteItemQueryResults lootOnInventory = LootInventory.newQuery().filter(new Filter<SpriteItem>() {
-            @Override
-            public boolean accepts(SpriteItem spriteItem) {
-                return selectedLoot.contains(spriteItem.getDefinition().getName().toLowerCase()) && MassFighter.methods.hasRoomForItem(spriteItem);
-            }
-        }).results();
+        SpriteItemQueryResults lootOnInventory = getLootOnInventory().results();
         if (!lootOnInventory.isEmpty()) {
             if (LootInventory.getItems().containsAll(lootOnInventory) && LootInventory.getItems().size() == lootOnInventory.size()) {
                 if (LootInventory.takeAll()) {
@@ -45,9 +56,12 @@ public class LootMenu extends Task {
             }
         } else {
             Methods.out("No loot in menu");
-            Coordinate returnPoint = MassFighter.userProfile.getFightArea().getRandomCoordinate();
-            if (returnPoint != null) {
-                Movement.pathToLocatable(returnPoint);
+            Area fightArea = Settings.fightArea;
+            if (fightArea != null) {
+                Coordinate returnPoint = fightArea.getRandomCoordinate();
+                if (returnPoint != null) {
+                    Movement.pathToLocatable(returnPoint);
+                }
             }
         }
     }

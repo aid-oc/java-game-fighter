@@ -21,9 +21,9 @@ public enum Food {
     ROCKTAIL("Rocktail", 15272, 230),
     SWEETCORN("Sweetcorn", 5986, 50);
 
-    private String name;
-    private int id;
-    private int heal;
+    private final String name;
+    private final int id;
+    private final int heal;
 
     Food(String name, int id, int heal) {
         this.name = name;

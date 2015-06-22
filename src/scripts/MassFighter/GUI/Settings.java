@@ -1,40 +1,44 @@
 package scripts.MassFighter.GUI;
 
+import com.runemate.game.api.hybrid.location.Area;
 import com.runemate.game.api.rs3.local.hud.interfaces.Summoning;
 
 public class Settings {
 
-    public int targetSelection = 1;
-    public Boolean useFood = false;
-    public Boolean showOutline = true;
-    public Boolean exitOutFood = false;
-    public Boolean lootInCombat = false;
-    public Boolean useAbilities = false;
-    public Boolean useSoulsplit = false;
-    public Boolean waitForLoot = false;
-    public Boolean looting = false;
-    public Boolean buryBones = false;
-    public Boolean quickPray = false;
-    public Boolean exitOnPrayerOut = false;
-    public Boolean tagMode = false;
-    public Boolean attackCombatMonsters = false;
-    public Boolean bypassReachable = false;
-    public Boolean revolutionMode = false;
-    public Boolean lootByValue = false;
-    public Boolean equipAmmunition = false;
-    public Boolean soulsplitPermanent = false;
-    public int soulsplitPercentage = 100;
-    public double lootValue = 0;
-    public int tagSelection = 0;
-    public String[] foodNames;
-    public int fightRadius = 20;
-    public int eatValue = 0;
-    public int prayValue = 0;
-    public int criticalHitpoints = 0;
-    public String[] selectedPotions;
-    public double boostRefreshPercentage = 55;
-    public boolean useSummoning = false;
-    public Summoning.Familiar chosenFamiliar = null;
+    public static String[] npcNames = null;
+    public static String[] lootNames = null;
+    public static String[] alchLoot = null;
+    public static String[] notepaperLoot = null;
+    public static String[] foodNames = null;
+    public static String[] selectedPotions = null;
+    public static Area fightArea = null;
+    public static int targetSelection = 1;
+    public static Boolean showOutline = true;
+    public static Boolean exitOutFood = false;
+    public static Boolean lootInCombat = false;
+    public static Boolean useAbilities = false;
+    public static Boolean useSoulsplit = false;
+    public static Boolean waitForLoot = false;
+    public static Boolean buryBones = false;
+    public static Boolean quickPray = false;
+    public static Boolean exitOnPrayerOut = false;
+    public static Boolean tagMode = false;
+    public static Boolean attackCombatMonsters = false;
+    public static Boolean bypassReachable = false;
+    public static Boolean revolutionMode = false;
+    public static Boolean lootByValue = false;
+    public static Boolean equipAmmunition = false;
+    public static Boolean soulsplitPermanent = false;
+    public static int soulsplitPercentage = 100;
+    public static double lootValue = 0;
+    public static int tagSelection = 0;
+    public static int fightRadius = 20;
+    public static int eatValue = 0;
+    public static int prayValue = 0;
+    public static int criticalHitpoints = 0;
+    public static double boostRefreshPercentage = 55;
+    public static boolean useSummoning = false;
+    public static Summoning.Familiar chosenFamiliar = null;
 
 
 }

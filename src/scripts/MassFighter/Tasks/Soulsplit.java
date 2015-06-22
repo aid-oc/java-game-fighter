@@ -6,19 +6,22 @@ import com.runemate.game.api.hybrid.util.calculations.Random;
 import com.runemate.game.api.rs3.local.hud.Powers;
 import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.task.Task;
+import scripts.MassFighter.Framework.Methods;
+import scripts.MassFighter.GUI.Settings;
 import scripts.MassFighter.MassFighter;
 
 import static scripts.MassFighter.Framework.Methods.out;
-import static scripts.MassFighter.MassFighter.settings;
 
 public class Soulsplit extends Task {
     @Override
     public boolean validate() {
-        if (settings.useSoulsplit && Environment.isRS3() && MassFighter.methods.getPrayPoints() > settings.prayValue) {
-            if (settings.soulsplitPermanent) {
-                return (!Powers.Prayer.Curse.SOUL_SPLIT.isActivated());
-            } else {
-                return ((Health.getCurrentPercent() < (settings.soulsplitPercentage+Random.nextInt(5, 10)) && !Powers.Prayer.Curse.SOUL_SPLIT.isActivated()) || (Health.getCurrentPercent() > (90+Random.nextInt(0, 9)) && Powers.Prayer.Curse.SOUL_SPLIT.isActivated()));
+        if (Methods.getPrayPoints() >= Settings.prayValue) {
+            if (Settings.useSoulsplit && Environment.isRS3() && Methods.getPrayPoints() > Settings.prayValue) {
+                if (Settings.soulsplitPermanent) {
+                    return (!Powers.Prayer.Curse.SOUL_SPLIT.isActivated());
+                } else {
+                    return ((Health.getCurrentPercent() < (Settings.soulsplitPercentage + Random.nextInt(5, 10)) && !Powers.Prayer.Curse.SOUL_SPLIT.isActivated()) || (Health.getCurrentPercent() > (90 + Random.nextInt(0, 9)) && Powers.Prayer.Curse.SOUL_SPLIT.isActivated()));
+                }
             }
         }
         return false;

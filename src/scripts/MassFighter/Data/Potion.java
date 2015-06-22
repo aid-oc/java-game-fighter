@@ -60,7 +60,7 @@ public enum Potion {
 
     private final String potionName;
     private final Skill[] potionSkills;
-    private double potionBoost;
+    private final double potionBoost;
 
     Potion(String name, double boost, Skill... skills) {
         potionName = name;

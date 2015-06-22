@@ -5,6 +5,7 @@ import com.runemate.game.api.hybrid.entities.details.Locatable;
 import com.runemate.game.api.hybrid.local.Camera;
 import com.runemate.game.api.hybrid.location.navigation.Path;
 import com.runemate.game.api.hybrid.location.navigation.Traversal;
+import com.runemate.game.api.hybrid.location.navigation.basic.BresenhamPath;
 import com.runemate.game.api.hybrid.location.navigation.cognizant.RegionPath;
 import com.runemate.game.api.hybrid.util.calculations.Distance;
 import com.runemate.game.api.hybrid.util.calculations.Random;
@@ -33,6 +34,7 @@ public class Movement {
         if (l != null) {
             Path toLocatable = RegionPath.buildTo(l);
             if (toLocatable == null) toLocatable = Traversal.getDefaultWeb().getPathBuilder().buildTo(l);
+            if (toLocatable == null) toLocatable = BresenhamPath.buildTo(l);
             if (toLocatable != null) {
                 toLocatable.step(true);
             }

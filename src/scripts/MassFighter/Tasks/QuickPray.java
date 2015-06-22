@@ -8,25 +8,26 @@ import com.runemate.game.api.hybrid.queries.results.InterfaceComponentQueryResul
 import com.runemate.game.api.rs3.local.hud.Powers;
 import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.task.Task;
+import scripts.MassFighter.Framework.Methods;
+import scripts.MassFighter.GUI.Settings;
 import scripts.MassFighter.MassFighter;
 
 import static scripts.MassFighter.Framework.Methods.out;
-import static scripts.MassFighter.MassFighter.settings;
 
 
 public class QuickPray extends Task {
 
-    private final InterfaceComponentQueryBuilder quickPrayActivateQuery = Interfaces.newQuery().containers(548).names("Quick-prayers").actions("Activate");
+    private final InterfaceComponentQueryBuilder quickPrayActivateQuery = Interfaces.newQuery().actions("Activate", "Setup");
 
     @Override
     public boolean validate() {
-        return (settings.quickPray && ((Environment.isRS3() && !Powers.Prayer.isQuickPraying()) || (Environment.isOSRS() && !quickPrayActivateQuery.results().isEmpty())));
+        return  Methods.getPrayPoints() >= Settings.prayValue && Settings.quickPray
+                && ((Environment.isRS3() && !Powers.Prayer.isQuickPraying())
+                || (Environment.isOSRS() && !quickPrayActivateQuery.results().isEmpty()));
     }
 
     @Override
     public void execute() {
-        // Turn on quick prayer
-        if (settings.quickPray && MassFighter.methods.getPrayPoints() >= settings.prayValue) {
             MassFighter.status = "Quickpray: ON";
             out("PrayerPoints: Turning on quick prayers");
             if (Environment.isRS3() && !Powers.Prayer.isQuickPraying()) {
@@ -54,7 +55,5 @@ public class QuickPray extends Task {
                     out("PrayerPoints:(OSRS) Unable to find the quick prayer button");
                 }
             }
-
-        }
     }
 }

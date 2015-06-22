@@ -19,7 +19,6 @@ import com.runemate.game.api.script.framework.task.Task;
 import com.runemate.game.api.script.framework.task.TaskScript;
 import javafx.application.Platform;
 import scripts.MassFighter.Framework.Methods;
-import scripts.MassFighter.Framework.UserProfile;
 import scripts.MassFighter.GUI.Main;
 import scripts.MassFighter.GUI.Settings;
 import scripts.MassFighter.Tasks.*;
@@ -35,12 +34,10 @@ import java.util.concurrent.TimeUnit;
 public class MassFighter extends TaskScript implements PaintListener, MouseListener, InventoryListener {
 
     public static Methods methods;
-    public static Settings settings;
     public static LocatableEntity targetEntity;
     public static String status;
-    public static UserProfile userProfile;
     public static Boolean setupRunning;
-    public static boolean debug = false;
+    public static final boolean debug = true;
     private static List<String> runningTaskNames;
 
     private final StopWatch runningTime = new StopWatch();
@@ -48,7 +45,7 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
     private int startExp = 0;
     private int startExpNoHp = 0;
     private int profit = 0;
-    private Rectangle hidePaintButton = new Rectangle(1,155,80,35);
+    private final Rectangle hidePaintButton = new Rectangle(1,155,80,35);
     private boolean hidePaint = false;
 
     private final int constitutionLevel = Skill.CONSTITUTION.getBaseLevel();
@@ -73,47 +70,50 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
             setLoopDelay(400, 600);
             getEventDispatcher().addListener(this);
             showAndWaitGUI();
-            settings = userProfile.settings;
             methods = new Methods();
 
             // RS3 Specific Tasks
             if (Environment.isRS3()) {
                 add(new LootMenu());
-                if (settings.useSoulsplit) add(new Soulsplit());
-                if (settings.useAbilities) new LoopingThread(new Abilities(), 1000, 1200).start();
-                if (arrayIsValid(userProfile.getNotepaperLoot())) {
+                if (Settings.useSoulsplit) {
+                    add(new Soulsplit());
+                }
+                if (Settings.useAbilities) {
+                    new LoopingThread(new Abilities(), 1000, 1200).start();
+                }
+                if (Methods.arrayIsValid(Settings.notepaperLoot)) {
                     add(new MagicNotepaper());
                 }
-               // if (settings.useSummoning && settings.chosenFamiliar != null) add(new SummonFamiliar());
 
             }
-            if (settings.quickPray || settings.useSoulsplit) {
+            if (Settings.quickPray || Settings.useSoulsplit) {
                 add(new PrayerPoints());
             }
-            if (settings.quickPray) {
+            if (Settings.quickPray) {
                 add(new QuickPray());
             }
-            if (settings.useFood) {
+            if (Methods.arrayIsValid(Settings.foodNames)) {
                 add(new Heal());
             }
-            if (arrayIsValid(userProfile.getAlchLoot())) {
+            if (Methods.arrayIsValid(Settings.alchLoot)) {
                 add(new Alchemy());
             }
-            if (arrayIsValid(userProfile.getLootNames())) {
+            if (Methods.arrayIsValid(Settings.lootNames)) {
                 add(new Loot());
             }
-            if (settings.equipAmmunition) {
+            if (Settings.equipAmmunition) {
                 add(new Ammunition());
             }
-            if (settings.buryBones) {
+            if (Settings.buryBones) {
                 add(new BuryBones());
             }
-            if (arrayIsValid(settings.selectedPotions)) {
+            if (Methods.arrayIsValid(Settings.selectedPotions)) {
                 add(new Boost());
             }
             add(new ReturnToArea());
             add(new DismissDialog());
             add(new Attack());
+
 
 
             startExpNoHp = Skill.STRENGTH.getExperience() + Skill.RANGED.getExperience() + Skill.MAGIC.getExperience() + Skill.ATTACK.getExperience() + Skill.DEFENCE.getExperience()
@@ -124,10 +124,6 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
             getSimpleTasks(getTasks());
         }
 
-    }
-
-    private boolean arrayIsValid(String[] array) {
-        return array != null && array.length > 0 && array[0].length() > 0;
     }
 
     private void showAndWaitGUI() {
@@ -143,30 +139,32 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
     public void onItemAdded(ItemEvent event) {
         if (methods != null && event != null && event.getItem() != null) {
             ItemDefinition itemDefinition = event.getItem().getDefinition();
-            String itemName = itemDefinition.getName();
-            int itemId = itemDefinition .getId();
-            int itemValue = 0;
-            if (methods.itemPrices.containsKey(itemName)) {
-                itemValue = methods.itemPrices.get(itemName);
-            } else {
-                if (Environment.isRS3()) {
-                    GrandExchange.Item item = GrandExchange.lookup(itemId);
-                    if (item != null) {
-                        itemValue = item.getPrice();
+            if (itemDefinition != null) {
+                String itemName = itemDefinition.getName();
+                int itemId = itemDefinition.getId();
+                int itemValue = 0;
+                if (Methods.itemPrices.containsKey(itemName)) {
+                    itemValue = Methods.itemPrices.get(itemName);
+                } else {
+                    if (Environment.isRS3()) {
+                        GrandExchange.Item item = GrandExchange.lookup(itemId);
+                        if (item != null) {
+                            itemValue = item.getPrice();
+                        }
+                    } else if (Environment.isOSRS()) {
+                        itemValue = Zybez.getAveragePrice(itemName);
                     }
-                } else if (Environment.isOSRS()) {
-                    itemValue = Zybez.getAveragePrice(itemName);
+                    Methods.itemPrices.put(itemName, itemValue);
                 }
-                methods.itemPrices.put(itemName, itemValue);
+                profit += itemValue;
             }
-            profit += itemValue;
         }
     }
 
 
     @Override
     public void onPaint(Graphics2D g2d) {
-        if (userProfile != null) {
+        if (Methods.arrayIsValid(Settings.npcNames)) {
 
             Color blackTransparent = new Color(0, 0, 0, 110);
 
@@ -229,9 +227,9 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
                 g2d.drawString(expGained + "(" + numberFormat.format((int) CommonMath.rate(TimeUnit.HOURS, runningTime.getRuntime(), expGained)) + " p/h)", 365, 104);
                 g2d.drawString(profit + "(" + numberFormat.format((int) CommonMath.rate(TimeUnit.HOURS, runningTime.getRuntime(), profit)) + " p/h)", 365, 132);
                 // Render the fight area's outline
-                if (settings != null && settings.showOutline) {
-                    Area area = userProfile.getFightArea();
-                    if (area != null && area.isValid()) {
+                if (Settings.showOutline) {
+                    Area area = Settings.fightArea;
+                    if (area != null) {
                         g2d.setColor(Color.orange);
                         java.util.List<Coordinate> surroundingCoords = area.getArea().getSurroundingCoordinates();
                         surroundingCoords.parallelStream().forEach(coordinate -> {

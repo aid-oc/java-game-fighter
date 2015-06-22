@@ -8,23 +8,25 @@ import com.runemate.game.api.hybrid.util.Filter;
 import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.task.Task;
 import scripts.MassFighter.Data.Potion;
+import scripts.MassFighter.Framework.Methods;
+import scripts.MassFighter.GUI.Settings;
 import scripts.MassFighter.MassFighter;
 
-import static scripts.MassFighter.Framework.Methods.*;
+import static scripts.MassFighter.Framework.Methods.out;
 
 public class Boost extends Task {
 
     private Potion potionToBoost;
 
-    @Override
-    public boolean validate() {
-            for (String s : MassFighter.settings.selectedPotions) {
+    private Boolean boostNeedsRefreshing() {
+        String[] selectedPotions = Settings.selectedPotions;
+        if (Methods.arrayIsValid(selectedPotions)) {
+            for (String s : selectedPotions) {
                 Potion p = Potion.valueOf(s);
                 Skill skill = p.getPotionSkills()[0];
-
                 double currentBoost = skill.getCurrentLevel() - skill.getBaseLevel();
                 float differencePercentage = (float) currentBoost / (float) p.getBoost() * 100;
-                if (differencePercentage < MassFighter.settings.boostRefreshPercentage && !Inventory.newQuery().filter(new Filter<SpriteItem>() {
+                if (differencePercentage < Settings.boostRefreshPercentage && !Inventory.newQuery().filter(new Filter<SpriteItem>() {
                     @Override
                     public boolean accepts(SpriteItem spriteItem) {
                         return spriteItem.getDefinition().getName().contains(p.getPotionName());
@@ -34,7 +36,15 @@ public class Boost extends Task {
                     return true;
                 }
             }
+        }
         return false;
+    }
+
+
+
+    @Override
+    public boolean validate() {
+        return Methods.arrayIsValid(Settings.selectedPotions) && boostNeedsRefreshing();
     }
 
     @Override

@@ -9,7 +9,7 @@ import com.runemate.game.api.rs3.entities.SummonedFamiliar;
 import com.runemate.game.api.rs3.local.hud.interfaces.Summoning;
 import com.runemate.game.api.script.framework.task.Task;
 import scripts.MassFighter.Framework.Methods;
-import scripts.MassFighter.MassFighter;
+import scripts.MassFighter.GUI.Settings;
 
 /**
  * ozzy.
@@ -19,19 +19,19 @@ public class SummonFamiliar extends Task {
     @Override
     public boolean validate() {
         final Player player = Players.getLocal();
-        return hasPouch() && player.getFamiliar() == null ||  !player.getFamiliar().getInfo().equals(MassFighter.settings.chosenFamiliar);
+        return hasPouch() && player.getFamiliar() == null ||  !player.getFamiliar().getInfo().equals(Settings.chosenFamiliar);
     }
 
     @Override
     public void execute() {
         final SummonedFamiliar familiar = Players.getLocal().getFamiliar();
-        final Summoning.Familiar chosenFamiliar = MassFighter.settings.chosenFamiliar;
+        final Summoning.Familiar chosenFamiliar = Settings.chosenFamiliar;
         if (familiar != null) {
             Summoning.FamiliarOption.DISMISS_FOLLOWER.select();
         }
         int pointsRequired = chosenFamiliar.getSummoningCost();
         if (Summoning.getPoints() >= pointsRequired) {
-            String pouchName = MassFighter.settings.chosenFamiliar.getPouch().getName();
+            String pouchName = Settings.chosenFamiliar.getPouch().getName();
             SpriteItem pouch = Inventory.getItems(pouchName).first();
             if (pouch != null && pouch.interact("Summon")) {
                 Methods.out("Summoned a " + pouchName);
@@ -49,7 +49,7 @@ public class SummonFamiliar extends Task {
     }
 
     private boolean hasPouch() {
-        return Inventory.contains(MassFighter.settings.chosenFamiliar.getPouch().getName());
+        return Inventory.contains(Settings.chosenFamiliar.getPouch().getName());
     }
 
 

@@ -8,20 +8,21 @@ import com.runemate.game.api.hybrid.util.calculations.Random;
 import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.task.Task;
 import com.runemate.game.api.script.framework.task.TaskScript;
+import scripts.MassFighter.Framework.Methods;
+import scripts.MassFighter.GUI.Settings;
 import scripts.MassFighter.MassFighter;
 
 import static scripts.MassFighter.Framework.Methods.out;
-import static scripts.MassFighter.MassFighter.settings;
 
 public class Heal extends Task {
 
     public boolean validate() {
-        return settings.useFood && Health.getCurrent() < settings.eatValue + Random.nextInt(0, 4);
+        return Methods.arrayIsValid(Settings.foodNames) && Health.getCurrent() < Settings.eatValue;
     }
 
     @Override
     public void execute() {
-        SpriteItemQueryResults validFoodItems = MassFighter.methods.foodItems.results();
+        SpriteItemQueryResults validFoodItems = Methods.getFood().results();
         MassFighter.status = "Eating";
         out("Heal: We need to use food");
         if (!validFoodItems.isEmpty()) {
@@ -39,11 +40,11 @@ public class Heal extends Task {
             } else {
                 out("Heal: Food item is invalid");
             }
-        } else if (settings.exitOutFood) {
+        } else if (Settings.exitOutFood) {
             out("Heal: We're out of food, exiting");
-            MassFighter.methods.logout();
+            Methods.logout();
         } else {
-            settings.useFood = false;
+            Settings.foodNames = null;
             out("Heal: Attempting to remove heal task");
             TaskScript rootScript = (TaskScript) Environment.getScript();
             rootScript.getTasks().stream().filter(task -> task != null && task instanceof Heal).forEach(task -> {

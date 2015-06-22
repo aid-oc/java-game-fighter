@@ -6,12 +6,12 @@ import com.runemate.game.api.rs3.local.hud.interfaces.eoc.SlotAction;
 import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.task.Task;
 import scripts.MassFighter.Data.Ability;
-import scripts.MassFighter.MassFighter;
+import scripts.MassFighter.GUI.Settings;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static scripts.MassFighter.Framework.Methods.*;
+import static scripts.MassFighter.Framework.Methods.out;
 
 public class Abilities extends Task implements Runnable {
 
@@ -66,7 +66,7 @@ public class Abilities extends Task implements Runnable {
                                 thresholds.add(barAbility);
                                 break;
                             case "Basic":
-                                if (!MassFighter.settings.revolutionMode) {
+                                if (!Settings.revolutionMode) {
                                     basics.add(barAbility);
                                 }
                                 break;

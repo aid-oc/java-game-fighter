@@ -16,14 +16,11 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 import scripts.MassFighter.Data.Potion;
-import scripts.MassFighter.Framework.UserProfile;
 import scripts.MassFighter.MassFighter;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 
@@ -140,8 +137,6 @@ public class Controller {
     @FXML
     private Button btnDeselectFamiliar;
 
-    private UserProfile currentProfile;
-
     private List<String> getAvailableMonsters(Area area, String action) {
         List<String> availableNpcs = new ArrayList<>();
         NpcQueryBuilder getNearbyNpcs = Npcs.newQuery().within(area).actions(action);
@@ -153,6 +148,8 @@ public class Controller {
     }
 
     public void initialize() {
+
+        selectedBoosts.getItems().clear();
 
         AbstractScript script = Environment.getScript();
         if (script != null) {
@@ -169,6 +166,7 @@ public class Controller {
 
         // Temporary Updates Solution
         List<String> updates = new ArrayList<>();
+        updates.add("22/06/2015: Settings/GUI Fixes");
         updates.add("17/06/2015: Saving, Pet, Potion fixes");
         updates.add("11/05/2015: Fix for 'click here to continue'");
         updates.add("06/06/2015: Profit calc re-enabled, new loot interface support added, bug fixes");
@@ -239,23 +237,11 @@ public class Controller {
         });
 
         btnSave.setOnAction(event -> {
-            if (save()) {
-                settingsStatus.setText("Save successful.");
-            } else {
-                settingsStatus.setText("Save failed.");
-            }
+            save();
         });
 
         btnLoad.setOnAction(event -> {
-            UserProfile loadedProfile = load();
-            if (loadedProfile != null) {
-                currentProfile = loadedProfile;
-                populateUI(currentProfile);
-                settingsStatus.setText("Load successful.");
-            } else {
-                settingsStatus.setText("Load failed.");
-            }
-
+            load();
         });
 
         abilities.setOnAction(event -> {
@@ -319,53 +305,6 @@ public class Controller {
 
     }
 
-    private void populateUI(UserProfile profile) {
-        if (profile != null) {
-            if (profile.getNpcNames() != null) {
-                selectedMonsters.getItems().addAll(profile.getNpcNames());
-            }
-            if (profile.settings.selectedPotions.length > 0) {
-                selectedBoosts.getItems().addAll(profile.settings.selectedPotions);
-                boostRefreshPercentage.setValue(profile.settings.boostRefreshPercentage);
-            }
-            targetSlider.setValue(profile.settings.targetSelection);
-            tagMode.setSelected(profile.settings.tagMode);
-            tagSlider.setValue(profile.settings.tagSelection);
-            criticalHitpoints.setText(Integer.toString(profile.settings.criticalHitpoints));
-            abilities.setSelected(profile.settings.useAbilities);
-            revolutionMode.setSelected(profile.settings.revolutionMode);
-            if (profile.settings.foodNames != null && profile.settings.foodNames.length > 0) {
-                foodSelection.getItems().addAll(profile.settings.foodNames);
-            }
-            eatValue.setText(Integer.toString(profile.settings.eatValue));
-            stopWhenOutOfFood.setSelected(profile.settings.exitOutFood);
-            lootByValue.setSelected(profile.settings.lootByValue);
-            lootValue.setText(Double.toString(profile.settings.lootValue));
-            lootInCombat.setSelected(profile.settings.lootInCombat);
-            buryBones.setSelected(profile.settings.buryBones);
-            waitLoot.setSelected(profile.settings.waitForLoot);
-            reequipAmmunition.setSelected(profile.settings.equipAmmunition);
-            if (profile.getLootNames() != null && profile.getLootNames().length > 0) {
-                selectedLoot.getItems().setAll(profile.getLootNames());
-            }
-            if (profile.getAlchLoot() != null && profile.getAlchLoot().length > 0) {
-                selectedAlchLoot.getItems().setAll(profile.getAlchLoot());
-            }
-            if (profile.getNotepaperLoot() != null && profile.getNotepaperLoot().length > 0) {
-                selectedNotepaperLoot.getItems().setAll(profile.getNotepaperLoot());
-            }
-            soulsplit.setSelected(profile.settings.useSoulsplit);
-            attackCombatMonsters.setSelected(profile.settings.attackCombatMonsters);
-            bypassReachable.setSelected(profile.settings.bypassReachable);
-            soulsplitPerm.setSelected(profile.settings.soulsplitPermanent);
-            if (!profile.settings.soulsplitPermanent) {
-                soulsplitPercentage.setValue((double) profile.settings.soulsplitPercentage);
-            }
-            quickPray.setSelected(profile.settings.quickPray);
-            prayValue.setText(Integer.toString(profile.settings.prayValue));
-            exitPrayer.setSelected(profile.settings.exitOnPrayerOut);
-        }
-    }
 
     private void togglePrayer(ActionEvent actionEvent) {
         if (actionEvent.getSource().equals(soulsplit)) {
@@ -378,95 +317,77 @@ public class Controller {
 
     // Start button pressed, start the script
     private void start(ActionEvent actionEvent) {
-        if (currentProfile != null && currentProfile.getNpcNames() != null && currentProfile.getNpcNames().length > 0) {
-            MassFighter.userProfile = currentProfile;
+        if (run()) {
             MassFighter.setupRunning = false;
             closeUI();
         } else {
-            if (createNoSave()) {
-                MassFighter.userProfile = currentProfile;
-                MassFighter.setupRunning = false;
-                closeUI();
-            } else {
-                System.out.println("Failed to start, incorrect settings?");
-            }
+            System.out.println("Failed to start, incorrect settings?");
         }
     }
 
-    private boolean createNoSave() {
-        if (Pattern.matches("\\d+", tileRange.getText())) {
-            if (!selectedMonsters.getItems().isEmpty()) {
-                if (Pattern.matches("\\d+", prayValue.getText()) && Pattern.matches("\\d+", eatValue.getText()) && Pattern.matches("\\d+", criticalHitpoints.getText())) {
-                    UserProfile profile = new UserProfile();
-                    // Create a settings object and store the settings
-                    Settings settings = new Settings();
-                    if (!foodSelection.getItems().isEmpty()) {
-                        settings.useFood = true;
-                        List<String> foodNames = foodSelection.getItems().stream().map(String::toLowerCase).collect(Collectors.toList());
-                        settings.foodNames = foodNames.toArray(new String[foodNames.size()]);
-                        settings.eatValue = Integer.valueOf(eatValue.getText());
-                    } else {
-                        settings.useFood = false;
-                    }
-                    if (quickPray.isSelected() || soulsplit.isSelected()) {
-                        settings.prayValue = Integer.valueOf(prayValue.getText());
-                    }
-                    if (tagMode.isSelected()) {
-                        settings.tagMode = true;
-                        settings.tagSelection = (int) tagSlider.getValue();
-                    }
-                    settings.attackCombatMonsters = attackCombatMonsters.isSelected();
-                    settings.bypassReachable = bypassReachable.isSelected();
-                    settings.showOutline = showOutline.isSelected();
-                    settings.waitForLoot = waitLoot.isSelected();
-                    settings.targetSelection = (int) targetSlider.getValue();
-                    settings.lootInCombat = lootInCombat.isSelected();
-                    settings.useAbilities = abilities.isSelected();
-                    settings.fightRadius = Integer.valueOf(tileRange.getText());
-                    settings.revolutionMode = revolutionMode.isSelected();
-                    settings.soulsplitPermanent = soulsplitPerm.isSelected();
-                    settings.soulsplitPercentage = (int) soulsplitPercentage.getValue();
-                    settings.quickPray = quickPray.isSelected();
-                    settings.useSoulsplit = soulsplit.isSelected();
-                    settings.exitOnPrayerOut = exitPrayer.isSelected();
-                    settings.criticalHitpoints = Integer.valueOf(criticalHitpoints.getText());
-                    settings.exitOutFood = stopWhenOutOfFood.isSelected();
-                    settings.buryBones = buryBones.isSelected();
-                    settings.equipAmmunition = reequipAmmunition.isSelected();
-                    if (!listFamiliars.getSelectionModel().getSelectedItems().isEmpty()) {
-                        settings.useSummoning = true;
-                        settings.chosenFamiliar = listFamiliars.getSelectionModel().getSelectedItem();
-                    }
-                    if (!selectedBoosts.getItems().isEmpty()) {
-                        settings.selectedPotions = selectedBoosts.getItems().toArray(new String[(selectedBoosts.getItems().size())]);
-                        settings.boostRefreshPercentage = boostRefreshPercentage.getValue();
-                    }
-                    if (!selectedLoot.getItems().isEmpty() || lootByValue.isSelected() && Pattern.matches("\\d+", lootValue.getText())) {
-                        if (lootByValue.isSelected() && Pattern.matches("\\d+", lootValue.getText())) {
-                            settings.lootByValue = true;
-                            settings.lootValue = Double.valueOf(lootValue.getText());
-                        }
-                        settings.looting = true;
-                    }
-                    if (!selectedAlchLoot.getItems().isEmpty()) {
-                        List<String> alchLoot = new ArrayList<>();
-                        alchLoot.addAll(selectedAlchLoot.getItems().stream().map(String::toLowerCase).collect(Collectors.toList()));
-                        profile.setAlchLoot(alchLoot.toArray(new String[alchLoot.size()]));
-                    }
-                    if (!selectedNotepaperLoot.getItems().isEmpty()) {
-                        List<String> notepaperLoot = new ArrayList<>();
-                        notepaperLoot.addAll(selectedNotepaperLoot.getItems().stream().map(String::toLowerCase).collect(Collectors.toList()));
-                        profile.setNotepaperLoot(notepaperLoot.toArray(new String[notepaperLoot.size()]));
-                    }
-                    profile.settings = settings;
-                    List<String> lootNames = new ArrayList<>();
-                    lootNames.addAll(selectedLoot.getItems().stream().map(String::toLowerCase).collect(Collectors.toList()));
-                    profile.setLootNames(lootNames.toArray(new String[lootNames.size()]));
-                    profile.setNpcNames(selectedMonsters.getItems().toArray(new String[(selectedMonsters.getItems().size())]));
-                    currentProfile = profile;
-                    return true;
-                }
+    private boolean run() {
+        if (!selectedMonsters.getItems().isEmpty() && isNumeric(tileRange.getText()) && isNumeric(prayValue.getText()) && isNumeric(eatValue.getText()) && isNumeric(criticalHitpoints.getText())) {
+            // Create a settings object and store the settings
+            if (!foodSelection.getItems().isEmpty()) {
+                List<String> foodNames = foodSelection.getItems().stream().map(String::toLowerCase).collect(Collectors.toList());
+                Settings.foodNames = foodNames.toArray(new String[foodNames.size()]);
+                Settings.eatValue = Integer.valueOf(eatValue.getText());
             }
+            if (quickPray.isSelected() || soulsplit.isSelected()) {
+                Settings.prayValue = Integer.valueOf(prayValue.getText());
+            }
+            if (tagMode.isSelected()) {
+                Settings.tagMode = true;
+                Settings.tagSelection = (int) tagSlider.getValue();
+            }
+            Settings.attackCombatMonsters = attackCombatMonsters.isSelected();
+            Settings.bypassReachable = bypassReachable.isSelected();
+            Settings.showOutline = showOutline.isSelected();
+            Settings.waitForLoot = waitLoot.isSelected();
+            Settings.targetSelection = (int) targetSlider.getValue();
+            Settings.lootInCombat = lootInCombat.isSelected();
+            Settings.useAbilities = abilities.isSelected();
+            Settings.fightRadius = Integer.valueOf(tileRange.getText());
+            Settings.fightArea = new Area.Circular(Players.getLocal().getPosition(), Settings.fightRadius);
+            Settings.revolutionMode = revolutionMode.isSelected();
+            Settings.soulsplitPermanent = soulsplitPerm.isSelected();
+            Settings.soulsplitPercentage = (int) soulsplitPercentage.getValue();
+            Settings.quickPray = quickPray.isSelected();
+            Settings.useSoulsplit = soulsplit.isSelected();
+            Settings.exitOnPrayerOut = exitPrayer.isSelected();
+            Settings.criticalHitpoints = Integer.valueOf(criticalHitpoints.getText());
+            Settings.exitOutFood = stopWhenOutOfFood.isSelected();
+            Settings.buryBones = buryBones.isSelected();
+            Settings.equipAmmunition = reequipAmmunition.isSelected();
+            if (!listFamiliars.getSelectionModel().getSelectedItems().isEmpty()) {
+                Settings.useSummoning = true;
+                Settings.chosenFamiliar = listFamiliars.getSelectionModel().getSelectedItem();
+            }
+            if (!selectedBoosts.getItems().isEmpty()) {
+                Settings.selectedPotions = selectedBoosts.getItems().toArray(new String[(selectedBoosts.getItems().size())]);
+                Settings.boostRefreshPercentage = boostRefreshPercentage.getValue();
+            }
+            if (!selectedLoot.getItems().isEmpty()) {
+                List<String> lootNames = new ArrayList<>();
+                lootNames.addAll(selectedLoot.getItems().stream().map(String::toLowerCase).collect(Collectors.toList()));
+                Settings.lootNames = lootNames.toArray(new String[lootNames.size()]);
+            }
+            if (lootByValue.isSelected() && isNumeric(lootValue.getText())) {
+                Settings.lootByValue = true;
+                Settings.lootValue = Double.valueOf(lootValue.getText());
+            }
+            if (!selectedAlchLoot.getItems().isEmpty()) {
+                List<String> alchLoot = new ArrayList<>();
+                alchLoot.addAll(selectedAlchLoot.getItems().stream().map(String::toLowerCase).collect(Collectors.toList()));
+                Settings.alchLoot = alchLoot.toArray(new String[alchLoot.size()]);
+            }
+            if (!selectedNotepaperLoot.getItems().isEmpty()) {
+                List<String> notepaperLoot = new ArrayList<>();
+                notepaperLoot.addAll(selectedNotepaperLoot.getItems().stream().map(String::toLowerCase).collect(Collectors.toList()));
+                Settings.notepaperLoot = notepaperLoot.toArray(new String[notepaperLoot.size()]);
+            }
+            Settings.npcNames = selectedMonsters.getItems().toArray(new String[(selectedMonsters.getItems().size())]);
+            return true;
         }
         return false;
     }
@@ -496,164 +417,166 @@ public class Controller {
         }
     }
 
-    private UserProfile load() {
-        ManagedProperties managedProperties = Environment.getScript().getSettings();
-        UserProfile userProfile = new UserProfile();
+    private boolean load() {
+        AbstractScript script = Environment.getScript();
+        if (script != null) {
+            ManagedProperties managedProperties = script.getSettings();
+            if (managedProperties != null) {
+                String npcProperty = managedProperties.getProperty("npcNames");
+                if (npcProperty != null && npcProperty.length() > 0) {
+                    String[] npcNames = managedProperties.getProperty("npcNames").split(",");
+                    selectedMonsters.getItems().clear();
+                    selectedMonsters.getItems().addAll(npcNames);
+                    //
+                    String[] lootNames = managedProperties.getProperty("lootNames").split(",");
+                    selectedLoot.getItems().clear();
+                    selectedLoot.getItems().addAll(lootNames);
+                    //
+                    String[] alchLootNames = managedProperties.getProperty("alchLoot").split(",");
+                    selectedAlchLoot.getItems().clear();
+                    selectedAlchLoot.getItems().addAll(alchLootNames);
+                    //
+                    String[] notepaperLootNames = managedProperties.getProperty("notepaperLoot").split(",");
+                    selectedNotepaperLoot.getItems().clear();
+                    selectedNotepaperLoot.getItems().addAll(notepaperLootNames);
 
-        String[] npcNames = managedProperties.getProperty("npcNames").split(",");
-        userProfile.setNpcNames(npcNames);
-        //
-        String[] lootNames = managedProperties.getProperty("lootNames").split(",");
-        userProfile.setLootNames(lootNames);
-        //
-        String[] alchLootNames = managedProperties.getProperty("alchLoot").split(",");
-        userProfile.setAlchLoot(alchLootNames);
-        //
-        String[] notepaperLootNames = managedProperties.getProperty("notepaperLoot").split(",");
-        userProfile.setNotepaperLoot(notepaperLootNames);
-
-        Settings settings = new Settings();
-        String targetSelectionString = managedProperties.getProperty("targetSelection");
-        if (isNumeric(targetSelectionString)) {
-            settings.targetSelection = Integer.valueOf(targetSelectionString);
+                    String targetSelectionString = managedProperties.getProperty("targetSelection");
+                    if (isNumeric(targetSelectionString)) {
+                        targetSlider.setValue(Integer.valueOf(targetSelectionString));
+                    }
+                    showOutline.setSelected(Boolean.valueOf(managedProperties.getProperty("showOutline")));
+                    stopWhenOutOfFood.setSelected(Boolean.valueOf(managedProperties.getProperty("exitOutFood")));
+                    lootInCombat.setSelected(Boolean.valueOf(managedProperties.getProperty("lootInCombat")));
+                    abilities.setSelected(Boolean.valueOf(managedProperties.getProperty("useAbilities")));
+                    soulsplit.setSelected(Boolean.valueOf(managedProperties.getProperty("useSoulsplit")));
+                    waitLoot.setSelected(Boolean.valueOf(managedProperties.getProperty("waitForLoot")));
+                    buryBones.setSelected(Boolean.valueOf(managedProperties.getProperty("buryBones")));
+                    quickPray.setSelected(Boolean.valueOf(managedProperties.getProperty("quickPray")));
+                    exitPrayer.setSelected(Boolean.valueOf(managedProperties.getProperty("exitOnPrayerOut")));
+                    tagMode.setSelected(Boolean.valueOf(managedProperties.getProperty("tagMode")));
+                    attackCombatMonsters.setSelected(Boolean.valueOf(managedProperties.getProperty("attackCombatMonsters")));
+                    bypassReachable.setSelected(Boolean.valueOf(managedProperties.getProperty("bypassReachable")));
+                    revolutionMode.setSelected(Boolean.valueOf(managedProperties.getProperty("revolutionMode")));
+                    lootByValue.setSelected(Boolean.valueOf(managedProperties.getProperty("lootByValue")));
+                    reequipAmmunition.setSelected(Boolean.valueOf(managedProperties.getProperty("equipAmmunition")));
+                    soulsplitPerm.setSelected(Boolean.valueOf(managedProperties.getProperty("soulsplitPermanent")));
+                    //
+                    String soulsplitPercentageString = managedProperties.getProperty("soulsplitPercentage");
+                    if (isNumeric(soulsplitPercentageString)) {
+                        soulsplitPercentage.setValue(Integer.valueOf(soulsplitPercentageString));
+                    }
+                    //
+                    String lootValueString = managedProperties.getProperty("lootValue");
+                    if (isNumeric(lootValueString)) {
+                        lootValue.setText(lootValueString);
+                    }
+                    //
+                    String tagSelectionString = managedProperties.getProperty("tagSelection");
+                    if (isNumeric(tagSelectionString)) {
+                        tagSlider.setValue(Integer.valueOf(tagSelectionString));
+                    }
+                    //
+                    String[] foodNames =  managedProperties.getProperty("foodNames").split(",");
+                    foodSelection.getItems().clear();
+                    foodSelection.getItems().addAll(foodNames);
+                    //
+                    String fightRadiusString = managedProperties.getProperty("fightRadius");
+                    if (isNumeric(fightRadiusString)) {
+                        tileRange.setText(fightRadiusString);
+                    }
+                    //
+                    String eatValueString = managedProperties.getProperty("eatValue");
+                    if (isNumeric(eatValueString)) {
+                        eatValue.setText(eatValueString);
+                    }
+                    //
+                    String prayValueString = managedProperties.getProperty("prayValue");
+                    if (isNumeric(prayValueString)) {
+                        prayValue.setText(prayValueString);
+                    }
+                    //
+                    String criticalHitpointsString = managedProperties.getProperty("criticalHitpoints");
+                    if (isNumeric(criticalHitpointsString)) {
+                        criticalHitpoints.setText(criticalHitpointsString);
+                    }
+                    //
+                    String[] potionNames = managedProperties.getProperty("selectedPotions").split(",");
+                    selectedBoosts.getItems().clear();
+                    selectedBoosts.getItems().addAll(potionNames);
+                    //
+                    String boostRefreshPercentageString = managedProperties.getProperty("boostRefreshPercentage");
+                    if (isNumeric(boostRefreshPercentageString)) {
+                        boostRefreshPercentage.setValue(Integer.valueOf(boostRefreshPercentageString));
+                    }
+                    return true;
+                } else {
+                    settingsStatus.setText("Your cloud settings are invalid, please re-save them");
+                }
+            }
         }
-        settings.useFood = Boolean.valueOf(managedProperties.getProperty("useFood"));
-        settings.showOutline = Boolean.valueOf(managedProperties.getProperty("showOutline"));
-        settings.exitOutFood = Boolean.valueOf(managedProperties.getProperty("exitOutFood"));
-        settings.lootInCombat = Boolean.valueOf(managedProperties.getProperty("lootInCombat"));
-        settings.useAbilities = Boolean.valueOf(managedProperties.getProperty("useAbilities"));
-        settings.useSoulsplit = Boolean.valueOf(managedProperties.getProperty("useSoulsplit"));
-        settings.waitForLoot = Boolean.valueOf(managedProperties.getProperty("waitForLoot"));
-        settings.looting = Boolean.valueOf(managedProperties.getProperty("looting"));
-        settings.buryBones = Boolean.valueOf(managedProperties.getProperty("buryBones"));
-        settings.quickPray = Boolean.valueOf(managedProperties.getProperty("quickPray"));
-        settings.exitOnPrayerOut = Boolean.valueOf(managedProperties.getProperty("exitOnPrayerOut"));
-        settings.tagMode = Boolean.valueOf(managedProperties.getProperty("tagMode"));
-        settings.attackCombatMonsters = Boolean.valueOf(managedProperties.getProperty("attackCombatMonsters"));
-        settings.bypassReachable = Boolean.valueOf(managedProperties.getProperty("bypassReachable"));
-        settings.revolutionMode = Boolean.valueOf(managedProperties.getProperty("revolutionMode"));
-        settings.lootByValue = Boolean.valueOf(managedProperties.getProperty("lootByValue"));
-        settings.equipAmmunition = Boolean.valueOf(managedProperties.getProperty("equipAmmunition"));
-        settings.soulsplitPermanent = Boolean.valueOf(managedProperties.getProperty("soulsplitPermanent"));
-        //
-        String soulsplitPercentageString = managedProperties.getProperty("soulsplitPercentage");
-        if (isNumeric(soulsplitPercentageString)) {
-            settings.soulsplitPercentage = Integer.valueOf(soulsplitPercentageString);
-        }
-        //
-        String lootValueString = managedProperties.getProperty("lootValue");
-        if (isNumeric(lootValueString)) {
-            settings.lootValue = Double.valueOf(lootValueString);
-        }
-        //
-        String tagSelectionString = managedProperties.getProperty("tagSelection");
-        if (isNumeric(tagSelectionString)) {
-            settings.tagSelection = Integer.valueOf(tagSelectionString);
-        }
-        //
-        settings.foodNames = managedProperties.getProperty("foodNames").split(",");
-        //
-        String fightRadiusString = managedProperties.getProperty("fightRadius");
-        if (isNumeric(fightRadiusString)) {
-            settings.fightRadius = Integer.valueOf(fightRadiusString);
-        }
-        //
-        String eatValueString = managedProperties.getProperty("eatValue");
-        if (isNumeric(eatValueString)) {
-            settings.eatValue = Integer.valueOf(eatValueString);
-        }
-        //
-        String prayValueString = managedProperties.getProperty("prayValue");
-        if (isNumeric(prayValueString)) {
-            settings.prayValue = Integer.valueOf(prayValueString);
-        }
-        //
-        String criticalHitpointsString = managedProperties.getProperty("criticalHitpoints");
-        if (isNumeric(criticalHitpointsString)) {
-            settings.criticalHitpoints = Integer.valueOf(criticalHitpointsString);
-        }
-        //
-        settings.selectedPotions = managedProperties.getProperty("selectedPotions").split(",");
-        //
-        String boostRefreshPercentageString = managedProperties.getProperty("boostRefreshPercentage");
-        if (isNumeric(boostRefreshPercentageString)) {
-            settings.boostRefreshPercentage = Double.valueOf(boostRefreshPercentageString);
-        }
-        //
-        settings.useSummoning = Boolean.valueOf(managedProperties.getProperty("useSummoning"));
-        //
-        settings.chosenFamiliar = null;
-        //
-        userProfile.settings = settings;
-        return userProfile;
+        return false;
     }
 
     private boolean save() {
 
         if (!selectedMonsters.getItems().isEmpty()) {
-            ManagedProperties managedProperties = Environment.getScript().getSettings();
-
-            /* User Profile */
-            String npcString = String.join(",", selectedMonsters.getItems());
-            managedProperties.setProperty("npcNames", npcString);
-            //
-            String lootString = String.join(",", selectedLoot.getItems());
-            managedProperties.setProperty("lootNames", lootString);
-            //
-            String alchLootString = String.join(",", selectedAlchLoot.getItems());
-            managedProperties.setProperty("alchLoot", alchLootString);
-            //
-            String notepaperLootString = String.join(",", selectedNotepaperLoot.getItems());
-            managedProperties.setProperty("notepaperLoot", notepaperLootString);
-
-            /* Settings */
-            managedProperties.setProperty("targetSelection", Double.toString(targetSlider.getValue()));
-            managedProperties.setProperty("useFood", Boolean.toString(!foodSelection.getItems().isEmpty()));
-            managedProperties.setProperty("showOutline", Boolean.toString(showOutline.isSelected()));
-            managedProperties.setProperty("exitOutFood", Boolean.toString(stopWhenOutOfFood.isSelected()));
-            managedProperties.setProperty("lootInCombat", Boolean.toString(lootInCombat.isSelected()));
-            managedProperties.setProperty("useAbilities", Boolean.toString(abilities.isSelected()));
-            managedProperties.setProperty("useSoulsplit", Boolean.toString(soulsplit.isSelected()));
-            managedProperties.setProperty("waitForLoot", Boolean.toString(waitLoot.isSelected()));
-            managedProperties.setProperty("looting", Boolean.toString(!selectedLoot.getItems().isEmpty()));
-            managedProperties.setProperty("buryBones", Boolean.toString(buryBones.isSelected()));
-            managedProperties.setProperty("quickPray", Boolean.toString(quickPray.isSelected()));
-            managedProperties.setProperty("exitOnPrayerOut", Boolean.toString(exitPrayer.isSelected()));
-            managedProperties.setProperty("tagMode", Boolean.toString(tagMode.isSelected()));
-            managedProperties.setProperty("attackCombatMonsters", Boolean.toString(attackCombatMonsters.isSelected()));
-            managedProperties.setProperty("bypassReachable", Boolean.toString(bypassReachable.isSelected()));
-            managedProperties.setProperty("revolutionMode", Boolean.toString(revolutionMode.isSelected()));
-            managedProperties.setProperty("lootByValue", Boolean.toString(lootByValue.isSelected()));
-            managedProperties.setProperty("equipAmmunition", Boolean.toString(reequipAmmunition.isSelected()));
-            managedProperties.setProperty("soulsplitPermanent", Boolean.toString(soulsplitPerm.isSelected()));
-            managedProperties.setProperty("soulsplitPercentage", Double.toString(soulsplitPercentage.getValue()));
-            managedProperties.setProperty("lootValue", lootValue.getText());
-            managedProperties.setProperty("tagSelection", Double.toString(tagSlider.getValue()));
-            //
-            String foodString = String.join(",", foodSelection.getItems());
-            managedProperties.setProperty("foodNames", foodString);
-            //
-            managedProperties.setProperty("fightRadius", tileRange.getText());
-            managedProperties.setProperty("eatValue", eatValue.getText());
-            managedProperties.setProperty("prayValue", prayValue.getText());
-            managedProperties.setProperty("criticalHitpoints", criticalHitpoints.getText());
-            //
-            String potionString = String.join(",", selectedBoosts.getItems());
-            managedProperties.setProperty("selectedPotions", potionString);
-            //
-            managedProperties.setProperty("boostRefreshPercentage", Double.toString(boostRefreshPercentage.getValue()));
-            // TODO change once summoning is available
-            managedProperties.setProperty("useSummoning", "false");
-            managedProperties.setProperty("chosenFamiliar", "null");
-
-            System.out.println("Save Success (Listing Settings):");
-            for (Map.Entry<Object, Object> entry : managedProperties.entrySet()) {
-                System.out.println(entry.getKey() + " : " + entry.getValue());
+            AbstractScript script = Environment.getScript();
+            if (script != null) {
+                ManagedProperties managedProperties = Environment.getScript().getSettings();
+                if (managedProperties != null) {
+                    /* User Profile */
+                    String npcString = String.join(",", selectedMonsters.getItems());
+                    managedProperties.setProperty("npcNames", npcString);
+                    //
+                    String lootString = String.join(",", selectedLoot.getItems());
+                    managedProperties.setProperty("lootNames", lootString);
+                    //
+                    String alchLootString = String.join(",", selectedAlchLoot.getItems());
+                    managedProperties.setProperty("alchLoot", alchLootString);
+                    //
+                    String notepaperLootString = String.join(",", selectedNotepaperLoot.getItems());
+                    managedProperties.setProperty("notepaperLoot", notepaperLootString);
+                    managedProperties.setProperty("targetSelection", Double.toString(targetSlider.getValue()));
+                    managedProperties.setProperty("useFood", Boolean.toString(!foodSelection.getItems().isEmpty()));
+                    managedProperties.setProperty("showOutline", Boolean.toString(showOutline.isSelected()));
+                    managedProperties.setProperty("exitOutFood", Boolean.toString(stopWhenOutOfFood.isSelected()));
+                    managedProperties.setProperty("lootInCombat", Boolean.toString(lootInCombat.isSelected()));
+                    managedProperties.setProperty("useAbilities", Boolean.toString(abilities.isSelected()));
+                    managedProperties.setProperty("useSoulsplit", Boolean.toString(soulsplit.isSelected()));
+                    managedProperties.setProperty("waitForLoot", Boolean.toString(waitLoot.isSelected()));
+                    managedProperties.setProperty("looting", Boolean.toString(!selectedLoot.getItems().isEmpty()));
+                    managedProperties.setProperty("buryBones", Boolean.toString(buryBones.isSelected()));
+                    managedProperties.setProperty("quickPray", Boolean.toString(quickPray.isSelected()));
+                    managedProperties.setProperty("exitOnPrayerOut", Boolean.toString(exitPrayer.isSelected()));
+                    managedProperties.setProperty("tagMode", Boolean.toString(tagMode.isSelected()));
+                    managedProperties.setProperty("attackCombatMonsters", Boolean.toString(attackCombatMonsters.isSelected()));
+                    managedProperties.setProperty("bypassReachable", Boolean.toString(bypassReachable.isSelected()));
+                    managedProperties.setProperty("revolutionMode", Boolean.toString(revolutionMode.isSelected()));
+                    managedProperties.setProperty("lootByValue", Boolean.toString(lootByValue.isSelected()));
+                    managedProperties.setProperty("equipAmmunition", Boolean.toString(reequipAmmunition.isSelected()));
+                    managedProperties.setProperty("soulsplitPermanent", Boolean.toString(soulsplitPerm.isSelected()));
+                    managedProperties.setProperty("soulsplitPercentage", Double.toString(soulsplitPercentage.getValue()));
+                    managedProperties.setProperty("lootValue", lootValue.getText());
+                    managedProperties.setProperty("tagSelection", Double.toString(tagSlider.getValue()));
+                    //
+                    String foodString = String.join(",", foodSelection.getItems());
+                    managedProperties.setProperty("foodNames", foodString);
+                    //
+                    managedProperties.setProperty("fightRadius", tileRange.getText());
+                    managedProperties.setProperty("eatValue", eatValue.getText());
+                    managedProperties.setProperty("prayValue", prayValue.getText());
+                    managedProperties.setProperty("criticalHitpoints", criticalHitpoints.getText());
+                    //
+                    String potionString = String.join(",", selectedBoosts.getItems());
+                    managedProperties.setProperty("selectedPotions", potionString);
+                    //
+                    managedProperties.setProperty("boostRefreshPercentage", Double.toString(boostRefreshPercentage.getValue()));
+                    settingsStatus.setText("Settings saved!");
+                    return true;
+                }
             }
-            System.out.println("-- End Saved Settings --");
-            return true;
         }
-        System.out.println("Save Unsuccessful");
+        System.out.println("Could not save settings at this time");
         return false;
     }
 

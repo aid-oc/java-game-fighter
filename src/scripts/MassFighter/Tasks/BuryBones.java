@@ -5,9 +5,10 @@ import com.runemate.game.api.hybrid.queries.SpriteItemQueryBuilder;
 import com.runemate.game.api.hybrid.queries.results.SpriteItemQueryResults;
 import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.task.Task;
+import scripts.MassFighter.GUI.Settings;
 import scripts.MassFighter.MassFighter;
 
-import static scripts.MassFighter.Framework.Methods.*;
+import static scripts.MassFighter.Framework.Methods.out;
 
 public class BuryBones extends Task {
 
@@ -15,7 +16,7 @@ public class BuryBones extends Task {
 
     @Override
     public boolean validate() {
-        return MassFighter.settings.buryBones && !validBuryItems.results().isEmpty();
+        return Settings.buryBones && !validBuryItems.results().isEmpty();
     }
 
     @Override

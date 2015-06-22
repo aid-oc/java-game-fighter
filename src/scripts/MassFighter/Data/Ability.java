@@ -90,11 +90,11 @@ public enum Ability {
     SIPHON(244, "Constitution", "Basic", 0, 14674),
     INCITE(36, "Constitution", "Basic", 0, 14268);
 
-    private int abilityID;
+    private final int abilityID;
     private String abilityType;
-    private String abilityCategory;
-    private int cooldownSeconds;
-    private int textureID;
+    private final String abilityCategory;
+    private final int cooldownSeconds;
+    private final int textureID;
 
     Ability(int abilityID, String abilityType, String abilityCategory, int cooldownSeconds, int textureID) {
         this.abilityID = abilityID;

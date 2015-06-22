@@ -4,41 +4,58 @@ import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.RuneScape;
 import com.runemate.game.api.hybrid.entities.GroundItem;
 import com.runemate.game.api.hybrid.entities.Item;
+import com.runemate.game.api.hybrid.entities.Player;
 import com.runemate.game.api.hybrid.entities.definitions.ItemDefinition;
-import com.runemate.game.api.hybrid.local.hud.interfaces.*;
+import com.runemate.game.api.hybrid.local.hud.interfaces.InterfaceComponent;
+import com.runemate.game.api.hybrid.local.hud.interfaces.Interfaces;
+import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
+import com.runemate.game.api.hybrid.local.hud.interfaces.SpriteItem;
 import com.runemate.game.api.hybrid.queries.SpriteItemQueryBuilder;
 import com.runemate.game.api.hybrid.region.Npcs;
 import com.runemate.game.api.hybrid.region.Players;
 import com.runemate.game.api.hybrid.util.Filter;
+import com.runemate.game.api.hybrid.util.Filters;
 import com.runemate.game.api.osrs.net.Zybez;
 import com.runemate.game.api.rs3.local.hud.Powers;
 import com.runemate.game.api.rs3.net.GrandExchange;
 import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.AbstractScript;
+import scripts.MassFighter.GUI.Settings;
 import scripts.MassFighter.MassFighter;
 
 import java.util.Arrays;
 import java.util.HashMap;
 
-import static scripts.MassFighter.MassFighter.settings;
+public final class Methods {
 
-public class Methods {
+    public static HashMap<String, Integer> itemPrices = new HashMap<>();
 
-    public final HashMap<String, Integer> itemPrices = new HashMap<>();
-
-    public final SpriteItemQueryBuilder foodItems = Inventory.newQuery().filter(new Filter<SpriteItem>() {
-        @Override
-        public boolean accepts(SpriteItem spriteItem) {
-            return Arrays.asList(settings.foodNames).contains(spriteItem.getDefinition().getName().toLowerCase());
+    public static SpriteItemQueryBuilder getFood() {
+        SpriteItemQueryBuilder foodQuery = Inventory.newQuery().filter(Filters.DECLINE_ALL);
+        String[] foodNames = Settings.foodNames;
+        if (foodNames != null && foodNames.length > 0) {
+            foodQuery = Inventory.newQuery().filter(new Filter<SpriteItem>() {
+                @Override
+                public boolean accepts(SpriteItem spriteItem) {
+                    return spriteItem != null && spriteItem.getDefinition() != null & Arrays.asList(foodNames).contains(spriteItem.getDefinition().getName().toLowerCase());
+                }
+            });
         }
-    });
-
-    public Boolean isInCombat() {
-        return RuneScape.isLoggedIn() && !Npcs.newQuery().actions("Attack").targeting(Players.getLocal()).results().isEmpty();
+        return foodQuery;
     }
 
-    public void logout() {
-        if (!MassFighter.methods.isInCombat()) {
+    public static boolean arrayIsValid(String[] array) {
+        return array != null && array.length > 0;
+    }
+
+    public static Boolean isInCombat() {
+        Player player = Players.getLocal();
+        return RuneScape.isLoggedIn() && player != null && (player.getTarget() != null
+                || !Npcs.newQuery().actions("Attack").targeting(player).reachable().results().isEmpty());
+    }
+
+    public static void logout() {
+        if (!isInCombat()) {
             if (RuneScape.isLoggedIn()) {
                 if (RuneScape.logout()) {
                     Execution.delayUntil(() -> !RuneScape.isLoggedIn(), 3000);
@@ -52,28 +69,20 @@ public class Methods {
 
     }
 
-    public int getPrayPoints() {
+    public static int getPrayPoints() {
+        int prayerPoints = -1;
         if (Environment.isRS3()) {
-            return Powers.Prayer.getPoints();
+            prayerPoints = Powers.Prayer.getPoints();
         } else {
-            InterfaceComponent prayerValue = Interfaces.getAt(548, 87);
-            return prayerValue != null ? Integer.valueOf(prayerValue.getText()) : -1;
-        }
-    }
-
-    public Boolean readyToFight() {
-        if (RuneScape.isLoggedIn()) {
-            if (settings.useSoulsplit || settings.quickPray) {
-                return getPrayPoints() >= settings.prayValue;
-            } else if (settings.useFood) {
-                return !foodItems.results().isEmpty() && Health.getCurrent() >= settings.eatValue;
-            } else if (Health.getCurrent() < settings.criticalHitpoints) {
-                logout();
-                return false;
+            InterfaceComponent prayerOrb = Interfaces.getAt(160, 14);
+            if (prayerOrb != null && prayerOrb.getText() != null) {
+                Integer intValue = Integer.valueOf(prayerOrb.getText());
+                if (intValue != null) {
+                    prayerPoints = intValue;
+                }
             }
-            return true;
         }
-        return false;
+        return prayerPoints;
     }
 
     public static void out(String s) {
@@ -82,7 +91,7 @@ public class Methods {
         }
     }
 
-    public Boolean hasRoomForItem(Item item) {
+    public static Boolean hasRoomForItem(Item item) {
         if (item != null) {
             ItemDefinition itemDefinition = item.getDefinition();
             if (itemDefinition != null) {
@@ -95,7 +104,7 @@ public class Methods {
         return false;
     }
 
-    public Boolean isWorthLooting(GroundItem gItem) {
+    public static Boolean isWorthLooting(GroundItem gItem) {
         int itemValue = 0;
         String itemName = gItem.getDefinition().getName();
         int itemId = gItem.getId();
@@ -112,7 +121,7 @@ public class Methods {
             }
             itemPrices.put(itemName, itemValue);
         }
-        return itemValue >= settings.lootValue;
+        return itemValue >= Settings.lootValue;
     }
 
 }
