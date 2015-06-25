@@ -22,20 +22,30 @@ public class Boost extends Task {
         String[] selectedPotions = Settings.selectedPotions;
         if (Methods.arrayIsValid(selectedPotions)) {
             for (String s : selectedPotions) {
-                Potion p = Potion.valueOf(s);
-                Skill skill = p.getPotionSkills()[0];
-                double currentBoost = skill.getCurrentLevel() - skill.getBaseLevel();
-                float differencePercentage = (float) currentBoost / (float) p.getBoost() * 100;
-                if (differencePercentage < Settings.boostRefreshPercentage && !Inventory.newQuery().filter(new Filter<SpriteItem>() {
-                    @Override
-                    public boolean accepts(SpriteItem spriteItem) {
-                        return spriteItem.getDefinition().getName().contains(p.getPotionName());
+                if (potionExists(s)) {
+                    Potion p = Potion.valueOf(s);
+                    Skill skill = p.getPotionSkills()[0];
+                    double currentBoost = skill.getCurrentLevel() - skill.getBaseLevel();
+                    float differencePercentage = (float) currentBoost / (float) p.getBoost() * 100;
+                    if (differencePercentage < Settings.boostRefreshPercentage && !Inventory.newQuery().filter(new Filter<SpriteItem>() {
+                        @Override
+                        public boolean accepts(SpriteItem spriteItem) {
+                            return spriteItem.getDefinition().getName().contains(p.getPotionName());
+                        }
+                    }).results().isEmpty()) {
+                        potionToBoost = p;
+                        return true;
                     }
-                }).results().isEmpty()) {
-                    potionToBoost = p;
-                    return true;
                 }
             }
+        }
+        return false;
+    }
+
+    private Boolean potionExists(String name) {
+        Potion[] validPotions = Potion.values();
+        for (Potion p : validPotions) {
+            if (p.name().equals(name)) return true;
         }
         return false;
     }
