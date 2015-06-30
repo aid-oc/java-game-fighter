@@ -55,7 +55,7 @@
                            </font>
                         </Button>
                         <Label layoutX="337.0" layoutY="218.0" text="Settings status:" />
-                        <Label fx:id="settingsStatus" layoutX="431.0" layoutY="191.0" prefHeight="87.0" prefWidth="178.0" text="Status of stored settings" wrapText="true" />
+                        <Label fx:id="settingsStatus" layoutX="427.0" layoutY="188.0" prefHeight="77.0" prefWidth="178.0" text="Status of stored settings" wrapText="true" />
                             </children>
                         </AnchorPane>
                     </content>
@@ -190,7 +190,7 @@
                                             <Text layoutX="246.0" layoutY="54.0" strokeType="OUTSIDE" strokeWidth="0.0" text="gp" />
                                             <CheckBox fx:id="lootByValue" layoutX="14.0" layoutY="14.0" mnemonicParsing="false" text="Loot by value" />
                                             <Text layoutX="38.0" layoutY="54.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Loot anything worth over" />
-                                            <CheckBox fx:id="reequipAmmunition" layoutX="14.0" layoutY="151.0" mnemonicParsing="false" text="Re-equip Ammunition" />
+                                            <CheckBox fx:id="reequipAmmunition" layoutX="14.0" layoutY="151.0" mnemonicParsing="false" prefHeight="41.0" prefWidth="283.0" text="Re-equip Ammunition (add the arrows you want to the loot list)" wrapText="true" />
                                  </children>
                               </AnchorPane>
                           </content>
