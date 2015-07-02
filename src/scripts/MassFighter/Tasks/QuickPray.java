@@ -17,7 +17,7 @@ import static scripts.MassFighter.Framework.Methods.out;
 
 public class QuickPray extends Task {
 
-    private final InterfaceComponentQueryBuilder quickPrayActivateQuery = Interfaces.newQuery().actions("Activate", "Setup");
+    private final InterfaceComponentQueryBuilder quickPrayActivateQuery = Interfaces.newQuery().names("Quick-prayers").actions("Activate");
 
     @Override
     public boolean validate() {
@@ -30,7 +30,7 @@ public class QuickPray extends Task {
     public void execute() {
             MassFighter.status = "Quickpray: ON";
             out("PrayerPoints: Turning on quick prayers");
-            if (Environment.isRS3() && !Powers.Prayer.isQuickPraying()) {
+            if (Environment.isRS3()) {
                 if (Powers.Prayer.toggleQuickPrayers()) {
                     out("PrayerPoints:(RS3) Successfully toggled quick prayers");
                     Execution.delayUntil(Powers.Prayer::isQuickPraying, 1600, 2000);
