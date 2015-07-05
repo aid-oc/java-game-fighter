@@ -27,7 +27,9 @@ public class MagicNotepaper extends Task {
             notableItemsQuery = Inventory.newQuery().filter(new Filter<SpriteItem>() {
                 @Override
                 public boolean accepts(SpriteItem spriteItem) {
-                    return spriteItem != null && spriteItem.getDefinition() != null && itemIsNotStackable(spriteItem) && lootList.contains(spriteItem.getDefinition().getName().toLowerCase());
+                    ItemDefinition def;
+                    return (spriteItem != null && (def = spriteItem.getDefinition()) != null && !def.stacks() &&
+                            lootList.contains(def.getName().toLowerCase()));
                 }
             });
         }
@@ -44,28 +46,18 @@ public class MagicNotepaper extends Task {
         SpriteItem targetItem = getNotableItems().results().random();
         SpriteItem notepaper = Inventory.getItems("Magic notepaper").first();
         if (notepaper != null && targetItem != null) {
+            int notepaperId = notepaper.getId();
+            int notepaperCount = Inventory.getQuantity(notepaperId);
             if (targetItem.interact("Use")) {
                 out("MagicNotepaper: Used an item");
                 if (notepaper.click()) {
                     out("MagicNotepaper: Clicked the notepaper");
-                    Execution.delayUntil(() -> Inventory.getQuantity(targetItem.getId()) == 0, 1000, 2000);
+                    Execution.delayUntil(() -> Inventory.getQuantity(notepaperId) < notepaperCount, 1000, 2000);
                 }
             }
         } else {
             out("MagicNotepaper: Invalid items");
         }
-    }
-
-    private boolean itemIsNotStackable(SpriteItem i) {
-        if (i != null) {
-            final ItemDefinition def = i.getDefinition();
-            if (def != null) {
-                int itemId = def.getId();
-                int notedId = def.getNotedId();
-                return (itemId == notedId || notedId == -1);
-            }
-        }
-        return false;
     }
 
 }
