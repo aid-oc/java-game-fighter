@@ -52,7 +52,12 @@ public class Attack extends Task {
         NpcQueryBuilder attackingNpcQuery = Npcs.newQuery().filter(Filters.DECLINE_ALL);
         Player player = Players.getLocal();
         if (player != null) {
-            attackingNpcQuery = Npcs.newQuery().actions("Attack").targeting(player).reachable();
+            attackingNpcQuery = Npcs.newQuery().actions("Attack").targeting(player).filter(new Filter<Npc>() {
+                @Override
+                public boolean accepts(Npc npc) {
+                    return npc != null && npc.getPosition() != null && (Settings.bypassReachable || npc.getPosition().isReachable());
+                }
+            });
         }
         return attackingNpcQuery;
     }
