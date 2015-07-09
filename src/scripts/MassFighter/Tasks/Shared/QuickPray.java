@@ -1,4 +1,4 @@
-package scripts.MassFighter.Tasks;
+package scripts.MassFighter.Tasks.Shared;
 
 import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.local.hud.interfaces.InterfaceComponent;
@@ -21,8 +21,8 @@ public class QuickPray extends Task {
 
     @Override
     public boolean validate() {
-        return  Methods.getPrayPoints() >= Settings.prayValue && Settings.quickPray
-                && ((Environment.isRS3() && !Powers.Prayer.isQuickPraying())
+        return Settings.quickPray && Methods.getPrayPoints() >= Settings.prayValue &&
+                ((Environment.isRS3() && !Powers.Prayer.isQuickPraying())
                 || (Environment.isOSRS() && !quickPrayActivateQuery.results().isEmpty()));
     }
 

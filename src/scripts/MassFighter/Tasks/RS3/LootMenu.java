@@ -1,5 +1,6 @@
-package scripts.MassFighter.Tasks;
+package scripts.MassFighter.Tasks.RS3;
 
+import com.runemate.game.api.hybrid.entities.definitions.ItemDefinition;
 import com.runemate.game.api.hybrid.local.hud.interfaces.SpriteItem;
 import com.runemate.game.api.hybrid.location.Area;
 import com.runemate.game.api.hybrid.location.Coordinate;
@@ -22,7 +23,7 @@ import java.util.List;
  */
 public class LootMenu extends Task {
 
-    private SpriteItemQueryBuilder getLootOnInventory() {
+    private SpriteItemQueryBuilder getSelectedLoot() {
         SpriteItemQueryBuilder lootOnInventoryQuery = LootInventory.newQuery().filter(Filters.DECLINE_ALL);
         String[] lootNames = Settings.lootNames;
         if (Methods.arrayIsValid(lootNames)) {
@@ -30,7 +31,9 @@ public class LootMenu extends Task {
             lootOnInventoryQuery = LootInventory.newQuery().filter(new Filter<SpriteItem>() {
                 @Override
                 public boolean accepts(SpriteItem spriteItem) {
-                    return spriteItem != null && spriteItem.getDefinition() != null && lootList.contains(spriteItem.getDefinition().getName().toLowerCase()) && Methods.hasRoomForItem(spriteItem);
+                    ItemDefinition itemDefinition;
+                    return spriteItem != null && (itemDefinition = spriteItem.getDefinition()) != null
+                            && lootList.contains(itemDefinition.getName().toLowerCase()) && Methods.hasRoomForItem(spriteItem);
                 }
             });
         }
@@ -43,15 +46,16 @@ public class LootMenu extends Task {
 
     @Override
     public void execute() {
-        SpriteItemQueryResults lootOnInventory = getLootOnInventory().results();
-        if (!lootOnInventory.isEmpty()) {
-            if (LootInventory.getItems().containsAll(lootOnInventory) && LootInventory.getItems().size() == lootOnInventory.size()) {
+        SpriteItemQueryResults selectedLoot = getSelectedLoot().results();
+        if (!selectedLoot.isEmpty()) {
+            SpriteItemQueryResults allLoot = LootInventory.getItems();
+            if (allLoot.containsAll(selectedLoot) && allLoot.size() == selectedLoot.size()) {
                 if (LootInventory.takeAll()) {
                     Execution.delayUntil(() -> !LootInventory.isOpen(), 1000, 2000);
                 }
             } else {
-                if (LootInventory.take(lootOnInventory.random())) {
-                    Execution.delayUntil(() -> !LootInventory.getItems().equals(lootOnInventory), 1000, 2000);
+                if (LootInventory.take(selectedLoot.random())) {
+                    Execution.delayUntil(() -> !LootInventory.getItems().equals(selectedLoot), 1000, 2000);
                 }
             }
         } else {

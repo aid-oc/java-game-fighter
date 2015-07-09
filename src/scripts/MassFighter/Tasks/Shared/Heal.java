@@ -1,4 +1,4 @@
-package scripts.MassFighter.Tasks;
+package scripts.MassFighter.Tasks.Shared;
 
 import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Health;
@@ -17,7 +17,7 @@ import static scripts.MassFighter.Framework.Methods.out;
 public class Heal extends Task {
 
     public boolean validate() {
-        return Methods.arrayIsValid(Settings.foodNames) && Health.getCurrent() < Settings.eatValue;
+        return Methods.arrayIsValid(Settings.foodNames) && Health.getCurrent() < Methods.changeHealthValue(Settings.eatValue);
     }
 
     @Override
@@ -40,7 +40,7 @@ public class Heal extends Task {
             } else {
                 out("Heal: Food item is invalid");
             }
-        } else if (Settings.exitOutFood) {
+        } else if (Settings.exitOutFood && Settings.safetyLogout) {
             out("Heal: We're out of food, exiting");
             Methods.logout();
         } else {
@@ -50,7 +50,6 @@ public class Heal extends Task {
             rootScript.getTasks().stream().filter(task -> task != null && task instanceof Heal).forEach(task -> {
                 out("Heal: Successfully removed heal task");
                 rootScript.remove(task);
-                MassFighter.getSimpleTasks(rootScript.getTasks());
             });
         }
     }

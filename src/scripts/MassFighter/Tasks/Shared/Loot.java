@@ -1,4 +1,4 @@
-package scripts.MassFighter.Tasks;
+package scripts.MassFighter.Tasks.Shared;
 
 import com.runemate.game.api.hybrid.entities.GroundItem;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
@@ -45,7 +45,8 @@ public class Loot extends Task {
 
     @Override
     public boolean validate() {
-        return !getLoot().results().isEmpty() && (Settings.lootInCombat || !Methods.isInCombat());
+        return Methods.arrayIsValid(Settings.lootNames) && !getLoot().results().isEmpty()
+                && (Settings.lootInCombat || !Methods.isInCombat());
     }
 
     @Override

@@ -1,4 +1,4 @@
-package scripts.MassFighter.Tasks;
+package scripts.MassFighter.Tasks.RS3;
 
 import com.runemate.game.api.hybrid.entities.Player;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
@@ -19,7 +19,8 @@ public class SummonFamiliar extends Task {
     @Override
     public boolean validate() {
         final Player player = Players.getLocal();
-        return hasPouch() && player.getFamiliar() == null ||  !player.getFamiliar().getInfo().equals(Settings.chosenFamiliar);
+        return Settings.useSummoning && Settings.chosenFamiliar != null && hasPouch()
+                && player.getFamiliar() == null ||  !player.getFamiliar().getInfo().equals(Settings.chosenFamiliar);
     }
 
     @Override

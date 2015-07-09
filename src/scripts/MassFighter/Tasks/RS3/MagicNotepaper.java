@@ -1,4 +1,4 @@
-package scripts.MassFighter.Tasks;
+package scripts.MassFighter.Tasks.RS3;
 
 import com.runemate.game.api.hybrid.entities.definitions.ItemDefinition;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
@@ -14,6 +14,7 @@ import scripts.MassFighter.MassFighter;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import static scripts.MassFighter.Framework.Methods.out;
 
@@ -37,7 +38,8 @@ public class MagicNotepaper extends Task {
     }
 
     public boolean validate() {
-        return Inventory.isFull() && Inventory.contains("Magic notepaper") && !getNotableItems().results().isEmpty();
+        return Methods.arrayIsValid(Settings.notepaperLoot) && Inventory.isFull() && Inventory.contains("Magic notepaper")
+                && !getNotableItems().results().isEmpty();
     }
 
     @Override

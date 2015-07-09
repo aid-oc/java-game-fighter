@@ -1,5 +1,6 @@
-package scripts.MassFighter.Tasks;
+package scripts.MassFighter.Tasks.RS3;
 
+import com.runemate.game.api.hybrid.entities.Player;
 import com.runemate.game.api.hybrid.region.Players;
 import com.runemate.game.api.rs3.local.hud.interfaces.eoc.ActionBar;
 import com.runemate.game.api.rs3.local.hud.interfaces.eoc.SlotAction;
@@ -19,7 +20,8 @@ public class Abilities extends Task implements Runnable {
 
     @Override
     public boolean validate() {
-        return Players.getLocal().getTarget() != null;
+        Player player;
+        return (player = Players.getLocal()) != null && player.getTarget() != null;
     }
 
     @Override

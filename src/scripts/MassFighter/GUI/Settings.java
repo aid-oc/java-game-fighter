@@ -29,6 +29,8 @@ public class Settings {
     public static Boolean lootByValue = false;
     public static Boolean equipAmmunition = false;
     public static Boolean soulsplitPermanent = false;
+    public static Boolean safetyLogout = false;
+    public static Boolean safetyTeleport = false;
     public static int soulsplitPercentage = 100;
     public static double lootValue = 0;
     public static int tagSelection = 0;

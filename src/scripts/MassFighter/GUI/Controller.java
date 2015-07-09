@@ -14,10 +14,14 @@ import com.runemate.game.api.script.framework.AbstractScript;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import scripts.MassFighter.Data.Potion;
+import scripts.MassFighter.Data.SkillPotion;
 import scripts.MassFighter.MassFighter;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -136,6 +140,10 @@ public class Controller {
     private ListView<Summoning.Familiar> listFamiliars;
     @FXML
     private Button btnDeselectFamiliar;
+    @FXML
+    private CheckBox safetyLogout;
+    @FXML
+    private CheckBox safetyTeleport;
 
     private List<String> getAvailableMonsters(Area area, String action) {
         List<String> availableNpcs = new ArrayList<>();
@@ -167,7 +175,7 @@ public class Controller {
         // Temporary Updates Solution
         List<String> updates = new ArrayList<>();
         updates.add("22/06/2015: Settings/GUI Fixes");
-        updates.add("17/06/2015: Saving, Pet, Potion fixes");
+        updates.add("17/06/2015: Saving, Pet, SkillPotion fixes");
         updates.add("11/05/2015: Fix for 'click here to continue'");
         updates.add("06/06/2015: Profit calc re-enabled, new loot interface support added, bug fixes");
         updates.add("09/05/2015: Profit calc temporarily disabled");
@@ -186,8 +194,8 @@ public class Controller {
         // List was adding 2 of each item for some reason
         updates.stream().filter(n -> !updatesList.getItems().contains(n)).forEach(n -> updatesList.getItems().add(n));
 
-        for (Potion potion : Potion.values()) {
-            availableBoosts.getItems().add(potion.toString());
+        for (SkillPotion skillPotion : SkillPotion.values()) {
+            availableBoosts.getItems().add(skillPotion.toString());
         }
 
         listFamiliars.getItems().addAll(Summoning.Familiar.values());
@@ -359,6 +367,8 @@ public class Controller {
             Settings.exitOutFood = stopWhenOutOfFood.isSelected();
             Settings.buryBones = buryBones.isSelected();
             Settings.equipAmmunition = reequipAmmunition.isSelected();
+            Settings.safetyLogout = safetyLogout.isSelected();
+            Settings.safetyTeleport = safetyTeleport.isSelected();
             if (!listFamiliars.getSelectionModel().getSelectedItems().isEmpty()) {
                 Settings.useSummoning = true;
                 Settings.chosenFamiliar = listFamiliars.getSelectionModel().getSelectedItem();
@@ -446,6 +456,8 @@ public class Controller {
                     }
                     showOutline.setSelected(Boolean.valueOf(managedProperties.getProperty("showOutline")));
                     stopWhenOutOfFood.setSelected(Boolean.valueOf(managedProperties.getProperty("exitOutFood")));
+                    safetyLogout.setSelected(Boolean.valueOf(managedProperties.getProperty("safetyLogout")));
+                    safetyTeleport.setSelected(Boolean.valueOf(managedProperties.getProperty("safetyTeleport")));
                     lootInCombat.setSelected(Boolean.valueOf(managedProperties.getProperty("lootInCombat")));
                     abilities.setSelected(Boolean.valueOf(managedProperties.getProperty("useAbilities")));
                     soulsplit.setSelected(Boolean.valueOf(managedProperties.getProperty("useSoulsplit")));
@@ -543,6 +555,8 @@ public class Controller {
                     managedProperties.setProperty("lootInCombat", Boolean.toString(lootInCombat.isSelected()));
                     managedProperties.setProperty("useAbilities", Boolean.toString(abilities.isSelected()));
                     managedProperties.setProperty("useSoulsplit", Boolean.toString(soulsplit.isSelected()));
+                    managedProperties.setProperty("safetyLogout", Boolean.toString(safetyLogout.isSelected()));
+                    managedProperties.setProperty("safetyTeleport", Boolean.toString(safetyTeleport.isSelected()));
                     managedProperties.setProperty("waitForLoot", Boolean.toString(waitLoot.isSelected()));
                     managedProperties.setProperty("looting", Boolean.toString(!selectedLoot.getItems().isEmpty()));
                     managedProperties.setProperty("buryBones", Boolean.toString(buryBones.isSelected()));

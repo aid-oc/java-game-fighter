@@ -1,4 +1,4 @@
-package scripts.MassFighter.Tasks;
+package scripts.MassFighter.Tasks.Shared;
 
 import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.local.Skill;
@@ -56,7 +56,7 @@ public class Alchemy extends Task {
 
 
     public boolean validate() {
-        return !getAlchableItems().results().isEmpty() && hasAlchReqs();
+        return Methods.arrayIsValid(Settings.alchLoot) && !getAlchableItems().results().isEmpty() && hasAlchReqs();
     }
 
     @Override

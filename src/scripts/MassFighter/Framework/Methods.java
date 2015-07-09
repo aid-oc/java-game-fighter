@@ -6,15 +6,14 @@ import com.runemate.game.api.hybrid.entities.GroundItem;
 import com.runemate.game.api.hybrid.entities.Item;
 import com.runemate.game.api.hybrid.entities.Player;
 import com.runemate.game.api.hybrid.entities.definitions.ItemDefinition;
-import com.runemate.game.api.hybrid.local.hud.interfaces.InterfaceComponent;
-import com.runemate.game.api.hybrid.local.hud.interfaces.Interfaces;
-import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
-import com.runemate.game.api.hybrid.local.hud.interfaces.SpriteItem;
+import com.runemate.game.api.hybrid.local.hud.interfaces.*;
 import com.runemate.game.api.hybrid.queries.SpriteItemQueryBuilder;
 import com.runemate.game.api.hybrid.region.Npcs;
 import com.runemate.game.api.hybrid.region.Players;
 import com.runemate.game.api.hybrid.util.Filter;
 import com.runemate.game.api.hybrid.util.Filters;
+import com.runemate.game.api.hybrid.util.calculations.CommonMath;
+import com.runemate.game.api.hybrid.util.calculations.Random;
 import com.runemate.game.api.osrs.net.Zybez;
 import com.runemate.game.api.rs3.local.hud.Powers;
 import com.runemate.game.api.rs3.net.GrandExchange;
@@ -83,6 +82,14 @@ public final class Methods {
             }
         }
         return prayerPoints;
+    }
+
+    public static int changeHealthValue(int setValue) {
+        int maxHealth = Health.getMaximum();
+        float increase = (float)maxHealth/100*Random.nextInt(0, 10);
+        int eatValue = setValue +  Math.round(increase);
+        System.out.println("Set: " + setValue + " Eating at " + eatValue);
+        return eatValue > maxHealth ? setValue : eatValue;
     }
 
     public static void out(String s) {

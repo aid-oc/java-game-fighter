@@ -1,4 +1,4 @@
-package scripts.MassFighter.Tasks;
+package scripts.MassFighter.Tasks.Shared;
 
 import com.runemate.game.api.hybrid.entities.definitions.ItemDefinition;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Equipment;
@@ -9,6 +9,7 @@ import com.runemate.game.api.hybrid.util.Filter;
 import com.runemate.game.api.hybrid.util.Filters;
 import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.task.Task;
+import scripts.MassFighter.GUI.Settings;
 
 
 public class Ammunition extends Task {
@@ -46,7 +47,7 @@ public class Ammunition extends Task {
 
 
     public boolean validate() {
-        return !availableAmmunition.results().isEmpty() && shouldEquip();
+        return Settings.equipAmmunition && !availableAmmunition.results().isEmpty() && shouldEquip();
     }
 
     @Override

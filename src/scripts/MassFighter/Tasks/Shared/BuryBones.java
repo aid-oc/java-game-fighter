@@ -1,4 +1,4 @@
-package scripts.MassFighter.Tasks;
+package scripts.MassFighter.Tasks.Shared;
 
 import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
 import com.runemate.game.api.hybrid.queries.SpriteItemQueryBuilder;
@@ -24,11 +24,12 @@ public class BuryBones extends Task {
         final SpriteItemQueryResults bones = validBuryItems.results();
         MassFighter.status = "Burying";
         out("BuryBones: We have bones, burying them");
-        bones.stream().filter(bone -> bone != null).forEach(bone -> {
-            String name = bone.getDefinition().getName();
-            if (name.toLowerCase().contains("bones") && bone.interact("Bury") || name.toLowerCase().contains("ashes") && bone.interact("Scatter")) {
+        bones.stream().filter(bone -> bone != null && bone.getDefinition() != null).forEach(bone -> {
+            String name = bone.getDefinition().getName().toLowerCase();
+            int invCount = Inventory.getQuantity();
+            if ((name.contains("bones") && bone.interact("Bury")) || (name.contains("ashes") && bone.interact("Scatter"))) {
                 out("BuryBones: Buried a bone");
-                Execution.delayUntil(() -> !bone.isValid(), 1000, 1400);
+                Execution.delayUntil(() -> invCount != Inventory.getQuantity(), 1000, 2000);
             }
         });
     }

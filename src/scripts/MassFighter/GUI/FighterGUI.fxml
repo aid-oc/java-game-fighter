@@ -7,9 +7,9 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" opacity="0.89" prefHeight="426.0" prefWidth="672.0" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1">
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" opacity="0.89" prefHeight="442.0" prefWidth="672.0" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1">
     <children>
-        <TabPane layoutX="7.0" layoutY="7.0" prefHeight="410.0" prefWidth="661.0" tabClosingPolicy="UNAVAILABLE">
+        <TabPane layoutX="7.0" layoutY="7.0" prefHeight="434.0" prefWidth="661.0" tabClosingPolicy="UNAVAILABLE">
             <tabs>
                 <Tab closable="false" text="Profile">
                     <content>
@@ -108,9 +108,9 @@
                                 <Label layoutX="22.0" layoutY="225.0" text="Choose from the nearest" />
                                 <Label layoutX="272.0" layoutY="225.0" text="NPCs" />
                                 <Label fx:id="profileStatus" layoutX="216.0" textFill="#d31313" />
-                                <Label layoutX="293.0" layoutY="125.0" text="Log out below" />
-                                <TextField fx:id="criticalHitpoints" layoutX="298.0" layoutY="150.0" prefHeight="25.0" prefWidth="66.0" />
-                                <Label layoutX="308.0" layoutY="182.0" text="hitpoints" />
+                                <Label layoutX="407.0" layoutY="303.0" text="If I fall below" />
+                                <TextField fx:id="criticalHitpoints" layoutX="494.0" layoutY="298.0" prefHeight="25.0" prefWidth="66.0" />
+                                <Label layoutX="571.0" layoutY="303.0" text="hitpoints" />
                                 <CheckBox fx:id="tagMode" layoutX="22.0" layoutY="254.0" mnemonicParsing="false" prefHeight="17.0" prefWidth="28.0" />
                                 <Label layoutX="272.0" layoutY="254.0" text="NPCs" />
                                 <Label layoutX="47.0" layoutY="254.0" text="Gather the nearest" />
@@ -128,6 +128,13 @@
                                 </Text>
                                 <CheckBox fx:id="attackCombatMonsters" layoutX="22.0" layoutY="293.0" mnemonicParsing="false" text="Attack monsters which are in combat" />
                                 <CheckBox fx:id="bypassReachable" layoutX="22.0" layoutY="318.0" mnemonicParsing="false" text="Attack unreachable monsters (in cages etc.)" />
+                        <CheckBox fx:id="safetyLogout" layoutX="465.0" layoutY="336.0" mnemonicParsing="false" text="Try to log me out" />
+                        <Text layoutX="505.0" layoutY="286.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Safety">
+                           <font>
+                              <Font name="System Bold" size="14.0" />
+                           </font>
+                        </Text>
+                        <CheckBox fx:id="safetyTeleport" layoutX="465.0" layoutY="363.0" mnemonicParsing="false" text="Use a teleport tab" />
                             </children>
                         </AnchorPane>
                     </content>

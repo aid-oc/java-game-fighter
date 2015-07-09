@@ -1,4 +1,4 @@
-package scripts.MassFighter.Tasks;
+package scripts.MassFighter.Tasks.Shared;
 
 import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
@@ -11,7 +11,6 @@ import com.runemate.game.api.script.framework.task.Task;
 import com.runemate.game.api.script.framework.task.TaskScript;
 import scripts.MassFighter.Framework.Methods;
 import scripts.MassFighter.GUI.Settings;
-import scripts.MassFighter.MassFighter;
 
 import static scripts.MassFighter.Framework.Methods.out;
 
@@ -51,7 +50,6 @@ public class PrayerPoints extends Task {
                 rootScript.getTasks().stream().filter(task -> task != null && task instanceof PrayerPoints).forEach(task -> {
                     System.out.println("PrayerPoints: Successfully removed pray task");
                     rootScript.remove(task);
-                    MassFighter.getSimpleTasks(rootScript.getTasks());
                 });
             }
         } else if (Methods.getPrayPoints() != -1) {

@@ -21,13 +21,16 @@ import javafx.application.Platform;
 import scripts.MassFighter.Framework.Methods;
 import scripts.MassFighter.GUI.Main;
 import scripts.MassFighter.GUI.Settings;
-import scripts.MassFighter.Tasks.*;
+import scripts.MassFighter.Tasks.OSRS.DismissDialog;
+import scripts.MassFighter.Tasks.RS3.*;
+import scripts.MassFighter.Tasks.Shared.*;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -38,7 +41,6 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
     public static String status;
     public static Boolean setupRunning;
     public static final boolean debug = true;
-    private static List<String> runningTaskNames;
 
     private final StopWatch runningTime = new StopWatch();
     private final NumberFormat numberFormat = NumberFormat.getNumberInstance();
@@ -56,11 +58,6 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
     private final int mageLevel = Skill.MAGIC.getBaseLevel();
     private final int prayerLevel = Skill.PRAYER.getBaseLevel();
 
-    public static void getSimpleTasks(List<Task> tasks) {
-        List<String> taskNames = new ArrayList<>();
-        tasks.stream().filter(task -> task != null).forEach(task -> taskNames.add(task.getClass().getSimpleName()));
-        runningTaskNames = taskNames;
-    }
 
     public void onStart(String... args) {
 
@@ -72,47 +69,32 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
             showAndWaitGUI();
             methods = new Methods();
 
-            // RS3 Specific Tasks
-            if (Environment.isRS3()) {
-                add(new LootMenu());
-                if (Settings.useSoulsplit) {
-                    add(new Soulsplit());
-                }
-                if (Settings.useAbilities) {
-                    new LoopingThread(new Abilities(), 1000, 1200).start();
-                }
-                if (Methods.arrayIsValid(Settings.notepaperLoot)) {
-                    add(new MagicNotepaper());
-                }
+            // Top priority task, not shuffled
+            add(new SafetyTeleport());
 
+            // Low-priority tasks to be shuffled
+            List<Task> tasks = new ArrayList<>();
+            if (Environment.isRS3()) {
+                new LoopingThread(new Abilities(), 1000, 1200).start();
+                tasks.add(new LootMenu());
+                tasks.add(new MagicNotepaper());
+                tasks.add(new Soulsplit());
+            } else {
+                tasks.add(new DismissDialog());
             }
-            if (Settings.quickPray || Settings.useSoulsplit) {
-                add(new PrayerPoints());
-            }
-            if (Settings.quickPray) {
-                add(new QuickPray());
-            }
-            if (Methods.arrayIsValid(Settings.foodNames)) {
-                add(new Heal());
-            }
-            if (Methods.arrayIsValid(Settings.alchLoot)) {
-                add(new Alchemy());
-            }
-            if (Methods.arrayIsValid(Settings.lootNames)) {
-                add(new Loot());
-            }
-            if (Settings.equipAmmunition) {
-                add(new Ammunition());
-            }
-            if (Settings.buryBones) {
-                add(new BuryBones());
-            }
-            if (Methods.arrayIsValid(Settings.selectedPotions)) {
-                add(new Boost());
-            }
-            add(new ReturnToArea());
-            add(new DismissDialog());
-            add(new Attack());
+            tasks.add(new Alchemy());
+            tasks.add(new Ammunition());
+            tasks.add(new Attack());
+            tasks.add(new Boost());
+            tasks.add(new BuryBones());
+            tasks.add(new Heal());
+            tasks.add(new Loot());
+            tasks.add(new PrayerPoints());
+            tasks.add(new QuickPray());
+            tasks.add(new ReturnToArea());
+
+            Collections.shuffle(tasks);
+            add(tasks.toArray(new Task[(tasks.size())]));
 
 
 
@@ -121,7 +103,6 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
             startExp = Skill.STRENGTH.getExperience() + Skill.RANGED.getExperience() + Skill.MAGIC.getExperience() + Skill.ATTACK.getExperience() + Skill.DEFENCE.getExperience()
                     + Skill.PRAYER.getExperience() + Skill.CONSTITUTION.getExperience();
             runningTime.start();
-            getSimpleTasks(getTasks());
         }
 
     }
@@ -207,7 +188,7 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
                 g2d.drawString("Status: " + status, 7, 61);
                 g2d.drawString("Runtime: " + runningTime.getRuntimeAsString(), 7, 75);
                 g2d.setFont(plainSmallest);
-                g2d.drawString("Running Tasks: " + runningTaskNames, 7, 140);
+                //g2d.drawString("", 7, 140);
                 g2d.setFont(plainSmall);
                 // Level info
                 g2d.drawString("Constitution: " + Skill.CONSTITUTION.getCurrentLevel() + "(" + getLevelGain(constitutionLevel, Skill.CONSTITUTION) + ")", 161, 61);
