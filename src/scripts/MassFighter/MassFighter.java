@@ -96,8 +96,6 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
             Collections.shuffle(tasks);
             add(tasks.toArray(new Task[(tasks.size())]));
 
-
-
             startExpNoHp = Skill.STRENGTH.getExperience() + Skill.RANGED.getExperience() + Skill.MAGIC.getExperience() + Skill.ATTACK.getExperience() + Skill.DEFENCE.getExperience()
                     + Skill.PRAYER.getExperience();
             startExp = Skill.STRENGTH.getExperience() + Skill.RANGED.getExperience() + Skill.MAGIC.getExperience() + Skill.ATTACK.getExperience() + Skill.DEFENCE.getExperience()

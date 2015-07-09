@@ -88,7 +88,6 @@ public final class Methods {
         int maxHealth = Health.getMaximum();
         float increase = (float)maxHealth/100*Random.nextInt(0, 10);
         int eatValue = setValue +  Math.round(increase);
-        System.out.println("Set: " + setValue + " Eating at " + eatValue);
         return eatValue > maxHealth ? setValue : eatValue;
     }
 

@@ -58,7 +58,7 @@ public class Ammunition extends Task {
         } else {
             targetAmmo = availableAmmunition.results().random();
         }
-        if (targetAmmo != null && Inventory.equip(targetAmmo)) {
+        if (targetAmmo != null && targetAmmo.interact("Wield")) {
             Execution.delayUntil(() -> !targetAmmo.isValid(), 2000);
         }
     }
