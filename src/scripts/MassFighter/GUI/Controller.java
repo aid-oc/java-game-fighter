@@ -115,8 +115,6 @@ public class Controller {
     @FXML
     private CheckBox bypassReachable;
     @FXML
-    private ListView<String> updatesList;
-    @FXML
     private Button btnAddToNotepaper;
     @FXML
     private ListView<String> selectedNotepaperLoot;
@@ -172,28 +170,6 @@ public class Controller {
             }
         }
 
-        // Temporary Updates Solution
-        List<String> updates = new ArrayList<>();
-        updates.add("22/06/2015: Settings/GUI Fixes");
-        updates.add("17/06/2015: Saving, Pet, SkillPotion fixes");
-        updates.add("11/05/2015: Fix for 'click here to continue'");
-        updates.add("06/06/2015: Profit calc re-enabled, new loot interface support added, bug fixes");
-        updates.add("09/05/2015: Profit calc temporarily disabled");
-        updates.add("07/04/2015: Saving rework, blocked experiment (level 51)");
-        updates.add("06/04/2015: Custom areas DISABLED for rework");
-        updates.add("06/04/2015: Combat improvements");
-        updates.add("18/03/2015: Notepaper support");
-        updates.add("18/03/2015: Boost revamp");
-        updates.add("14/03/2015: Combat fixes");
-        updates.add("14/03/2015: Noted/Stackable looting now works");
-        updates.add("11/03/2015: Combat should now be fixed");
-        updates.add("10/03/2015: Fixed quickpraying, fixed alchemy, looting changes");
-        updates.add("09/03/2015: Added OSRS boosts");
-        updates.add("03/03/2015: Added potion support + quickpraying for OSRS");
-        updates.add("02/03/2015: Added more target finding options, you may need to remake profiles ");
-        // List was adding 2 of each item for some reason
-        updates.stream().filter(n -> !updatesList.getItems().contains(n)).forEach(n -> updatesList.getItems().add(n));
-
         for (SkillPotion skillPotion : SkillPotion.values()) {
             availableBoosts.getItems().add(skillPotion.toString());
         }
@@ -230,28 +206,23 @@ public class Controller {
                 tagSlider.setDisable(true);
             }
         });
-
         btnAddFood.setOnAction(event -> {
             if (!txtFoodInput.getText().isEmpty() && !foodSelection.getItems().contains(txtFoodInput.getText())) {
                 foodSelection.getItems().add(txtFoodInput.getText());
                 txtFoodInput.clear();
             }
         });
-
         btnRemoveFood.setOnAction(event -> {
             if (!foodSelection.getSelectionModel().isEmpty()) {
                 foodSelection.getItems().removeAll(foodSelection.getSelectionModel().getSelectedItems());
             }
         });
-
         btnSave.setOnAction(event -> {
             save();
         });
-
         btnLoad.setOnAction(event -> {
             load();
         });
-
         abilities.setOnAction(event -> {
             if (abilities.isSelected()) {
                 revolutionMode.setDisable(false);
@@ -259,9 +230,7 @@ public class Controller {
                 revolutionMode.setDisable(true);
             }
         });
-
         soulsplitPerm.setOnAction(event -> soulsplitPercentage.setDisable(soulsplitPerm.isSelected()));
-
 
         // Toggles the lootByValue boolean which sets whether or not the script will attempt to lookup
         // and loot items above the set value.

@@ -1,9 +1,7 @@
 package scripts.MassFighter.Data;
 
 
-import com.runemate.game.api.hybrid.local.Varp;
 import com.runemate.game.api.hybrid.local.Varpbits;
-import com.runemate.game.api.hybrid.local.Varps;
 
 /**
  * ozzy.

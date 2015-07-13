@@ -1,16 +1,13 @@
 package scripts.MassFighter.Tasks.Shared;
 
-import com.runemate.game.api.hybrid.entities.GroundItem;
 import com.runemate.game.api.hybrid.entities.LocatableEntity;
 import com.runemate.game.api.hybrid.entities.Npc;
 import com.runemate.game.api.hybrid.entities.Player;
 import com.runemate.game.api.hybrid.entities.definitions.NpcDefinition;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Health;
 import com.runemate.game.api.hybrid.location.Area;
-import com.runemate.game.api.hybrid.queries.GroundItemQueryBuilder;
 import com.runemate.game.api.hybrid.queries.NpcQueryBuilder;
 import com.runemate.game.api.hybrid.queries.results.LocatableEntityQueryResults;
-import com.runemate.game.api.hybrid.region.GroundItems;
 import com.runemate.game.api.hybrid.region.Npcs;
 import com.runemate.game.api.hybrid.region.Players;
 import com.runemate.game.api.hybrid.util.Filter;
@@ -22,31 +19,9 @@ import scripts.MassFighter.Framework.Methods;
 import scripts.MassFighter.GUI.Settings;
 import scripts.MassFighter.MassFighter;
 
-import java.util.Arrays;
-
 import static scripts.MassFighter.Framework.Methods.out;
 
 public class Attack extends Task {
-
-    private GroundItemQueryBuilder getValidLoot()
-    {
-        GroundItemQueryBuilder lootQuery = GroundItems.newQuery().filter(Filters.DECLINE_ALL);
-        Area fightArea = Settings.fightArea;
-        String[] lootNames = Settings.lootNames;
-        if (fightArea != null && Methods.arrayIsValid(lootNames)) {
-            lootQuery = GroundItems.newQuery().within(fightArea).filter(new Filter<GroundItem>() {
-                @Override
-                public boolean accepts(GroundItem groundItem) {
-                    if (Methods.hasRoomForItem(groundItem)) {
-                        String itemName = groundItem.getDefinition().getName().toLowerCase();
-                        return ((Settings.lootByValue && Methods.isWorthLooting(groundItem)) || Arrays.asList(lootNames).contains(itemName));
-                    }
-                    return false;
-                }
-            }).reachable();
-        }
-        return lootQuery;
-    }
 
     private NpcQueryBuilder getAttackingNpcs() {
         NpcQueryBuilder attackingNpcQuery = Npcs.newQuery().filter(Filters.DECLINE_ALL);
@@ -85,7 +60,7 @@ public class Attack extends Task {
     public boolean validate() {
         return Health.getCurrent() > Settings.criticalHitpoints
                 && (!Methods.isInCombat() || Settings.tagMode && getAttackingNpcs().results().size() < Settings.tagSelection)
-                && getValidLoot().results().isEmpty();
+                && Loot.getLoot().results().isEmpty();
     }
 
     @Override

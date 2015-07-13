@@ -17,12 +17,13 @@ import scripts.MassFighter.GUI.Settings;
 import scripts.MassFighter.MassFighter;
 
 import java.util.Arrays;
+import java.util.List;
 
 import static scripts.MassFighter.Framework.Methods.out;
 
 public class Loot extends Task {
 
-    private GroundItemQueryBuilder getLoot()
+    public static GroundItemQueryBuilder getLoot()
     {
         GroundItemQueryBuilder lootQuery = GroundItems.newQuery().filter(Filters.DECLINE_ALL);
         Area fightArea = Settings.fightArea;
@@ -33,7 +34,10 @@ public class Loot extends Task {
                 public boolean accepts(GroundItem groundItem) {
                     if (Methods.hasRoomForItem(groundItem)) {
                         String itemName = groundItem.getDefinition().getName().toLowerCase();
-                        return ((Settings.lootByValue && Methods.isWorthLooting(groundItem)) || Arrays.asList(lootNames).contains(itemName));
+                        String itemNameNoted = itemName+"*";
+                        List<String> selectedLoot = Arrays.asList(lootNames);
+                        return ((Settings.lootByValue && Methods.isWorthLooting(groundItem)) ||
+                                ((selectedLoot.contains(itemNameNoted) && Methods.itemIsNoted(groundItem)) || selectedLoot.contains(itemName)));
                     }
                     return false;
                 }

@@ -206,6 +206,7 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
                 g2d.drawString(expGained + "(" + numberFormat.format((int) CommonMath.rate(TimeUnit.HOURS, runningTime.getRuntime(), expGained)) + " p/h)", 365, 104);
                 g2d.drawString(profit + "(" + numberFormat.format((int) CommonMath.rate(TimeUnit.HOURS, runningTime.getRuntime(), profit)) + " p/h)", 365, 132);
                 // Render the fight area's outline
+                /*
                 if (Settings.showOutline) {
                     Area area = Settings.fightArea;
                     if (area != null) {
@@ -218,6 +219,7 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
                         });
                     }
                 }
+                */
             }
         }
     }
