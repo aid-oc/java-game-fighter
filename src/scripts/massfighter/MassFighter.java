@@ -38,7 +38,7 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
     public static LocatableEntity targetEntity;
     public static String status;
     public static boolean setupRunning;
-    public static final boolean debug = false;
+    public static final boolean debug = true;
 
     private final StopWatch runningTime = new StopWatch();
     private final NumberFormat numberFormat = NumberFormat.getNumberInstance();
@@ -103,7 +103,7 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
 
     private void showAndWaitGUI() {
         // Don't change this
-        Platform.runLater(Main::new);
+        Platform.runLater(() -> new Main());
         while (setupRunning) {
             Execution.delay(200);
         }
