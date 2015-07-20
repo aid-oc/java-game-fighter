@@ -2,13 +2,12 @@ package scripts.massfighter.framework;
 
 import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.RuneScape;
-import com.runemate.game.api.hybrid.entities.GroundItem;
-import com.runemate.game.api.hybrid.entities.Item;
-import com.runemate.game.api.hybrid.entities.Player;
+import com.runemate.game.api.hybrid.entities.*;
 import com.runemate.game.api.hybrid.entities.definitions.ItemDefinition;
 import com.runemate.game.api.hybrid.local.Skill;
 import com.runemate.game.api.hybrid.local.hud.interfaces.*;
 import com.runemate.game.api.hybrid.queries.SpriteItemQueryBuilder;
+import com.runemate.game.api.hybrid.queries.results.LocatableEntityQueryResults;
 import com.runemate.game.api.hybrid.region.Npcs;
 import com.runemate.game.api.hybrid.region.Players;
 import com.runemate.game.api.hybrid.util.Filter;
@@ -47,14 +46,20 @@ public final class Methods {
         return array != null && array.length > 0;
     }
 
-    public static boolean isInCombat() {
+    public static boolean isNotInCombat() {
         Player player = Players.getLocal();
-        return RuneScape.isLoggedIn() && player != null && (player.getTarget() != null
-                || !Npcs.newQuery().actions("Attack").targeting(player).reachable().results().isEmpty());
+        Actor target = player.getTarget();
+        LocatableEntityQueryResults<Npc> attackingNpcs = Npcs.newQuery().actions("Attack").targeting(player).reachable().results();
+        if (target == null || (attackingNpcs.isEmpty() || (attackingNpcs.nearest().getAnimationId() == -1 && attackingNpcs.nearest().getHealthGauge() == null))) {
+            return true;
+        } else {
+            MassFighter.status = "Fighting";
+            return false;
+        }
     }
 
     public static void logout() {
-        if (!isInCombat()) {
+        if (isNotInCombat()) {
             if (RuneScape.isLoggedIn()) {
                 if (RuneScape.logout()) {
                     Execution.delayUntil(() -> !RuneScape.isLoggedIn(), 3000);
@@ -132,23 +137,30 @@ public final class Methods {
 
     public static boolean isWorthLooting(GroundItem gItem) {
         int itemValue = 0;
-        String itemName = gItem.getDefinition().getName();
-        int itemId = gItem.getId();
-        if (itemName.equals("Coins")) {
-            itemValue = gItem.getQuantity();
-        } else {
-            if (itemPrices.containsKey(itemName)) {
-                itemValue = itemPrices.get(itemName);
+        String itemName = "";
+        if (gItem != null) {
+            itemName = gItem.getDefinition().getName();
+            int itemId = gItem.getId();
+            if (itemName.equals("Coins")) {
+                itemValue = gItem.getQuantity();
             } else {
-                if (Environment.isRS3()) {
-                    GrandExchange.Item item = GrandExchange.lookup(itemId);
-                    if (item != null) {
-                        itemValue = item.getPrice();
-                    }
+                if (itemPrices.containsKey(itemName)) {
+                    itemValue = itemPrices.get(itemName);
                 } else {
-                    itemValue = Zybez.getAveragePrice(itemName);
+                    if (Environment.isRS3()) {
+                        GrandExchange.Item item = GrandExchange.lookup(itemId);
+                        if (item != null) {
+                            itemValue = item.getPrice();
+                        }
+                    } else {
+                        itemValue = Zybez.getAveragePrice(itemName);
+                    }
+                    itemPrices.put(itemName, itemValue);
                 }
-                itemPrices.put(itemName, itemValue);
+                if (itemIsNoted(gItem))
+                {
+                    itemValue = itemValue*gItem.getQuantity();
+                }
             }
         }
         return (itemName.equals("Coins") && !Settings.restrictCoinValue) || itemValue >= Settings.lootValue;

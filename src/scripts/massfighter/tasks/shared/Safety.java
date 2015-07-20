@@ -4,6 +4,7 @@ import com.runemate.game.api.hybrid.local.hud.interfaces.Health;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
 import com.runemate.game.api.hybrid.local.hud.interfaces.SpriteItem;
 import com.runemate.game.api.hybrid.queries.results.SpriteItemQueryResults;
+import com.runemate.game.api.hybrid.region.Players;
 import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.task.Task;
 import scripts.massfighter.framework.Methods;
@@ -30,11 +31,14 @@ public class Safety extends Task {
             if (!validTeleportTabs.isEmpty()) {
                 SpriteItem teleportTab = validTeleportTabs.random();
                 if (teleportTab != null && teleportTab.click()) {
-                    Execution.delayUntil(() -> !teleportTab.isValid(), 2500, 4000);
+                    Execution.delayUntil(() -> !Settings.fightArea.contains(Players.getLocal()), 2500, 4000);
+                    Methods.logout();
                 }
             }
+        } else {
+            Methods.logout();
         }
-        Methods.logout();
+
     }
 
     private boolean outOfFood() {

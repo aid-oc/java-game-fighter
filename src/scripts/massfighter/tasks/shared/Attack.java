@@ -1,9 +1,9 @@
 package scripts.massfighter.tasks.shared;
 
-import com.runemate.game.api.hybrid.entities.LocatableEntity;
 import com.runemate.game.api.hybrid.entities.Npc;
 import com.runemate.game.api.hybrid.entities.Player;
 import com.runemate.game.api.hybrid.entities.definitions.NpcDefinition;
+import com.runemate.game.api.hybrid.local.hud.Menu;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Health;
 import com.runemate.game.api.hybrid.location.Area;
 import com.runemate.game.api.hybrid.queries.NpcQueryBuilder;
@@ -47,8 +47,7 @@ public class Attack extends Task {
                     .filter(new Filter<Npc>() {
                         @Override
                         public boolean accepts(Npc npc) {
-                            return npc != null && npc.getPosition() != null && (Settings.attackCombatMonsters ? npc.isValid()
-                                    : npc.isValid() && npc.getId() != 1273 && npc.getTarget() == null && npc.getHealthGauge() == null);
+                            return npc != null && npc.getPosition() != null && npc.getAnimationId() == -1 && npc.getId() != 1273 && (Settings.attackCombatMonsters || npc.getTarget() == null);
                         }
                     });
             if (!Settings.bypassReachable) suitableNpcQuery = suitableNpcQuery.reachable();
@@ -58,65 +57,52 @@ public class Attack extends Task {
 
 
     public boolean validate() {
-        return Health.getCurrent() > Settings.criticalHitpoints
-                && (!Methods.isInCombat() || Settings.tagMode && getAttackingNpcs().results().size() < Settings.tagSelection)
+        return Health.getCurrent() >= Settings.criticalHitpoints
+                && (Methods.isNotInCombat() || (Settings.tagMode && getAttackingNpcs().results().size() < Settings.tagSelection))
                 && Loot.getLoot().results().isEmpty();
     }
 
     @Override
     public void execute() {
 
-        final Player player = Players.getLocal();
         LocatableEntityQueryResults<Npc> npcsTargettingUs = getAttackingNpcs().results();
+        final LocatableEntityQueryResults<Npc> validTargetResults = getSuitableNpcs().results();
 
-        if (!isBusy() || npcsTargettingUs.isEmpty() && player.getTarget() == null || (Settings.tagMode && npcsTargettingUs.size() < Settings.tagSelection)) {
-            final LocatableEntityQueryResults<Npc> validTargetResults = getSuitableNpcs().results();
-            if (!validTargetResults.isEmpty()) {
-                out("Combat: We need a new target");
-                MassFighter.status = "Finding Target";
-                Npc targetNpc;
-                if (npcsTargettingUs.isEmpty() || Settings.tagMode && npcsTargettingUs.size() < Settings.tagSelection) {
-                    targetNpc = validTargetResults.sortByDistance().limit(Settings.targetSelection).random();
-                } else {
-                    targetNpc = npcsTargettingUs.random();
-                }
-                if (targetNpc != null) {
-                    final NpcDefinition targetNpcDefinition = targetNpc.getDefinition();
-                    if (targetNpcDefinition != null) {
-                        if (targetNpc.isVisible()) {
-                            MassFighter.targetEntity = targetNpc;
-                            if (targetNpc.interact("Attack", targetNpcDefinition.getName())) {
-                                out("Combat: Attacked a target");
-                                final Npc target = targetNpc;
-                                Execution.delayUntil(() -> target.getTarget() != null, 1000, 2000);
-                            } else {
-                                out("Combat: NPC interaction failed");
-                            }
+        if (!validTargetResults.isEmpty()) {
+            out("Combat: We need a new target");
+            MassFighter.status = "Finding Target";
+            Npc targetNpc;
+            if (npcsTargettingUs.isEmpty() || (Settings.tagMode && npcsTargettingUs.size() < Settings.tagSelection)) {
+                targetNpc = validTargetResults.sortByDistance().limit(Settings.targetSelection).random();
+            } else {
+                targetNpc = npcsTargettingUs.random();
+            }
+            if (targetNpc != null) {
+                final NpcDefinition targetNpcDefinition = targetNpc.getDefinition();
+                if (targetNpcDefinition != null) {
+                    if (targetNpc.isVisible()) {
+                        MassFighter.targetEntity = targetNpc;
+                        if (targetNpc.interact("Attack", targetNpcDefinition.getName())) {
+                            out("Combat: Attacked a target");
+                            final Npc target = targetNpc;
+                            Execution.delayUntil(() -> target.getTarget() != null, 1000, 2000);
                         } else {
-                            Movement.moveToInteractable(targetNpc);
+                            if (Menu.isOpen()) Menu.close();
+                            out("Combat: NPC interaction failed");
                         }
                     } else {
-                        out("Combat: Failed to get info on our target");
+                        Movement.moveToInteractable(targetNpc);
                     }
                 } else {
-
-                    out("Combat: Invalid Target");
+                    out("Combat: Failed to get info on our target");
                 }
             } else {
-                out("Combat: Waiting for new targets");
-                MassFighter.status = "No Targets";
+                out("Combat: Invalid Target");
             }
         } else {
-            MassFighter.status = "In Combat";
-            LocatableEntity target = player.getTarget();
-            if (target != null) MassFighter.targetEntity = target;
+            out("Combat: Waiting for new targets");
+            MassFighter.status = "No Targets";
         }
-
-    }
-
-    private boolean isBusy() {
-        Player player = Players.getLocal();
-        return player != null && (player.getTarget() != null || player.getAnimationId() != -1);
     }
 
 }

@@ -16,7 +16,7 @@ public class ReturnToArea extends Task {
     @Override
     public boolean validate() {
         area = Settings.fightArea;
-        return area != null && !area.contains(Players.getLocal()) && !Methods.isInCombat();
+        return area != null && !area.contains(Players.getLocal()) && Methods.isNotInCombat();
     }
 
     @Override

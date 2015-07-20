@@ -1,6 +1,7 @@
 package scripts.massfighter.tasks.shared;
 
 import com.runemate.game.api.hybrid.entities.GroundItem;
+import com.runemate.game.api.hybrid.local.hud.Menu;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
 import com.runemate.game.api.hybrid.location.Area;
 import com.runemate.game.api.hybrid.queries.GroundItemQueryBuilder;
@@ -50,7 +51,7 @@ public class Loot extends Task {
     @Override
     public boolean validate() {
         return (Methods.arrayIsValid(Settings.lootNames) || Settings.lootByValue) && !getLoot().results().isEmpty()
-                && (Settings.lootInCombat || !Methods.isInCombat());
+                && (Settings.lootInCombat || Methods.isNotInCombat());
     }
 
     @Override
@@ -72,11 +73,12 @@ public class Loot extends Task {
             if (item.interact("Take", itemName)) {
                 out("Loot: Successful");
                 Execution.delayUntil(() -> Inventory.getQuantity() > invCount || LootInventory.isOpen(), 1500, 2000);
+            } else {
+                if (Menu.isOpen()) Menu.close();
             }
         } else {
             out("Loot: We need to move to the item");
             Movement.moveToInteractable(item);
         }
-        out("Loot: Unsuccessful");
     }
 }

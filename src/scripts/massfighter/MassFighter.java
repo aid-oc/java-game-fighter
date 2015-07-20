@@ -2,6 +2,7 @@ package scripts.massfighter;
 
 import com.runemate.game.api.client.paint.PaintListener;
 import com.runemate.game.api.hybrid.Environment;
+import com.runemate.game.api.hybrid.entities.Item;
 import com.runemate.game.api.hybrid.entities.LocatableEntity;
 import com.runemate.game.api.hybrid.entities.definitions.ItemDefinition;
 import com.runemate.game.api.hybrid.local.Skill;
@@ -113,25 +114,35 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
     @Override
     public void onItemAdded(ItemEvent event) {
         if (methods != null && event != null && event.getItem() != null) {
-            ItemDefinition itemDefinition = event.getItem().getDefinition();
+            Item newItem = event.getItem();
+            ItemDefinition itemDefinition = newItem.getDefinition();
             if (itemDefinition != null) {
                 String itemName = itemDefinition.getName();
                 int itemId = itemDefinition.getId();
                 int itemValue = 0;
-                if (Methods.itemPrices.containsKey(itemName)) {
-                    itemValue = Methods.itemPrices.get(itemName);
+                if (itemName.equals("Coins")) {
+                    itemValue = newItem.getQuantity();
                 } else {
-                    if (Environment.isRS3()) {
-                        GrandExchange.Item item = GrandExchange.lookup(itemId);
-                        if (item != null) {
-                            itemValue = item.getPrice();
+                    if (Methods.itemPrices.containsKey(itemName)) {
+                        itemValue = Methods.itemPrices.get(itemName);
+                    } else {
+                        if (Environment.isRS3()) {
+                            GrandExchange.Item item = GrandExchange.lookup(itemId);
+                            if (item != null) {
+                                itemValue = item.getPrice();
+                            }
+                        } else if (Environment.isOSRS()) {
+                            itemValue = Zybez.getAveragePrice(itemName);
                         }
-                    } else if (Environment.isOSRS()) {
-                        itemValue = Zybez.getAveragePrice(itemName);
+                        Methods.itemPrices.put(itemName, itemValue);
                     }
-                    Methods.itemPrices.put(itemName, itemValue);
+                    if (Methods.itemIsNoted(newItem)) {
+                        itemValue = itemValue * newItem.getQuantity();
+                    }
                 }
-                profit += itemValue;
+                if (itemValue > 0) {
+                    profit += itemValue;
+                }
             }
         }
     }
