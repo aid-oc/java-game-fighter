@@ -49,8 +49,8 @@ public final class Methods {
     public static boolean isNotInCombat() {
         Player player = Players.getLocal();
         Actor target = player.getTarget();
-        LocatableEntityQueryResults<Npc> attackingNpcs = Npcs.newQuery().actions("Attack").targeting(player).reachable().results();
-        if (target == null || (attackingNpcs.isEmpty() || (attackingNpcs.nearest().getAnimationId() == -1 && attackingNpcs.nearest().getHealthGauge() == null))) {
+        LocatableEntityQueryResults<Npc> attackingNpcs = Npcs.newQuery().actions("Attack").targeting(player).results();
+        if (target == null || (attackingNpcs.isEmpty() || (attackingNpcs.nearest().getTarget() == null && attackingNpcs.nearest().getAnimationId() == -1 && attackingNpcs.nearest().getHealthGauge() == null))) {
             return true;
         } else {
             MassFighter.status = "Fighting";

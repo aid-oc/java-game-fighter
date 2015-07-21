@@ -78,8 +78,9 @@ public class Attack extends Task {
                 targetNpc = npcsTargettingUs.random();
             }
             if (targetNpc != null) {
-                final NpcDefinition targetNpcDefinition = targetNpc.getDefinition();
+                NpcDefinition targetNpcDefinition = targetNpc.getDefinition();
                 if (targetNpcDefinition != null) {
+                    targetNpcDefinition = targetNpcDefinition.getLocalState() != null ? targetNpcDefinition.getLocalState() : targetNpcDefinition;
                     if (targetNpc.isVisible()) {
                         MassFighter.targetEntity = targetNpc;
                         if (targetNpc.interact("Attack", targetNpcDefinition.getName())) {
