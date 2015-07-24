@@ -27,12 +27,7 @@ public class Attack extends Task {
         NpcQueryBuilder attackingNpcQuery = Npcs.newQuery().filter(Filters.DECLINE_ALL);
         Player player = Players.getLocal();
         if (player != null) {
-            attackingNpcQuery = Npcs.newQuery().actions("Attack").targeting(player).filter(new Filter<Npc>() {
-                @Override
-                public boolean accepts(Npc npc) {
-                    return npc != null && npc.getPosition() != null;
-                }
-            });
+            attackingNpcQuery = Npcs.newQuery().actions("Attack").targeting(player).filter(npc -> npc != null);
             if (!Settings.bypassReachable) attackingNpcQuery = attackingNpcQuery.reachable();
         }
         return attackingNpcQuery;
@@ -47,7 +42,7 @@ public class Attack extends Task {
                     .filter(new Filter<Npc>() {
                         @Override
                         public boolean accepts(Npc npc) {
-                            return npc != null && npc.getPosition() != null && npc.getAnimationId() == -1 && npc.getId() != 1273 && (Settings.attackCombatMonsters || npc.getTarget() == null);
+                            return npc != null && npc.getAnimationId() == -1 && npc.getId() != 1273 && (Settings.attackCombatMonsters || npc.getTarget() == null);
                         }
                     });
             if (!Settings.bypassReachable) suitableNpcQuery = suitableNpcQuery.reachable();
@@ -66,7 +61,7 @@ public class Attack extends Task {
     public void execute() {
 
         LocatableEntityQueryResults<Npc> npcsTargettingUs = getAttackingNpcs().results();
-        final LocatableEntityQueryResults<Npc> validTargetResults = getSuitableNpcs().results();
+        LocatableEntityQueryResults<Npc> validTargetResults = getSuitableNpcs().results();
 
         if (!validTargetResults.isEmpty()) {
             out("Combat: We need a new target");

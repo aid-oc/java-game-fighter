@@ -50,7 +50,8 @@ public final class Methods {
         Player player = Players.getLocal();
         Actor target = player.getTarget();
         LocatableEntityQueryResults<Npc> attackingNpcs = Npcs.newQuery().actions("Attack").targeting(player).results();
-        if (target == null || (attackingNpcs.isEmpty() || (attackingNpcs.nearest().getTarget() == null && attackingNpcs.nearest().getAnimationId() == -1 && attackingNpcs.nearest().getHealthGauge() == null))) {
+        if (target == null || (attackingNpcs.isEmpty() || (attackingNpcs.nearest().getTarget() == null
+                && attackingNpcs.nearest().getAnimationId() == -1 && attackingNpcs.nearest().getHealthGauge() == null))) {
             return true;
         } else {
             MassFighter.status = "Fighting";

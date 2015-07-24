@@ -21,9 +21,9 @@ public class PrayerPoints extends Task {
         @Override
         public boolean accepts(SpriteItem spriteItem) {
             if (spriteItem != null && spriteItem.getDefinition() != null) {
-                String name = spriteItem.getDefinition().getName();
-                return name.contains("Prayer potion") ||
-                        name.contains("Prayer flask");
+                String name = spriteItem.getDefinition().getName().toLowerCase();
+                return name.contains("prayer potion") ||
+                        name.contains("prayer flask");
             }
             return false;
         }

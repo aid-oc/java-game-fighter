@@ -39,7 +39,7 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
     public static LocatableEntity targetEntity;
     public static String status;
     public static boolean setupRunning;
-    public static final boolean debug = true;
+    public static final boolean debug = false;
 
     private final StopWatch runningTime = new StopWatch();
     private final NumberFormat numberFormat = NumberFormat.getNumberInstance();
@@ -121,7 +121,7 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
                 int itemId = itemDefinition.getId();
                 int itemValue = 0;
                 if (itemName.equals("Coins")) {
-                    itemValue = newItem.getQuantity();
+                    itemValue = event.getQuantityChange();
                 } else {
                     if (Methods.itemPrices.containsKey(itemName)) {
                         itemValue = Methods.itemPrices.get(itemName);
@@ -137,7 +137,7 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
                         Methods.itemPrices.put(itemName, itemValue);
                     }
                     if (Methods.itemIsNoted(newItem)) {
-                        itemValue = itemValue * newItem.getQuantity();
+                        itemValue = itemValue * event.getQuantityChange();
                     }
                 }
                 if (itemValue > 0) {
