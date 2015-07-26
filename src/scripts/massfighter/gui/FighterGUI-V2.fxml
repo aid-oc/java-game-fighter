@@ -69,21 +69,24 @@
                                     <CheckBox fx:id="bypassReachable" layoutX="309.0" layoutY="120.0" mnemonicParsing="false" />
                                     <Label layoutX="14.0" layoutY="155.0" text="Abilities Mode:" />
                                     <ComboBox fx:id="abilitiesMode" layoutX="309.0" layoutY="150.0" prefWidth="150.0" />
+                                    <Label layoutX="14.0" layoutY="184.0" prefHeight="56.0" prefWidth="239.0" text="Try and stay out of melee range of targets (only works on targets which don't move such as certain dragons):" wrapText="true" />
+                                    <CheckBox fx:id="keepDistance" layoutX="309.0" layoutY="184.0" mnemonicParsing="false" />
                                  </children>
                               </AnchorPane>
                            </content>
                         </TitledPane>
-                        <TitledPane animated="false" text="Boosts">
+                        <TitledPane animated="false" text="Boosts/Antifires">
                           <content>
                             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                  <children>
-                                    <ListView fx:id="availableBoosts" layoutX="22.0" layoutY="40.0" prefHeight="200.0" prefWidth="200.0" />
-                                    <ListView fx:id="selectedBoosts" layoutX="382.0" layoutY="40.0" prefHeight="200.0" prefWidth="200.0" />
-                                    <Label layoutX="69.0" layoutY="14.0" text="Available Boosts" />
-                                    <Label layoutX="439.0" layoutY="14.0" text="Selected Boosts" />
-                                    <Button fx:id="boostButton" layoutX="237.0" layoutY="75.0" mnemonicParsing="false" text="Add/Remove Boost" />
-                                    <Label layoutX="252.0" layoutY="124.0" text="Boost top up (%):" />
-                                    <Slider fx:id="boostRefreshPercentage" layoutX="234.0" layoutY="153.0" showTickLabels="true" showTickMarks="true" />
+                                    <ListView fx:id="availableBoosts" layoutX="29.0" layoutY="105.0" prefHeight="200.0" prefWidth="200.0" />
+                                    <ListView fx:id="selectedBoosts" layoutX="389.0" layoutY="105.0" prefHeight="200.0" prefWidth="200.0" />
+                                    <Label layoutX="76.0" layoutY="79.0" text="Available Boosts" />
+                                    <Label layoutX="446.0" layoutY="79.0" text="Selected Boosts" />
+                                    <Button fx:id="boostButton" layoutX="244.0" layoutY="140.0" mnemonicParsing="false" text="Add/Remove Boost" />
+                                    <Label layoutX="259.0" layoutY="189.0" text="Boost top up (%):" />
+                                    <Slider fx:id="boostRefreshPercentage" layoutX="241.0" layoutY="218.0" showTickLabels="true" showTickMarks="true" />
+                                    <CheckBox fx:id="useAntifires" layoutX="29.0" layoutY="20.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="565.0" text="Keep antifire active? (Supports both super and non-super, will take a dose on script start and monitor chat to refresh from there in order to support both RS3 and OSRS.)" wrapText="true" />
                                  </children>
                               </AnchorPane>
                           </content>

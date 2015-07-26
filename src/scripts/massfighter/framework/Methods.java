@@ -6,6 +6,7 @@ import com.runemate.game.api.hybrid.entities.*;
 import com.runemate.game.api.hybrid.entities.definitions.ItemDefinition;
 import com.runemate.game.api.hybrid.local.Skill;
 import com.runemate.game.api.hybrid.local.hud.interfaces.*;
+import com.runemate.game.api.hybrid.queries.NpcQueryBuilder;
 import com.runemate.game.api.hybrid.queries.SpriteItemQueryBuilder;
 import com.runemate.game.api.hybrid.queries.results.LocatableEntityQueryResults;
 import com.runemate.game.api.hybrid.region.Npcs;
@@ -27,6 +28,9 @@ import java.util.HashMap;
 public final class Methods {
 
     public static HashMap<String, Integer> itemPrices = new HashMap<>();
+    public static NpcQueryBuilder attackingNpcs = Npcs.newQuery().actions("Attack").targeting(Players.getLocal());
+    public static NpcQueryBuilder attackingReachableNpcs = attackingNpcs.reachable();
+
 
     public static SpriteItemQueryBuilder getFood() {
         SpriteItemQueryBuilder foodQuery = Inventory.newQuery().filter(Filters.DECLINE_ALL);
@@ -47,11 +51,9 @@ public final class Methods {
     }
 
     public static boolean isNotInCombat() {
-        Player player = Players.getLocal();
-        Actor target = player.getTarget();
-        LocatableEntityQueryResults<Npc> attackingNpcs = Npcs.newQuery().actions("Attack").targeting(player).results();
-        if (target == null || (attackingNpcs.isEmpty() || (attackingNpcs.nearest().getTarget() == null
-                && attackingNpcs.nearest().getAnimationId() == -1 && attackingNpcs.nearest().getHealthGauge() == null))) {
+        LocatableEntityQueryResults<Npc> targets = Settings.bypassReachable ? attackingNpcs.results() : attackingReachableNpcs.results();
+        Player player;
+        if ((player = Players.getLocal()) != null && ((player.getTarget() == null && player.getAnimationId() == -1) || targets.isEmpty())) {
             return true;
         } else {
             MassFighter.status = "Fighting";

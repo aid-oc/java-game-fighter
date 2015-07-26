@@ -18,7 +18,7 @@ public class Movement {
     public static void moveToInteractable(Interactable i) {
         if (i != null && i instanceof Locatable) {
             Locatable l = (Locatable) i;
-            if (Distance.to(l) > Random.nextInt(8, 10)) {
+            if (Distance.to(l) > Random.nextInt(4, 8)) {
                 pathToLocatable(l);
             } else {
                 Future<Boolean> cameraMovement = Camera.passivelyTurnTo(l);

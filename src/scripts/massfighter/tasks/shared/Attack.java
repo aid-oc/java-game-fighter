@@ -23,17 +23,11 @@ import static scripts.massfighter.framework.Methods.out;
 
 public class Attack extends Task {
 
-    private NpcQueryBuilder getAttackingNpcs() {
-        NpcQueryBuilder attackingNpcQuery = Npcs.newQuery().filter(Filters.DECLINE_ALL);
-        Player player = Players.getLocal();
-        if (player != null) {
-            attackingNpcQuery = Npcs.newQuery().actions("Attack").targeting(player).filter(npc -> npc != null);
-            if (!Settings.bypassReachable) attackingNpcQuery = attackingNpcQuery.reachable();
-        }
-        return attackingNpcQuery;
+    private LocatableEntityQueryResults<Npc> getAttackingNpcs() {
+        return Settings.bypassReachable ? Methods.attackingNpcs.results() : Methods.attackingReachableNpcs.results();
     }
 
-    private NpcQueryBuilder getSuitableNpcs() {
+    private LocatableEntityQueryResults<Npc> getSuitableNpcs() {
         NpcQueryBuilder suitableNpcQuery = Npcs.newQuery().filter(Filters.DECLINE_ALL);
         Area fightArea = Settings.fightArea;
         String[] npcNames = Settings.npcNames;
@@ -47,21 +41,21 @@ public class Attack extends Task {
                     });
             if (!Settings.bypassReachable) suitableNpcQuery = suitableNpcQuery.reachable();
         }
-        return suitableNpcQuery;
+        return suitableNpcQuery.results();
     }
 
 
     public boolean validate() {
         return Health.getCurrent() >= Settings.criticalHitpoints
-                && (Methods.isNotInCombat() || (Settings.tagMode && getAttackingNpcs().results().size() < Settings.tagSelection))
+                && (Methods.isNotInCombat() || (Settings.tagMode && getAttackingNpcs().size() < Settings.tagSelection))
                 && Loot.getLoot().results().isEmpty();
     }
 
     @Override
     public void execute() {
 
-        LocatableEntityQueryResults<Npc> npcsTargettingUs = getAttackingNpcs().results();
-        LocatableEntityQueryResults<Npc> validTargetResults = getSuitableNpcs().results();
+        LocatableEntityQueryResults<Npc> npcsTargettingUs = getAttackingNpcs();
+        LocatableEntityQueryResults<Npc> validTargetResults = getSuitableNpcs();
 
         if (!validTargetResults.isEmpty()) {
             out("Combat: We need a new target");
@@ -70,7 +64,7 @@ public class Attack extends Task {
             if (npcsTargettingUs.isEmpty() || (Settings.tagMode && npcsTargettingUs.size() < Settings.tagSelection)) {
                 targetNpc = validTargetResults.sortByDistance().limit(Settings.targetSelection).random();
             } else {
-                targetNpc = npcsTargettingUs.random();
+                targetNpc = npcsTargettingUs.nearest();
             }
             if (targetNpc != null) {
                 NpcDefinition targetNpcDefinition = targetNpc.getDefinition();

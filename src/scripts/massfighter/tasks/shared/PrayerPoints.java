@@ -1,8 +1,7 @@
 package scripts.massfighter.tasks.shared;
 
 import com.runemate.game.api.hybrid.Environment;
-import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
-import com.runemate.game.api.hybrid.local.hud.interfaces.SpriteItem;
+import com.runemate.game.api.hybrid.local.hud.interfaces.*;
 import com.runemate.game.api.hybrid.queries.SpriteItemQueryBuilder;
 import com.runemate.game.api.hybrid.util.Filter;
 import com.runemate.game.api.hybrid.util.calculations.Random;
@@ -35,6 +34,7 @@ public class PrayerPoints extends Task {
 
     @Override
     public void execute() {
+
 
         if (validPrayerItems.results().isEmpty()) {
             out("PrayerPoints: We have no prayer pots");

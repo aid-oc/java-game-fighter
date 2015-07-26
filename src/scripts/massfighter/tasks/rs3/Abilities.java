@@ -64,11 +64,12 @@ public class Abilities extends Task implements Runnable {
         List<SlotAction> sortedAbilities = new ArrayList<>();
         for (Ability enumAbility : Ability.values()) {
             for (SlotAction barAbility : abilities) {
-                if (barAbility.getName() != null && barAbility.getType().equals(SlotAction.Type.ABILITY)) {
-                    if (barAbility.getName().toLowerCase().equals("death's swiftness")) {
+                String abilityName;
+                if ((abilityName = barAbility.getName()) != null && barAbility.getType().equals(SlotAction.Type.ABILITY)) {
+                    if (abilityName.toLowerCase().equals("death's swiftness")) {
                         ultimates.add(barAbility);
                     }
-                    if (enumAbility.getName().toLowerCase().equals(barAbility.getName().replaceAll(" ", "_").toLowerCase())) {
+                    if (enumAbility.getName().toLowerCase().equals(abilityName.replaceAll(" ", "_").toLowerCase())) {
                         switch (enumAbility.getAbilityCategory()) {
                             case "Ultimate":
                                 ultimates.add(barAbility);

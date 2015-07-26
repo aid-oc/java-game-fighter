@@ -128,6 +128,10 @@ public class Controller {
     private CheckBox teleportHitpoints;
     @FXML
     private CheckBox coinValueRestrict;
+    @FXML
+    private CheckBox useAntifires;
+    @FXML
+    private CheckBox keepDistance;
 
 
 
@@ -280,6 +284,8 @@ public class Controller {
                 Settings.tagMode = true;
                 Settings.tagSelection = (int) tagSlider.getValue();
             }
+            Settings.useAntifire = useAntifires.isSelected();
+            Settings.keepDistance = keepDistance.isSelected();
             Settings.attackCombatMonsters = attackCombatMonsters.isSelected();
             Settings.bypassReachable = bypassReachable.isSelected();
             Settings.targetSelection = (int) targetSlider.getValue();
@@ -334,79 +340,86 @@ public class Controller {
         if (script != null) {
             ManagedProperties managedProperties = script.getSettings();
             if (managedProperties != null) {
-                String npcProperty = managedProperties.getProperty("npcNames");
-                if (npcProperty != null && npcProperty.length() > 0) {
-                    String[] npcNames = managedProperties.getProperty("npcNames").split(",");
-                    selectedMonsters.getItems().clear();
-                    selectedMonsters.getItems().addAll(npcNames);
-                    //
-                    String[] lootNames = managedProperties.getProperty("lootNames").split(",");
-                    pickupLoot.getItems().clear();
-                    pickupLoot.getItems().addAll(lootNames);
-                    //
-                    String[] alchLootNames = managedProperties.getProperty("alchLoot").split(",");
-                    alchemyLoot.getItems().clear();
-                    alchemyLoot.getItems().addAll(alchLootNames);
-                    //
-                    String[] notepaperLootNames = managedProperties.getProperty("notepaperLoot").split(",");
-                    magicNotepaperLoot.getItems().clear();
-                    magicNotepaperLoot.getItems().addAll(notepaperLootNames);
-                    String targetSelectionString = managedProperties.getProperty("targetSelection");
-                    targetSlider.setValue(Double.valueOf(targetSelectionString));
-                    logoutFood.setSelected(Boolean.valueOf(managedProperties.getProperty("foodLogout")));
-                    teleportFood.setSelected(Boolean.valueOf(managedProperties.getProperty("foodTeleport")));
-                    logoutHitpoints.setSelected(Boolean.valueOf(managedProperties.getProperty("hitpointsLogout")));
-                    teleportHitpoints.setSelected(Boolean.valueOf(managedProperties.getProperty("hitpointsTeleport")));
-                    lootInCombat.setSelected(Boolean.valueOf(managedProperties.getProperty("lootInCombat")));
-                    coinValueRestrict.setSelected(Boolean.valueOf(managedProperties.getProperty("coinValueRestrict")));
-                    abilitiesMode.getSelectionModel().select(Integer.valueOf(managedProperties.getProperty("abilityMode")));
-                    soulsplit.setSelected(Boolean.valueOf(managedProperties.getProperty("useSoulsplit")));
-                    buryBones.setSelected(Boolean.valueOf(managedProperties.getProperty("buryBones")));
-                    quickPray.setSelected(Boolean.valueOf(managedProperties.getProperty("quickPray")));
-                    attackCombatMonsters.setSelected(Boolean.valueOf(managedProperties.getProperty("attackCombatMonsters")));
-                    bypassReachable.setSelected(Boolean.valueOf(managedProperties.getProperty("bypassReachable")));
-                    reequipAmmunition.setSelected(Boolean.valueOf(managedProperties.getProperty("equipAmmunition")));
-                    soulsplitPerm.setSelected(Boolean.valueOf(managedProperties.getProperty("soulsplitPermanent")));
-                    //
-                    String soulsplitPercentageString = managedProperties.getProperty("soulsplitPercentage");
-                    soulsplitPercentage.setValue(Double.valueOf(soulsplitPercentageString));
-                    //
-                    String lootValueString = managedProperties.getProperty("lootValue");
-                    if (isNumeric(lootValueString)) {
-                        lootValue.setText(lootValueString);
+                try {
+                    String npcProperty = managedProperties.getProperty("npcNames");
+                    if (npcProperty != null && npcProperty.length() > 0) {
+                        String[] npcNames = managedProperties.getProperty("npcNames").split(",");
+                        selectedMonsters.getItems().clear();
+                        selectedMonsters.getItems().addAll(npcNames);
+                        //
+                        String[] lootNames = managedProperties.getProperty("lootNames").split(",");
+                        pickupLoot.getItems().clear();
+                        pickupLoot.getItems().addAll(lootNames);
+                        //
+                        String[] alchLootNames = managedProperties.getProperty("alchLoot").split(",");
+                        alchemyLoot.getItems().clear();
+                        alchemyLoot.getItems().addAll(alchLootNames);
+                        //
+                        String[] notepaperLootNames = managedProperties.getProperty("notepaperLoot").split(",");
+                        magicNotepaperLoot.getItems().clear();
+                        magicNotepaperLoot.getItems().addAll(notepaperLootNames);
+                        String targetSelectionString = managedProperties.getProperty("targetSelection");
+                        targetSlider.setValue(Double.valueOf(targetSelectionString));
+                        keepDistance.setSelected(Boolean.valueOf(managedProperties.getProperty("keepDistance")));
+                        useAntifires.setSelected(Boolean.valueOf(managedProperties.getProperty("useAntifires")));
+                        logoutFood.setSelected(Boolean.valueOf(managedProperties.getProperty("foodLogout")));
+                        teleportFood.setSelected(Boolean.valueOf(managedProperties.getProperty("foodTeleport")));
+                        logoutHitpoints.setSelected(Boolean.valueOf(managedProperties.getProperty("hitpointsLogout")));
+                        teleportHitpoints.setSelected(Boolean.valueOf(managedProperties.getProperty("hitpointsTeleport")));
+                        lootInCombat.setSelected(Boolean.valueOf(managedProperties.getProperty("lootInCombat")));
+                        coinValueRestrict.setSelected(Boolean.valueOf(managedProperties.getProperty("coinValueRestrict")));
+                        abilitiesMode.getSelectionModel().select(Integer.valueOf(managedProperties.getProperty("abilityMode")));
+                        soulsplit.setSelected(Boolean.valueOf(managedProperties.getProperty("useSoulsplit")));
+                        buryBones.setSelected(Boolean.valueOf(managedProperties.getProperty("buryBones")));
+                        quickPray.setSelected(Boolean.valueOf(managedProperties.getProperty("quickPray")));
+                        attackCombatMonsters.setSelected(Boolean.valueOf(managedProperties.getProperty("attackCombatMonsters")));
+                        bypassReachable.setSelected(Boolean.valueOf(managedProperties.getProperty("bypassReachable")));
+                        reequipAmmunition.setSelected(Boolean.valueOf(managedProperties.getProperty("equipAmmunition")));
+                        soulsplitPerm.setSelected(Boolean.valueOf(managedProperties.getProperty("soulsplitPermanent")));
+                        //
+                        String soulsplitPercentageString = managedProperties.getProperty("soulsplitPercentage");
+                        soulsplitPercentage.setValue(Double.valueOf(soulsplitPercentageString));
+                        //
+                        String lootValueString = managedProperties.getProperty("lootValue");
+                        if (isNumeric(lootValueString)) {
+                            lootValue.setText(lootValueString);
+                        }
+                        //
+                        String tagSelectionString = managedProperties.getProperty("tagSelection");
+                        tagSlider.setValue(Double.valueOf(tagSelectionString));
+                        //
+                        String[] foodNames =  managedProperties.getProperty("foodNames").split(",");
+                        foodSelection.getItems().clear();
+                        foodSelection.getItems().addAll(foodNames);
+                        //
+                        String fightRadiusString = managedProperties.getProperty("fightRadius");
+                        if (isNumeric(fightRadiusString)) {
+                            tileRange.setText(fightRadiusString);
+                        }
+                        //
+                        String eatValueString = managedProperties.getProperty("eatValue");
+                        eatValue.setValue(Double.valueOf(eatValueString));
+                        //
+                        String prayValueString = managedProperties.getProperty("prayValue");
+                        prayValue.setValue(Double.valueOf(prayValueString));
+                        //
+                        String criticalHitpointsString = managedProperties.getProperty("criticalHitpoints");
+                        if (isNumeric(criticalHitpointsString)) {
+                            criticalHitpoints.setText(criticalHitpointsString);
+                        }
+                        //
+                        String[] potionNames = managedProperties.getProperty("selectedPotions").split(",");
+                        selectedBoosts.getItems().clear();
+                        selectedBoosts.getItems().addAll(potionNames);
+                        //
+                        String boostRefreshPercentageString = managedProperties.getProperty("boostRefreshPercentage");
+                        boostRefreshPercentage.setValue(Double.valueOf(boostRefreshPercentageString));
+                        ClientUI.sendTrayNotification("MassFighter Settings Downloaded", TrayIcon.MessageType.INFO);
+                        return true;
                     }
-                    //
-                    String tagSelectionString = managedProperties.getProperty("tagSelection");
-                    tagSlider.setValue(Double.valueOf(tagSelectionString));
-                    //
-                    String[] foodNames =  managedProperties.getProperty("foodNames").split(",");
-                    foodSelection.getItems().clear();
-                    foodSelection.getItems().addAll(foodNames);
-                    //
-                    String fightRadiusString = managedProperties.getProperty("fightRadius");
-                    if (isNumeric(fightRadiusString)) {
-                        tileRange.setText(fightRadiusString);
-                    }
-                    //
-                    String eatValueString = managedProperties.getProperty("eatValue");
-                    eatValue.setValue(Double.valueOf(eatValueString));
-                    //
-                    String prayValueString = managedProperties.getProperty("prayValue");
-                    prayValue.setValue(Double.valueOf(prayValueString));
-                    //
-                    String criticalHitpointsString = managedProperties.getProperty("criticalHitpoints");
-                    if (isNumeric(criticalHitpointsString)) {
-                        criticalHitpoints.setText(criticalHitpointsString);
-                    }
-                    //
-                    String[] potionNames = managedProperties.getProperty("selectedPotions").split(",");
-                    selectedBoosts.getItems().clear();
-                    selectedBoosts.getItems().addAll(potionNames);
-                    //
-                    String boostRefreshPercentageString = managedProperties.getProperty("boostRefreshPercentage");
-                    boostRefreshPercentage.setValue(Double.valueOf(boostRefreshPercentageString));
-                    ClientUI.sendTrayNotification("MassFighter Settings Downloaded", TrayIcon.MessageType.INFO);
-                    return true;
+                } catch (NumberFormatException ex) {
+                    ClientUI.sendTrayNotification("Invalid cloud settings found, they have been reset", TrayIcon.MessageType.ERROR);
+                    save();
                 }
             }
         }
@@ -414,8 +427,6 @@ public class Controller {
     }
 
     private boolean save() {
-
-
         if (!selectedMonsters.getItems().isEmpty()) {
             AbstractScript script = Environment.getScript();
             if (script != null) {
@@ -437,6 +448,8 @@ public class Controller {
                     managedProperties.setProperty("useFood", Boolean.toString(!foodSelection.getItems().isEmpty()));
                     managedProperties.setProperty("lootInCombat", Boolean.toString(lootInCombat.isSelected()));
                     managedProperties.setProperty("abilityMode", Integer.toString(abilitiesMode.getSelectionModel().getSelectedIndex()));
+                    managedProperties.setProperty("useAntifires", Boolean.toString(useAntifires.isSelected()));
+                    managedProperties.setProperty("keepDistance", Boolean.toString(keepDistance.isSelected()));
                     managedProperties.setProperty("useSoulsplit", Boolean.toString(soulsplit.isSelected()));
                     managedProperties.setProperty("foodLogout", Boolean.toString(logoutFood.isSelected()));
                     managedProperties.setProperty("foodTeleport", Boolean.toString(teleportFood.isSelected()));

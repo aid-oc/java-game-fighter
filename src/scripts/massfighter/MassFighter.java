@@ -12,8 +12,10 @@ import com.runemate.game.api.osrs.net.Zybez;
 import com.runemate.game.api.rs3.net.GrandExchange;
 import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.core.LoopingThread;
+import com.runemate.game.api.script.framework.listeners.ChatboxListener;
 import com.runemate.game.api.script.framework.listeners.InventoryListener;
 import com.runemate.game.api.script.framework.listeners.events.ItemEvent;
+import com.runemate.game.api.script.framework.listeners.events.MessageEvent;
 import com.runemate.game.api.script.framework.task.Task;
 import com.runemate.game.api.script.framework.task.TaskScript;
 import javafx.application.Platform;
@@ -33,7 +35,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class MassFighter extends TaskScript implements PaintListener, MouseListener, InventoryListener {
+public class MassFighter extends TaskScript implements PaintListener, MouseListener, InventoryListener, ChatboxListener {
 
     public static Methods methods;
     public static LocatableEntity targetEntity;
@@ -67,8 +69,11 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
             showAndWaitGUI();
             methods = new Methods();
 
-            // Top priority task, not shuffled
+            // Top priority tasks, not shuffled
             add(new Safety());
+            add(new Heal());
+            add(new Antifire());
+            add(new KeepDistance());
 
             // Low-priority tasks to be shuffled
             List<Task> tasks = new ArrayList<>();
@@ -85,12 +90,10 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
             tasks.add(new Attack());
             tasks.add(new Boost());
             tasks.add(new BuryBones());
-            tasks.add(new Heal());
             tasks.add(new Loot());
             tasks.add(new PrayerPoints());
             tasks.add(new QuickPray());
             tasks.add(new ReturnToArea());
-
             Collections.shuffle(tasks);
             add(tasks.toArray(new Task[(tasks.size())]));
 
@@ -114,11 +117,10 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
     @Override
     public void onItemAdded(ItemEvent event) {
         if (methods != null && event != null && event.getItem() != null) {
-            Item newItem = event.getItem();
-            ItemDefinition itemDefinition = newItem.getDefinition();
+            ItemDefinition itemDefinition = event.getItem().getDefinition();
             if (itemDefinition != null) {
                 String itemName = itemDefinition.getName();
-                int itemId = itemDefinition.getId();
+                int itemId = itemDefinition.getUnnotedId();
                 int itemValue = 0;
                 if (itemName.equals("Coins")) {
                     itemValue = event.getQuantityChange();
@@ -136,13 +138,8 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
                         }
                         Methods.itemPrices.put(itemName, itemValue);
                     }
-                    if (Methods.itemIsNoted(newItem)) {
-                        itemValue = itemValue * event.getQuantityChange();
-                    }
                 }
-                if (itemValue > 0) {
-                    profit += itemValue;
-                }
+                profit += itemValue*event.getQuantityChange();
             }
         }
     }
@@ -245,5 +242,16 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
     @Override
     public void mouseExited(MouseEvent e) {
 
+    }
+
+    @Override
+    public void onMessageReceived(MessageEvent messageEvent) {
+        if (messageEvent != null && Settings.useAntifire && Antifire.hasAntifireActive) {
+            String message = messageEvent.getMessage().toLowerCase();
+            if (message.contains("fire is about to run out")) {
+                Antifire.hasAntifireActive = false;
+                Methods.out("Antifire: No longer active");
+            }
+        }
     }
 }
