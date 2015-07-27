@@ -37,8 +37,6 @@ public class Heal extends Task {
                         execute();
                     }
                 }
-            } else {
-                out("Heal: Food item is invalid");
             }
         } else {
             out("Heal: Attempting to remove heal task");
