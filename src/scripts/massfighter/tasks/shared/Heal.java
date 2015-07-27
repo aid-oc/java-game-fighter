@@ -26,16 +26,18 @@ public class Heal extends Task {
         MassFighter.status = "Eating";
         out("Heal: We need to use food");
         if (!validFoodItems.isEmpty()) {
-            final int startHealth = Health.getCurrent();
+            final int beforeHealth = Health.getCurrent();
             SpriteItem i = validFoodItems.random();
             if (i != null) {
                 if (i.isValid() && i.interact("Eat")) {
                     out("Heal: Ate something nice");
-                    Execution.delayUntil(() -> Health.getCurrent() != startHealth, 1600, 2000);
+                    Execution.delayUntil(() -> Health.getCurrent() != beforeHealth, 1600, 2000);
                     if (Random.nextInt(100) > 90) {
                         out("Heal: Eating extra");
                         execute();
                     }
+                } else {
+                    out("Heal: Food interaction failed");
                 }
             }
         } else {
