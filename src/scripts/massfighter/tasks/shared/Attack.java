@@ -59,11 +59,13 @@ public class Attack extends Task {
 
         if (!validTargetResults.isEmpty()) {
             out("Combat: We need a new target");
-            MassFighter.status = "Finding Target";
+
             Npc targetNpc;
             if (npcsTargettingUs.isEmpty() || (Settings.tagMode && npcsTargettingUs.size() < Settings.tagSelection)) {
+                MassFighter.status = "Getting new target";
                 targetNpc = validTargetResults.sortByDistance().limit(Settings.targetSelection).random();
             } else {
+                MassFighter.status = "Attacking aggressive npc";
                 targetNpc = npcsTargettingUs.nearest();
             }
             if (targetNpc != null) {
