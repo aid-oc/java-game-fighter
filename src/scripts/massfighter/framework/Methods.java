@@ -52,13 +52,20 @@ public final class Methods {
 
     public static boolean isNotInCombat() {
         LocatableEntityQueryResults<Npc> targets = Settings.bypassReachable ? attackingNpcs.results() : attackingReachableNpcs.results();
-        Player player;
-        if ((player = Players.getLocal()) != null && ((player.getTarget() == null && player.getAnimationId() == -1) || targets.isEmpty())) {
-            return true;
-        } else {
-            MassFighter.status = "Fighting";
-            return false;
+        Player player = Players.getLocal();
+        if (player != null) {
+            Actor target = player.getTarget();
+            if (target == null && player.getAnimationId() == -1) {
+                return true;
+            } else if (target != null && player.getAnimationId() == -1) {
+                Npc nearest = targets.nearest();
+                if (nearest != null && (nearest.getTarget() == null || nearest.getHealthGauge() == null)) {
+                    return true;
+                }
+            }
         }
+        MassFighter.status = "Fighting";
+        return false;
     }
 
     public static void logout() {

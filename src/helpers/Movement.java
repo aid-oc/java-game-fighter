@@ -7,8 +7,6 @@ import com.runemate.game.api.hybrid.location.navigation.Path;
 import com.runemate.game.api.hybrid.location.navigation.Traversal;
 import com.runemate.game.api.hybrid.location.navigation.basic.BresenhamPath;
 import com.runemate.game.api.hybrid.location.navigation.cognizant.RegionPath;
-import com.runemate.game.api.hybrid.util.calculations.Distance;
-import com.runemate.game.api.hybrid.util.calculations.Random;
 import com.runemate.game.api.script.Execution;
 
 import java.util.concurrent.Future;
@@ -18,14 +16,10 @@ public class Movement {
     public static void moveToInteractable(Interactable i) {
         if (i != null && i instanceof Locatable) {
             Locatable l = (Locatable) i;
-            if (Distance.to(l) > Random.nextInt(4, 8)) {
+            Future<Boolean> cameraMovement = Camera.passivelyTurnTo(l);
+            Execution.delayUntil(cameraMovement::get, 2000, 4000);
+            if (!i.isVisible()) {
                 pathToLocatable(l);
-            } else {
-                Future<Boolean> cameraMovement = Camera.passivelyTurnTo(l);
-                Execution.delayUntil(cameraMovement::get, 2000, 4000);
-                if (!i.isVisible()) {
-                    pathToLocatable(l);
-                }
             }
         }
     }

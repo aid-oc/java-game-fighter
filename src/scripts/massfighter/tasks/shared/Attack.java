@@ -1,7 +1,6 @@
 package scripts.massfighter.tasks.shared;
 
 import com.runemate.game.api.hybrid.entities.Npc;
-import com.runemate.game.api.hybrid.entities.Player;
 import com.runemate.game.api.hybrid.entities.definitions.NpcDefinition;
 import com.runemate.game.api.hybrid.local.hud.Menu;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Health;
@@ -9,7 +8,6 @@ import com.runemate.game.api.hybrid.location.Area;
 import com.runemate.game.api.hybrid.queries.NpcQueryBuilder;
 import com.runemate.game.api.hybrid.queries.results.LocatableEntityQueryResults;
 import com.runemate.game.api.hybrid.region.Npcs;
-import com.runemate.game.api.hybrid.region.Players;
 import com.runemate.game.api.hybrid.util.Filter;
 import com.runemate.game.api.hybrid.util.Filters;
 import com.runemate.game.api.script.Execution;
@@ -36,7 +34,7 @@ public class Attack extends Task {
                     .filter(new Filter<Npc>() {
                         @Override
                         public boolean accepts(Npc npc) {
-                            return npc != null && npc.getAnimationId() == -1 && npc.getId() != 1273 && (Settings.attackCombatMonsters || npc.getTarget() == null);
+                            return npc != null && npc.getAnimationId() == -1 && npc.getId() != 1273 && (Settings.attackCombatMonsters || npc.getHealthGauge() == null);
                         }
                     });
             if (!Settings.bypassReachable) suitableNpcQuery = suitableNpcQuery.reachable();
