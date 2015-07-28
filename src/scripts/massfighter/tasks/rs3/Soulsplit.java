@@ -25,12 +25,12 @@ public class Soulsplit extends Task {
 
     @Override
     public void execute() {
-        MassFighter.status = "Toggling Sousplit";
         out("PrayerPoints:(RS3) Turning on soul split");
-        boolean soulsplitCurrent = Powers.Prayer.Curse.SOUL_SPLIT.isActivated();
+        boolean soulsplitStatus = Powers.Prayer.Curse.SOUL_SPLIT.isActivated();
         if (Powers.Prayer.Curse.SOUL_SPLIT.toggle()) {
+            MassFighter.status = "Toggling Sousplit";
             out("PrayerPoints:(RS3) Successfully toggled soul split");
-            Execution.delayUntil(() -> Powers.Prayer.Curse.SOUL_SPLIT.isActivated() != soulsplitCurrent, 1600, 2000);
+            Execution.delayUntil(() -> Powers.Prayer.Curse.SOUL_SPLIT.isActivated() != soulsplitStatus, 2000, 2500);
         } else {
             out("PrayerPoints:(RS3) Unsuccessfully toggled soul split");
         }
