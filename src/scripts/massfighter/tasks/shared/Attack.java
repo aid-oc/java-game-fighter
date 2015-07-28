@@ -69,18 +69,22 @@ public class Attack extends Task {
                 MassFighter.status = "Aggressive target found";
             }
             if (targetNpc != null) {
-                NpcDefinition targetNpcDefinition = targetNpc.getDefinition();
-                if (targetNpcDefinition != null) {
-                    targetNpcDefinition = targetNpcDefinition.getLocalState() != null ? targetNpcDefinition.getLocalState() : targetNpcDefinition;
+                NpcDefinition targetDefinition = targetNpc.getDefinition();
+                if (targetDefinition != null) {
+                    targetDefinition = targetDefinition.getLocalState() != null ? targetDefinition.getLocalState() : targetDefinition;
                     if (targetNpc.isVisible()) {
                         MassFighter.targetEntity = targetNpc;
-                        if (targetNpc.interact("Attack", targetNpcDefinition.getName())) {
+                        if (targetNpc.interact("Attack", targetDefinition.getName())) {
                             out("Combat: Attacked a target");
                             final Npc target = targetNpc;
                             Execution.delayUntil(() -> target.getTarget() != null, 1000, 2000);
                         } else {
-                            if (Menu.isOpen()) Menu.close();
-                            out("Combat: NPC interaction failed");
+                            if (Menu.isOpen()) {
+                                out("Combat: Closing Menu");
+                                Menu.close();
+                            } else {
+                                out("Combat: We're failing to interact");
+                            }
                         }
                     } else {
                         Movement.moveToInteractable(targetNpc);
