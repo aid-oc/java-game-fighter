@@ -171,7 +171,10 @@
                                                       <CheckBox fx:id="coinValueRestrict" layoutX="284.0" layoutY="22.0" mnemonicParsing="false" text="Also restrict coins to this amount" />
                                                       <CheckBox fx:id="lootInCombat" layoutX="14.0" layoutY="54.0" mnemonicParsing="false" text="Loot whilst in combat" />
                                                       <CheckBox fx:id="buryBones" layoutX="14.0" layoutY="82.0" mnemonicParsing="false" text="Bury bones/ashes in my inventory" />
-                                                      <CheckBox fx:id="reequipAmmunition" layoutX="14.0" layoutY="112.0" mnemonicParsing="false" text="Equip ammunition in my inventory (Prioritises the type you are using)" />
+                                                      <CheckBox fx:id="reequipAmmunition" layoutX="14.0" layoutY="112.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="572.0" text="Equip ammunition/throwing weapons in my inventory (Prioritises the type you are using), remember to add to loot the ones you want!" wrapText="true" />
+                                                      <Slider fx:id="ammoSlider" layoutX="299.0" layoutY="157.0" majorTickUnit="10.0" max="50.0" min="1.0" minorTickCount="1" showTickLabels="true" showTickMarks="true" value="1.0" />
+                                                      <Label layoutX="14.0" layoutY="159.0" text="Equip Ammunition/Throwing Weapons when I have:" />
+                                                      <Label layoutX="450.0" layoutY="157.0" prefHeight="58.0" prefWidth="133.0" text="or more in my inventory (this will be varied randomly)" wrapText="true" />
                                                    </children>
                                                 </AnchorPane>
                                             </content>

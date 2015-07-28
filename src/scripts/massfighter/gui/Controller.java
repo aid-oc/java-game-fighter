@@ -132,6 +132,8 @@ public class Controller {
     private CheckBox useAntifires;
     @FXML
     private CheckBox keepDistance;
+    @FXML
+    private Slider ammoSlider;
 
 
 
@@ -164,6 +166,8 @@ public class Controller {
         for (SkillPotion skillPotion : SkillPotion.values()) {
             availableBoosts.getItems().add(skillPotion.toString());
         }
+
+        reequipAmmunition.setOnAction(event -> ammoSlider.setDisable(reequipAmmunition.isDisable()));
 
         refreshButton.setOnAction(event -> {
             availableMonsters.getItems().remove(0, availableMonsters.getItems().size());
@@ -284,6 +288,7 @@ public class Controller {
                 Settings.tagMode = true;
                 Settings.tagSelection = (int) tagSlider.getValue();
             }
+            Settings.ammoAmount = (int)ammoSlider.getValue();
             Settings.useAntifire = useAntifires.isSelected();
             Settings.keepDistance = keepDistance.isSelected();
             Settings.attackCombatMonsters = attackCombatMonsters.isSelected();
@@ -360,6 +365,8 @@ public class Controller {
                         magicNotepaperLoot.getItems().addAll(notepaperLootNames);
                         String targetSelectionString = managedProperties.getProperty("targetSelection");
                         targetSlider.setValue(Double.valueOf(targetSelectionString));
+                        String ammoSelectionString = managedProperties.getProperty("ammoValue");
+                        ammoSlider.setValue(Double.valueOf(ammoSelectionString));
                         keepDistance.setSelected(Boolean.valueOf(managedProperties.getProperty("keepDistance")));
                         useAntifires.setSelected(Boolean.valueOf(managedProperties.getProperty("useAntifires")));
                         logoutFood.setSelected(Boolean.valueOf(managedProperties.getProperty("foodLogout")));
@@ -417,8 +424,13 @@ public class Controller {
                         ClientUI.sendTrayNotification("MassFighter Settings Downloaded", TrayIcon.MessageType.INFO);
                         return true;
                     }
-                } catch (NumberFormatException ex) {
-                    ClientUI.sendTrayNotification("Invalid cloud settings found, they have been reset", TrayIcon.MessageType.ERROR);
+                } catch (Exception e) {
+                    ClientUI.sendTrayNotification("Your settings were invalid and have been reset, this was probably caused by me adding new settings, sorry! - Ozzy", TrayIcon.MessageType.ERROR);
+                    try {
+                        Thread.sleep(4000);
+                    } catch (InterruptedException e1) {
+                        e1.printStackTrace();
+                    }
                     save();
                 }
             }
@@ -466,6 +478,7 @@ public class Controller {
                     managedProperties.setProperty("lootValue", lootValue.getText());
                     managedProperties.setProperty("coinValueRestrict", Boolean.toString(coinValueRestrict.isSelected()));
                     managedProperties.setProperty("tagSelection", Double.toString(tagSlider.getValue()));
+                    managedProperties.setProperty("ammoValue", Double.toString(ammoSlider.getValue()));
                     //
                     String foodString = String.join(",", foodSelection.getItems());
                     managedProperties.setProperty("foodNames", foodString);

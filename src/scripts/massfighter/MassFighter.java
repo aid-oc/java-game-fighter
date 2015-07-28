@@ -2,7 +2,6 @@ package scripts.massfighter;
 
 import com.runemate.game.api.client.paint.PaintListener;
 import com.runemate.game.api.hybrid.Environment;
-import com.runemate.game.api.hybrid.entities.Item;
 import com.runemate.game.api.hybrid.entities.LocatableEntity;
 import com.runemate.game.api.hybrid.entities.definitions.ItemDefinition;
 import com.runemate.game.api.hybrid.local.Skill;
@@ -87,6 +86,7 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
             }
             tasks.add(new Alchemy());
             tasks.add(new Ammunition());
+            tasks.add(new Throwing());
             tasks.add(new Attack());
             tasks.add(new Boost());
             tasks.add(new BuryBones());

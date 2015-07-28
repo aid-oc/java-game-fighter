@@ -33,6 +33,7 @@ public class Settings {
     public static boolean keepDistance = false;
     public static int soulsplitPercentage = 100;
     public static double lootValue = 0;
+    public static int ammoAmount = 1;
     public static int tagSelection = 0;
     public static int fightRadius = 20;
     public static int eatPercentage = 0;

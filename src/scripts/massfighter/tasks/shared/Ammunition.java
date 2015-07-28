@@ -9,6 +9,7 @@ import com.runemate.game.api.hybrid.util.Filter;
 import com.runemate.game.api.hybrid.util.Filters;
 import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.task.Task;
+import scripts.massfighter.MassFighter;
 import scripts.massfighter.gui.Settings;
 
 public class Ammunition extends Task {
@@ -21,7 +22,7 @@ public class Ammunition extends Task {
                 ItemDefinition itemDefinition = spriteItem.getDefinition();
                 if (itemDefinition != null) itemName = itemDefinition.getName();
             }
-            return itemName != null && (itemName.contains("arrow") || itemName.contains("bolt"));
+            return itemName != null && (itemName.contains("arrow") || itemName.contains("bolt")) && Inventory.getQuantity(spriteItem.getId()) >= Settings.ammoAmount;
         }
     });
 
@@ -51,6 +52,7 @@ public class Ammunition extends Task {
 
     @Override
     public void execute() {
+        MassFighter.status = "Getting ammo";
         SpriteItem targetAmmo;
         if (getCurrentAmmunition() != null) {
             targetAmmo = getMatchingAmmunition().results().random();
