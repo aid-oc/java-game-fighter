@@ -1,8 +1,10 @@
 package scripts.massfighter.tasks.shared;
 
 import com.runemate.game.api.hybrid.Environment;
+import com.runemate.game.api.hybrid.entities.definitions.ItemDefinition;
 import com.runemate.game.api.hybrid.local.Skill;
 import com.runemate.game.api.hybrid.local.hud.Menu;
+import com.runemate.game.api.hybrid.local.hud.MenuItem;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Equipment;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
 import com.runemate.game.api.hybrid.local.hud.interfaces.SpriteItem;
@@ -20,6 +22,7 @@ import scripts.massfighter.gui.Settings;
 import scripts.massfighter.MassFighter;
 
 import java.util.Arrays;
+import java.util.List;
 
 import static scripts.massfighter.framework.Methods.out;
 
@@ -39,64 +42,63 @@ public class Alchemy extends Task {
         return alchableItemQuery;
     }
 
-    private final SpriteItemQueryBuilder validStaff = Equipment.newQuery().filter(new Filter<SpriteItem>() {
-        @Override
-        public boolean accepts(SpriteItem spriteItem) {
-            if (spriteItem.getDefinition().getEquipmentSlot().equals(Equipment.Slot.WEAPON)) {
-                String itemName = spriteItem.getDefinition().getName().toLowerCase();
+    private boolean hasValidStaff() {
+        SpriteItem weapon = Equipment.getItemIn(Equipment.Slot.WEAPON);
+        ItemDefinition itemDefinition;
+        if (weapon != null && (itemDefinition = weapon.getDefinition()) != null) {
+            String itemName = itemDefinition.getName();
+            if (itemName != null) {
+                itemName = itemName.toLowerCase();
                 return itemName.contains("fire") || itemName.contains("lava") || itemName.contains("mystic");
             }
-            return false;
         }
-    });
+        return false;
+    }
+
 
     private boolean hasAlchReqs() {
-        return Inventory.containsAnyOf("Nature rune") && (((Inventory.containsAnyOf("Fire rune") && Inventory.getQuantity("Fire rune") >= 5)) || !validStaff.results().isEmpty());
+        return Inventory.containsAnyOf("Nature rune") && (((Inventory.getQuantity("Fire rune") >= 5)) || hasValidStaff());
     }
 
 
     public boolean validate() {
-        return Methods.arrayIsValid(Settings.alchLoot) && !getAlchableItems().results().isEmpty() && hasAlchReqs();
+        return Skill.MAGIC.getCurrentLevel() >= 55 && Methods.arrayIsValid(Settings.alchLoot) && !getAlchableItems().results().isEmpty() && hasAlchReqs();
+    }
+
+    private boolean alchemyIsActivated() {
+        List<MenuItem> items = Menu.getItems();
+        if (items != null) {
+            for (MenuItem i : items) {
+                if (i != null && i.getTarget() != null && i.getTarget().toLowerCase().contains("alchemy")) return true;
+            }
+        }
+        return false;
     }
 
     @Override
     public void execute() {
 
         MassFighter.status = "Alching";
-        if (Skill.MAGIC.getCurrentLevel() >= 55) {
-            if ((Environment.isRS3() && Powers.Magic.Book.getCurrent().equals(Powers.Magic.Book.STANDARD) || (Environment.isOSRS() && Magic.Book.getCurrent().equals(Magic.Book.STANDARD)))) {
-                SpriteItem alchItem = getAlchableItems().results().limit(3).random();
-                if (alchItem != null) {
-                    String targetItemName = alchItem.getDefinition().getName();
-                    SlotAction highAlch = ActionBar.getFirstAction("High Level Alchemy");
-                    if (highAlch != null && highAlch.isValid() && highAlch.isActivatable()) {
-                        if (highAlch.activate()) {
-                            out("Alchemy: Spell Activated");
-                            int itemCount = Inventory.getQuantity(targetItemName);
-                            if (alchItem.click()) {
-                                out("Alchemy: Successful cast on " + targetItemName);
-                                Execution.delayUntil(() -> Inventory.getQuantity(targetItemName) < itemCount, 2000, 2200);
-                            }
-                        }
-                    } else {
-                        if ((Environment.isRS3() && Powers.Magic.HIGH_LEVEL_ALCHEMY.activate()) || (Environment.isOSRS() && Magic.HIGH_LEVEL_ALCHEMY.activate())) {
-                            Execution.delay(600, 800);
-                            out("Alchemy: Spell Activated");
-                            int itemCount = Inventory.getQuantity(targetItemName);
-                            if (alchItem.click()) {
-                                out("Alchemy: Successful cast on " + targetItemName);
-                                Execution.delayUntil(() -> Inventory.getQuantity(targetItemName) < itemCount, 2000, 2200);
-                            }
-                        } else {
-                            if (Menu.isOpen()) Menu.close();
-                        }
-                    }
-                } else {
-                    out("Alchemy: Target item is invalid");
-                }
+        SpriteItem alchItem = getAlchableItems().results().limit(3).random();
+        out("Alchemy: Not Activated -> Activating");
+        if (Environment.isRS3() && Powers.Magic.Book.getCurrent().equals(Powers.Magic.Book.STANDARD)) {
+            out("Alchemy: Not Activated -> RS3");
+            SlotAction highAlch = ActionBar.getFirstAction("High Level Alchemy");
+            if ((highAlch != null && highAlch.isValid() && highAlch.isActivatable() && highAlch.activate()) || Powers.Magic.HIGH_LEVEL_ALCHEMY.activate()) {
+                Execution.delayUntil(this::alchemyIsActivated, 800, 1500);
             }
-        } else {
-            out("Alchemy: Tried to alch, but your level is too low");
+        } else if (Environment.isOSRS() && Magic.Book.getCurrent().equals(Magic.Book.STANDARD)) {
+            out("Alchemy: Not Activated -> OSRS");
+            if (Magic.HIGH_LEVEL_ALCHEMY.activate()) Execution.delayUntil(this::alchemyIsActivated, 800, 1500);
+        }
+        out("Alchemy: Activated -> Alching");
+        if (alchItem != null) {
+            if (alchItem.hover() && alchemyIsActivated() && alchItem.click()) {
+                out("Alchemy: Activated -> Clicked item");
+                Execution.delayUntil(() -> !alchemyIsActivated(), 500, 1500);
+            } else {
+                out("Alchemy: Activated -> Failed to click item");
+            }
         }
     }
 }
