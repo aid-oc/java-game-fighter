@@ -31,6 +31,8 @@ public class Settings {
     public static boolean healthLogout = false;
     public static boolean useAntifire = false;
     public static boolean keepDistance = false;
+    public static boolean resetPitch = false;
+    public static boolean lockCamera = false;
     public static int soulsplitPercentage = 100;
     public static double lootValue = 0;
     public static int ammoAmount = 1;

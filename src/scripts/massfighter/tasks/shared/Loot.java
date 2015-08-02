@@ -64,6 +64,7 @@ public class Loot extends Task {
             out("Loot: Found a valid item");
             takeGroundItem(targetItem);
         }
+        Movement.resetCameraPitch();
     }
 
     private void takeGroundItem(GroundItem item) {
@@ -75,6 +76,7 @@ public class Loot extends Task {
                 Execution.delayUntil(() -> Inventory.getQuantity() > invCount || LootInventory.isOpen(), 1500, 2000);
             } else {
                 if (Menu.isOpen()) Menu.close();
+                Movement.moveToInteractable(item);
             }
         } else {
             out("Loot: We need to move to the item");

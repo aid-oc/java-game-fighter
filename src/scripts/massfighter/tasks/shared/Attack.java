@@ -77,12 +77,8 @@ public class Attack extends Task {
                             final Npc target = targetNpc;
                             Execution.delayUntil(() -> target.getTarget() != null, 1000, 2000);
                         } else {
-                            if (Menu.isOpen()) {
-                                out("Combat: Closing Menu");
-                                Menu.close();
-                            } else {
-                                out("Combat: We're failing to interact");
-                            }
+                            if (Menu.isOpen()) Menu.close();
+                            Movement.moveToInteractable(targetNpc);
                         }
                     } else {
                         Movement.moveToInteractable(targetNpc);
@@ -97,6 +93,7 @@ public class Attack extends Task {
             out("Combat: Waiting for new targets");
             MassFighter.status = "No Targets";
         }
+        Movement.resetCameraPitch();
     }
 
 }

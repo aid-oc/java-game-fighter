@@ -43,6 +43,16 @@
                               </AnchorPane>
                         </content>
                       </TitledPane>
+                        <TitledPane animated="false" layoutX="10.0" layoutY="10.0" text="Camera">
+                           <content>
+                              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                 <children>
+                                    <CheckBox fx:id="lockCamera" layoutX="14.0" layoutY="33.0" mnemonicParsing="false" text="Prevent the bot from moving the camera when possible" />
+                                    <CheckBox fx:id="resetPitch" layoutX="14.0" layoutY="66.0" mnemonicParsing="false" text="Reset the camera to the usual top-down pitch after finding a target" />
+                                 </children>
+                              </AnchorPane>
+                           </content>
+                        </TitledPane>
                         <TitledPane animated="false" text="Fight Region">
                           <content>
                             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
@@ -172,9 +182,9 @@
                                                       <CheckBox fx:id="lootInCombat" layoutX="14.0" layoutY="54.0" mnemonicParsing="false" text="Loot whilst in combat" />
                                                       <CheckBox fx:id="buryBones" layoutX="14.0" layoutY="82.0" mnemonicParsing="false" text="Bury bones/ashes in my inventory" />
                                                       <CheckBox fx:id="reequipAmmunition" layoutX="14.0" layoutY="112.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="572.0" text="Equip ammunition/throwing weapons in my inventory (Prioritises the type you are using), remember to add to loot the ones you want!" wrapText="true" />
-                                                      <Slider fx:id="ammoSlider" layoutX="299.0" layoutY="157.0" majorTickUnit="10.0" max="50.0" min="1.0" minorTickCount="1" showTickLabels="true" showTickMarks="true" value="1.0" />
+                                                      <Slider fx:id="ammoSlider" layoutX="299.0" layoutY="157.0" majorTickUnit="10.0" min="10.0" minorTickCount="1" showTickLabels="true" showTickMarks="true" value="1.0" />
                                                       <Label layoutX="14.0" layoutY="159.0" text="Equip Ammunition/Throwing Weapons when I have:" />
-                                                      <Label layoutX="450.0" layoutY="157.0" prefHeight="58.0" prefWidth="133.0" text="or more in my inventory (this will be varied randomly)" wrapText="true" />
+                                                      <Label layoutX="453.0" layoutY="147.0" prefHeight="58.0" prefWidth="133.0" text="The bot will randomise this value a bit, so don't worry if it equips early!" wrapText="true" />
                                                    </children>
                                                 </AnchorPane>
                                             </content>

@@ -10,6 +10,7 @@ import com.runemate.game.api.hybrid.util.Filters;
 import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.task.Task;
 import scripts.massfighter.MassFighter;
+import scripts.massfighter.framework.Methods;
 import scripts.massfighter.gui.Settings;
 
 public class Ammunition extends Task {
@@ -31,7 +32,7 @@ public class Ammunition extends Task {
         if (getCurrentAmmunition() != null && getCurrentAmmunition().getDefinition() != null) {
             String currentAmmoName = getCurrentAmmunition().getDefinition().getName();
             if (currentAmmoName != null) {
-                matchingAmmunition = availableAmmunition.filter(item -> item != null && item.getDefinition() != null && item.getDefinition().getName().equals(currentAmmoName));
+                matchingAmmunition = availableAmmunition.filter(item -> item != null && item.getDefinition() != null && item.getDefinition().getName().equals(currentAmmoName) && Inventory.getQuantity(item.getId()) >= Settings.ammoAmount);
             }
         }
         return matchingAmmunition;
@@ -52,11 +53,14 @@ public class Ammunition extends Task {
 
     @Override
     public void execute() {
+        Methods.out("Ammunition: EQUIPPING START");
         MassFighter.status = "Getting ammo";
         SpriteItem targetAmmo;
         if (getCurrentAmmunition() != null) {
+            Methods.out("Ammunition: EQUIPPING MATCHING AMMO");
             targetAmmo = getMatchingAmmunition().results().random();
         } else {
+            Methods.out("Ammunition: EQUIPPING RANDOM AMMO");
             targetAmmo = availableAmmunition.results().random();
         }
         if (targetAmmo != null && Inventory.equip(targetAmmo)) {

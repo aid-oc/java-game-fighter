@@ -47,7 +47,7 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
     private int startExp = 0;
     private int startExpNoHp = 0;
     private int profit = 0;
-    private final Rectangle hidePaintButton = new Rectangle(1,155,80,35);
+    private final Rectangle hidePaintButton = new Rectangle(1,155,80,20);
     private boolean hidePaint = false;
 
     private final int constitutionLevel = Skill.CONSTITUTION.getBaseLevel();
@@ -153,9 +153,9 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
 
             // Draw minimise rectangle
             g2d.setColor(blackTransparent);
-            g2d.fillRect(hidePaintButton.x, hidePaintButton.y, hidePaintButton.width, hidePaintButton.height);
+            g2d.fillRect(hidePaintButton.x, hidePaintButton.y, hidePaintButton.width, 20);
             g2d.setColor(Color.white);
-            g2d.drawString("Toggle Paint", hidePaintButton.x+5, hidePaintButton.y+hidePaintButton.height/2);
+            g2d.drawString("Toggle Paint", hidePaintButton.x+5, hidePaintButton.y+15);
 
             if (!hidePaint) {
 

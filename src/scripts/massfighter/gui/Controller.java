@@ -9,6 +9,7 @@ import com.runemate.game.api.hybrid.location.Area;
 import com.runemate.game.api.hybrid.queries.NpcQueryBuilder;
 import com.runemate.game.api.hybrid.region.Npcs;
 import com.runemate.game.api.hybrid.region.Players;
+import com.runemate.game.api.hybrid.util.calculations.Random;
 import com.runemate.game.api.hybrid.util.io.ManagedProperties;
 import com.runemate.game.api.script.framework.AbstractScript;
 import javafx.collections.FXCollections;
@@ -22,6 +23,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import scripts.massfighter.data.SkillPotion;
 import scripts.massfighter.MassFighter;
+import scripts.massfighter.framework.Methods;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -134,6 +136,10 @@ public class Controller {
     private CheckBox keepDistance;
     @FXML
     private Slider ammoSlider;
+    @FXML
+    private CheckBox lockCamera;
+    @FXML
+    private CheckBox resetPitch;
 
 
 
@@ -288,7 +294,9 @@ public class Controller {
                 Settings.tagMode = true;
                 Settings.tagSelection = (int) tagSlider.getValue();
             }
-            Settings.ammoAmount = (int)ammoSlider.getValue();
+            Settings.lockCamera = lockCamera.isSelected();
+            Settings.resetPitch = resetPitch.isSelected();
+            Settings.ammoAmount = (int) ammoSlider.getValue();
             Settings.useAntifire = useAntifires.isSelected();
             Settings.keepDistance = keepDistance.isSelected();
             Settings.attackCombatMonsters = attackCombatMonsters.isSelected();
@@ -363,6 +371,8 @@ public class Controller {
                         String[] notepaperLootNames = managedProperties.getProperty("notepaperLoot").split(",");
                         magicNotepaperLoot.getItems().clear();
                         magicNotepaperLoot.getItems().addAll(notepaperLootNames);
+                        resetPitch.setSelected(Boolean.valueOf(managedProperties.getProperty("resetPitch")));
+                        lockCamera.setSelected(Boolean.valueOf(managedProperties.getProperty("lockCamera")));
                         String targetSelectionString = managedProperties.getProperty("targetSelection");
                         targetSlider.setValue(Double.valueOf(targetSelectionString));
                         String ammoSelectionString = managedProperties.getProperty("ammoValue");
@@ -456,6 +466,8 @@ public class Controller {
                     //
                     String notepaperLootString = String.join(",", magicNotepaperLoot.getItems());
                     managedProperties.setProperty("notepaperLoot", notepaperLootString);
+                    managedProperties.setProperty("lockCamera", Boolean.toString(lockCamera.isSelected()));
+                    managedProperties.setProperty("resetPitch", Boolean.toString(resetPitch.isSelected()));
                     managedProperties.setProperty("targetSelection", Double.toString(targetSlider.getValue()));
                     managedProperties.setProperty("useFood", Boolean.toString(!foodSelection.getItems().isEmpty()));
                     managedProperties.setProperty("lootInCombat", Boolean.toString(lootInCombat.isSelected()));
