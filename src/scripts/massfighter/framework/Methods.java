@@ -28,7 +28,14 @@ import java.util.HashMap;
 public final class Methods {
 
     public static HashMap<String, Integer> itemPrices = new HashMap<>();
-    public static NpcQueryBuilder attackingNpcs = Npcs.newQuery().actions("Attack").targeting(Players.getLocal());
+    public static NpcQueryBuilder attackingNpcs = Npcs.newQuery().actions("Attack").targeting(Players.getLocal()).filter(new Filter<Npc>() {
+        @Override
+        public boolean accepts(Npc npc) {
+            LocatableEntityQueryResults attackers = Players.newQuery().targeting(npc).results();
+            Player player = Players.getLocal();
+            return attackers.isEmpty() || (player != null && attackers.contains(player) && attackers.size() == 1);
+        }
+    });
     public static NpcQueryBuilder attackingReachableNpcs = attackingNpcs.reachable();
 
 
