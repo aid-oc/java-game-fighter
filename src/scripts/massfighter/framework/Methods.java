@@ -95,7 +95,7 @@ public final class Methods {
         if (Environment.isRS3()) {
             prayerPoints = Powers.Prayer.getPoints();
         } else {
-            InterfaceComponent prayerOrb = Interfaces.getAt(160, 14);
+            InterfaceComponent prayerOrb = Interfaces.getAt(160, 15);
             if (prayerOrb != null && prayerOrb.getText() != null) {
                 Integer intValue = Integer.valueOf(prayerOrb.getText());
                 if (intValue != null) {
