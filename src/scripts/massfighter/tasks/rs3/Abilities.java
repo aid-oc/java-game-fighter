@@ -41,7 +41,7 @@ public class Abilities extends Task implements Runnable {
         if (!abilities.isEmpty()) {
             for (SlotAction ability : abilities) {
                 if (ability != null) {
-                    if (ability.getName() != null && ability.isActivatable() && ability.isReady()) {
+                    if (ability.getName() != null && ability.isReady()) {
                         if (ability.activate()) {
                             out("Abilities: Used: " + ability.getName());
                             Execution.delayUntil(() -> !ability.isReady(), 1000, 1600);
