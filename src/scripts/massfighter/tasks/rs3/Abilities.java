@@ -1,5 +1,6 @@
 package scripts.massfighter.tasks.rs3;
 
+import com.runemate.game.api.hybrid.entities.Actor;
 import com.runemate.game.api.hybrid.entities.Npc;
 import com.runemate.game.api.hybrid.entities.Player;
 import com.runemate.game.api.hybrid.queries.NpcQueryBuilder;
@@ -28,8 +29,9 @@ public class Abilities extends Task implements Runnable {
     public boolean validate() {
         Player player;
         Npc target;
+        Actor potentialTarget;
         LocatableEntityQueryResults<Npc> nearbyAttackableNcps;
-        return (player = Players.getLocal()) != null && (target = (Npc)player.getTarget()) != null
+        return (player = Players.getLocal()) != null && (potentialTarget = player.getTarget()) != null && (potentialTarget instanceof Npc) && (target = (Npc)potentialTarget) != null
                 && (nearbyAttackableNcps = getNearbyTargets(player).results()) != null && !nearbyAttackableNcps.isEmpty() && nearbyAttackableNcps.contains(target);
     }
 
