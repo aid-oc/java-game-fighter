@@ -2,7 +2,7 @@
     <main-class>scripts.massfighter.MassFighter</main-class>
     <name>MassFighter</name>
     <description>AIO Fighter for RS3 and OSRS.</description>
-    <version>2.0.0</version>
+    <version>2.0.1</version>
     <compatibility>
         <game-type>OSRS</game-type>
         <game-type>RS3</game-type>
