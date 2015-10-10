@@ -46,7 +46,8 @@ public final class Methods {
             foodQuery = Inventory.newQuery().filter(new Filter<SpriteItem>() {
                 @Override
                 public boolean accepts(SpriteItem spriteItem) {
-                    return spriteItem != null && spriteItem.getDefinition() != null & Arrays.asList(foodNames).contains(spriteItem.getDefinition().getName().toLowerCase());
+                    ItemDefinition itemDefinition;
+                    return spriteItem != null && (itemDefinition = spriteItem.getDefinition()) != null && Arrays.asList(foodNames).contains(itemDefinition.getName().toLowerCase());
                 }
             });
         }
