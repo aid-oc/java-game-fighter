@@ -43,10 +43,12 @@ public class PrayerPoints extends Task {
                 Settings.quickPray = false;
                 System.out.println("PrayerPoints: Trying to remove pray task");
                 TaskScript rootScript = (TaskScript) Environment.getScript();
-                rootScript.getTasks().stream().filter(task -> task != null && task instanceof PrayerPoints).forEach(task -> {
-                    System.out.println("PrayerPoints: Successfully removed pray task");
-                    rootScript.remove(task);
-                });
+                if (rootScript != null) {
+                    rootScript.getTasks().stream().filter(task -> task != null && task instanceof PrayerPoints).forEach(task -> {
+                        System.out.println("PrayerPoints: Successfully removed pray task");
+                        rootScript.remove(task);
+                    });
+                }
         } else if (Methods.getPrayPoints() != -1) {
             out("PrayerPoints: We have pots, getting prayer points");
             final int startPP = Methods.getPrayPoints();

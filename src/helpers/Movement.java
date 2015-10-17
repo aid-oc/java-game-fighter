@@ -21,9 +21,11 @@ public class Movement {
                 pathToLocatable(l);
             } else {
                 Future<Boolean> cameraMovement = Camera.concurrentlyTurnTo(l);
-                Execution.delayUntil(cameraMovement::get, 2000, 4000);
-                if (!i.isVisible()) {
-                    pathToLocatable(l);
+                if (!cameraMovement.isCancelled()) {
+                    Execution.delayUntil(cameraMovement::get, 2000, 4000);
+                    if (!i.isVisible()) {
+                        pathToLocatable(l);
+                    }
                 }
             }
         }
