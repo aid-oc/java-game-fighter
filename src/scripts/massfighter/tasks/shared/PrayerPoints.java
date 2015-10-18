@@ -29,6 +29,7 @@ public class PrayerPoints extends Task {
     });
 
     public boolean validate() {
+        out("Prayer Points: " + Methods.getPrayPoints() + " / " + Methods.prayerPercentage() + "%");
         return Methods.varyValue(Methods.prayerPercentage(), 5) < Settings.prayPercentage;
     }
 

@@ -5,6 +5,7 @@ import com.runemate.game.api.hybrid.RuneScape;
 import com.runemate.game.api.hybrid.entities.*;
 import com.runemate.game.api.hybrid.entities.definitions.ItemDefinition;
 import com.runemate.game.api.hybrid.local.Skill;
+import com.runemate.game.api.hybrid.local.hud.InteractableRectangle;
 import com.runemate.game.api.hybrid.local.hud.interfaces.*;
 import com.runemate.game.api.hybrid.queries.NpcQueryBuilder;
 import com.runemate.game.api.hybrid.queries.SpriteItemQueryBuilder;
@@ -96,11 +97,22 @@ public final class Methods {
         if (Environment.isRS3()) {
             prayerPoints = Powers.Prayer.getPoints();
         } else {
-            InterfaceComponent prayerOrb = Interfaces.getAt(160, 15);
+            InterfaceComponent prayerOrb = Interfaces.newQuery().filter(new Filter<InterfaceComponent>() {
+                @Override
+                public boolean accepts(InterfaceComponent interfaceComponent) {
+                    InteractableRectangle interactableRectangle;
+                    return interfaceComponent != null && (interactableRectangle = interfaceComponent.getBounds()) != null &&
+                            ((interactableRectangle.getX() == 521 && interactableRectangle.getY() == 101) ||
+                            (interactableRectangle.getX() == 5 &&  interactableRectangle.getY() == 97));
+                }
+            }).results().first();
             if (prayerOrb != null && prayerOrb.getText() != null) {
-                Integer intValue = Integer.valueOf(prayerOrb.getText());
-                if (intValue != null) {
-                    prayerPoints = intValue;
+                String text = prayerOrb.getText();
+                if (text.matches("\\d+")) {
+                    Integer intValue = Integer.valueOf(prayerOrb.getText());
+                    if (intValue != null) {
+                        prayerPoints = intValue;
+                    }
                 }
             }
         }
