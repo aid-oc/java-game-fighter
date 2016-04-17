@@ -8,14 +8,16 @@ import com.runemate.game.api.hybrid.location.Area;
 import com.runemate.game.api.hybrid.queries.NpcQueryBuilder;
 import com.runemate.game.api.hybrid.queries.results.LocatableEntityQueryResults;
 import com.runemate.game.api.hybrid.region.Npcs;
-import com.runemate.game.api.hybrid.util.Filter;
-import com.runemate.game.api.hybrid.util.Filters;
+
+
 import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.task.Task;
 import helpers.Movement;
 import scripts.massfighter.framework.Methods;
 import scripts.massfighter.gui.Settings;
 import scripts.massfighter.MassFighter;
+
+import java.util.function.Predicate;
 
 import static scripts.massfighter.framework.Methods.out;
 
@@ -26,14 +28,14 @@ public class Attack extends Task {
     }
 
     private LocatableEntityQueryResults<Npc> getSuitableNpcs() {
-        NpcQueryBuilder suitableNpcQuery = Npcs.newQuery().filter(Filters.DECLINE_ALL);
+        NpcQueryBuilder suitableNpcQuery = Npcs.newQuery().filter(o -> false);
         Area fightArea = Settings.fightArea;
         String[] npcNames = Settings.npcNames;
         if (fightArea != null && Methods.arrayIsValid(npcNames)) {
             suitableNpcQuery = Npcs.newQuery().within(fightArea).names(npcNames)
-                    .filter(new Filter<Npc>() {
+                    .filter(new Predicate<Npc>() {
                         @Override
-                        public boolean accepts(Npc npc) {
+                        public boolean test(Npc npc) {
                             return npc != null && npc.getAnimationId() == -1 && npc.getId() != 1273 && (Settings.attackCombatMonsters || npc.getHealthGauge() == null);
                         }
                     });

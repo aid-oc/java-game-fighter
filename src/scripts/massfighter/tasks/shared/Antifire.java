@@ -6,13 +6,15 @@ import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
 import com.runemate.game.api.hybrid.local.hud.interfaces.SpriteItem;
 import com.runemate.game.api.hybrid.queries.SpriteItemQueryBuilder;
 import com.runemate.game.api.hybrid.queries.results.SpriteItemQueryResults;
-import com.runemate.game.api.hybrid.util.Filter;
+
 import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.task.Task;
 import com.runemate.game.api.script.framework.task.TaskScript;
 import scripts.massfighter.framework.Methods;
 import scripts.massfighter.gui.Settings;
 
+
+import java.util.function.Predicate;
 
 import static scripts.massfighter.framework.Methods.out;
 
@@ -22,9 +24,9 @@ public class Antifire extends Task {
     public static boolean hasAntifireActive = false;
 
     private SpriteItemQueryBuilder getAntifires() {
-        return Inventory.newQuery().filter(new Filter<SpriteItem>() {
+        return Inventory.newQuery().filter(new Predicate<SpriteItem>() {
             @Override
-            public boolean accepts(SpriteItem spriteItem) {
+            public boolean test(SpriteItem spriteItem) {
                 ItemDefinition itemDefinition;
                 return spriteItem != null && (itemDefinition = spriteItem.getDefinition()) != null && itemDefinition.getName().toLowerCase().contains("antifire");
             }

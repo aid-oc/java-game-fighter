@@ -8,7 +8,7 @@ import com.runemate.game.api.hybrid.local.Skill;
 import com.runemate.game.api.hybrid.util.StopWatch;
 import com.runemate.game.api.hybrid.util.calculations.CommonMath;
 import com.runemate.game.api.osrs.net.Zybez;
-import com.runemate.game.api.rs3.net.GrandExchange;
+import com.runemate.game.api.hybrid.net.GrandExchange;
 import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.core.LoopingThread;
 import com.runemate.game.api.script.framework.listeners.ChatboxListener;
@@ -134,7 +134,7 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
                                 itemValue = item.getPrice();
                             }
                         } else if (Environment.isOSRS()) {
-                            itemValue = Zybez.getAveragePrice(itemName);
+                            itemValue = Zybez.getAveragePrice(itemId);
                         }
                         Methods.itemPrices.put(itemName, itemValue);
                     }

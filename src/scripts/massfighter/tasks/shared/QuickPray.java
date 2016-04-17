@@ -38,7 +38,7 @@ public class QuickPray extends Task {
                     out("PrayerPoints:(RS3) Unsuccessfully toggled quick prayers");
                 }
             } else if (Environment.isOSRS()) {
-                InterfaceComponentQueryResults<InterfaceComponent> quickPrayResults = quickPrayActivateQuery.results();
+                InterfaceComponentQueryResults quickPrayResults = quickPrayActivateQuery.results();
                 if (!quickPrayResults.isEmpty()) {
                     InterfaceComponent quickButton = quickPrayResults.first();
                     if (quickButton != null) {

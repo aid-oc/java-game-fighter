@@ -12,12 +12,10 @@ import com.runemate.game.api.hybrid.queries.SpriteItemQueryBuilder;
 import com.runemate.game.api.hybrid.queries.results.LocatableEntityQueryResults;
 import com.runemate.game.api.hybrid.region.Npcs;
 import com.runemate.game.api.hybrid.region.Players;
-import com.runemate.game.api.hybrid.util.Filter;
-import com.runemate.game.api.hybrid.util.Filters;
 import com.runemate.game.api.hybrid.util.calculations.Random;
 import com.runemate.game.api.osrs.net.Zybez;
 import com.runemate.game.api.rs3.local.hud.Powers;
-import com.runemate.game.api.rs3.net.GrandExchange;
+import com.runemate.game.api.hybrid.net.GrandExchange;
 import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.AbstractScript;
 import scripts.massfighter.gui.Settings;
@@ -25,13 +23,14 @@ import scripts.massfighter.MassFighter;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.function.Predicate;
 
 public final class Methods {
 
     public static HashMap<String, Integer> itemPrices = new HashMap<>();
-    public static NpcQueryBuilder attackingNpcs = Npcs.newQuery().actions("Attack").targeting(Players.getLocal()).filter(new Filter<Npc>() {
+    public static NpcQueryBuilder attackingNpcs = Npcs.newQuery().actions("Attack").targeting(Players.getLocal()).filter(new Predicate<Npc>() {
         @Override
-        public boolean accepts(Npc npc) {
+        public boolean test(Npc npc) {
             LocatableEntityQueryResults attackers = Players.newQuery().targeting(npc).results();
             Player player = Players.getLocal();
             return attackers.isEmpty() || (player != null && attackers.contains(player) && attackers.size() == 1);
@@ -41,12 +40,12 @@ public final class Methods {
 
 
     public static SpriteItemQueryBuilder getFood() {
-        SpriteItemQueryBuilder foodQuery = Inventory.newQuery().filter(Filters.DECLINE_ALL);
+        SpriteItemQueryBuilder foodQuery = Inventory.newQuery().filter(o -> false);
         String[] foodNames = Settings.foodNames;
         if (foodNames != null && foodNames.length > 0) {
-            foodQuery = Inventory.newQuery().filter(new Filter<SpriteItem>() {
+            foodQuery = Inventory.newQuery().filter(new Predicate<SpriteItem>() {
                 @Override
-                public boolean accepts(SpriteItem spriteItem) {
+                public boolean test(SpriteItem spriteItem) {
                     ItemDefinition itemDefinition;
                     return spriteItem != null && (itemDefinition = spriteItem.getDefinition()) != null && Arrays.asList(foodNames).contains(itemDefinition.getName().toLowerCase());
                 }
@@ -97,9 +96,9 @@ public final class Methods {
         if (Environment.isRS3()) {
             prayerPoints = Powers.Prayer.getPoints();
         } else {
-            InterfaceComponent prayerOrb = Interfaces.newQuery().filter(new Filter<InterfaceComponent>() {
+            InterfaceComponent prayerOrb = Interfaces.newQuery().filter(new Predicate<InterfaceComponent>() {
                 @Override
-                public boolean accepts(InterfaceComponent interfaceComponent) {
+                public boolean test(InterfaceComponent interfaceComponent) {
                     InteractableRectangle interactableRectangle;
                     return interfaceComponent != null && (interactableRectangle = interfaceComponent.getBounds()) != null &&
                             ((interactableRectangle.getX() == 521 && interactableRectangle.getY() == 101) ||
@@ -183,7 +182,7 @@ public final class Methods {
                             itemValue = item.getPrice();
                         }
                     } else {
-                        itemValue = Zybez.getAveragePrice(itemName);
+                        itemValue = Zybez.getAveragePrice(itemId);
                     }
                     itemPrices.put(itemName, itemValue);
                 }

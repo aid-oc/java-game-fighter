@@ -8,8 +8,8 @@ import com.runemate.game.api.hybrid.location.Coordinate;
 import com.runemate.game.api.hybrid.queries.GroundItemQueryBuilder;
 import com.runemate.game.api.hybrid.queries.results.LocatableEntityQueryResults;
 import com.runemate.game.api.hybrid.region.GroundItems;
-import com.runemate.game.api.hybrid.util.Filter;
-import com.runemate.game.api.hybrid.util.Filters;
+
+
 import com.runemate.game.api.hybrid.util.calculations.Random;
 import com.runemate.game.api.rs3.local.hud.interfaces.LootInventory;
 import com.runemate.game.api.script.Execution;
@@ -21,6 +21,7 @@ import scripts.massfighter.MassFighter;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Predicate;
 
 import static scripts.massfighter.framework.Methods.out;
 
@@ -30,13 +31,13 @@ public class Loot extends Task {
 
     public static GroundItemQueryBuilder getLoot()
     {
-        GroundItemQueryBuilder lootQuery = GroundItems.newQuery().filter(Filters.DECLINE_ALL);
+        GroundItemQueryBuilder lootQuery = GroundItems.newQuery().filter(o -> false);
         Area fightArea = Settings.fightArea;
         String[] lootNames = Settings.lootNames;
         if (fightArea != null) {
-            lootQuery = GroundItems.newQuery().within(fightArea).filter(new Filter<GroundItem>() {
+            lootQuery = GroundItems.newQuery().within(fightArea).filter(new Predicate<GroundItem>() {
                 @Override
-                public boolean accepts(GroundItem groundItem) {
+                public boolean test(GroundItem groundItem) {
                     if (Methods.hasRoomForItem(groundItem)) {
                         String itemName = groundItem.getDefinition().getName().toLowerCase();
                         String itemNameNoted = itemName+"*";

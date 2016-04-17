@@ -1,6 +1,7 @@
 package scripts.massfighter.data;
 
 
+import com.runemate.game.api.hybrid.local.Varpbit;
 import com.runemate.game.api.hybrid.local.Varpbits;
 
 /**
@@ -27,7 +28,7 @@ public enum ActivePotion {
     }
 
     public boolean isActive() {
-        Varpbits potionVarp = Varpbits.getAt(potionVarpPosition);
+        Varpbit potionVarp = Varpbits.getAt(potionVarpPosition);
         return potionVarp != null && potionVarp.getValue() == potionActiveValue;
     }
 

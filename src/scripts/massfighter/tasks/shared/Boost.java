@@ -3,13 +3,15 @@ package scripts.massfighter.tasks.shared;
 import com.runemate.game.api.hybrid.entities.definitions.ItemDefinition;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
 import com.runemate.game.api.hybrid.local.hud.interfaces.SpriteItem;
-import com.runemate.game.api.hybrid.util.Filter;
+
 import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.task.Task;
 import scripts.massfighter.data.SkillPotion;
 import scripts.massfighter.framework.Methods;
 import scripts.massfighter.gui.Settings;
 import scripts.massfighter.MassFighter;
+
+import java.util.function.Predicate;
 
 import static scripts.massfighter.framework.Methods.out;
 
@@ -23,9 +25,9 @@ public class Boost extends Task {
             for (String s : selectedPotions) {
                 if (potionExists(s)) {
                     SkillPotion p = SkillPotion.valueOf(s);
-                    if (!p.isActive() && !Inventory.newQuery().filter(new Filter<SpriteItem>() {
+                    if (!p.isActive() && !Inventory.newQuery().filter(new Predicate<SpriteItem>() {
                         @Override
-                        public boolean accepts(SpriteItem spriteItem) {
+                        public boolean test(SpriteItem spriteItem) {
                             return spriteItem.getDefinition().getName().contains(p.getPotionName());
                         }
                     }).results().isEmpty()) {
@@ -57,9 +59,9 @@ public class Boost extends Task {
     public void execute() {
         MassFighter.status = "Boosting";
         if (skillPotionToBoost != null) {
-            SpriteItem potion = Inventory.newQuery().filter(new Filter<SpriteItem>() {
+            SpriteItem potion = Inventory.newQuery().filter(new Predicate<SpriteItem>() {
                 @Override
-                public boolean accepts(SpriteItem spriteItem) {
+                public boolean test(SpriteItem spriteItem) {
                     return spriteItem.getDefinition().getName().contains(skillPotionToBoost.getPotionName());
                 }
             }).results().random();

@@ -5,19 +5,21 @@ import com.runemate.game.api.hybrid.local.hud.interfaces.Equipment;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
 import com.runemate.game.api.hybrid.local.hud.interfaces.SpriteItem;
 import com.runemate.game.api.hybrid.queries.SpriteItemQueryBuilder;
-import com.runemate.game.api.hybrid.util.Filter;
-import com.runemate.game.api.hybrid.util.Filters;
+
+
 import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.task.Task;
 import scripts.massfighter.MassFighter;
 import scripts.massfighter.framework.Methods;
 import scripts.massfighter.gui.Settings;
 
+import java.util.function.Predicate;
+
 public class Ammunition extends Task {
 
-    private final SpriteItemQueryBuilder availableAmmunition = Inventory.newQuery().filter(new Filter<SpriteItem>() {
+    private final SpriteItemQueryBuilder availableAmmunition = Inventory.newQuery().filter(new Predicate<SpriteItem>() {
         @Override
-        public boolean accepts(SpriteItem spriteItem) {
+        public boolean test(SpriteItem spriteItem) {
             String itemName = null;
             if (spriteItem != null) {
                 ItemDefinition itemDefinition = spriteItem.getDefinition();
@@ -28,7 +30,7 @@ public class Ammunition extends Task {
     });
 
     private SpriteItemQueryBuilder getMatchingAmmunition() {
-        SpriteItemQueryBuilder matchingAmmunition = Inventory.newQuery().filter(Filters.DECLINE_ALL);
+        SpriteItemQueryBuilder matchingAmmunition = Inventory.newQuery().filter(o -> false);
         if (getCurrentAmmunition() != null && getCurrentAmmunition().getDefinition() != null) {
             String currentAmmoName = getCurrentAmmunition().getDefinition().getName();
             if (currentAmmoName != null) {

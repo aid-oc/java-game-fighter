@@ -9,12 +9,12 @@ import com.runemate.game.api.hybrid.local.hud.interfaces.Equipment;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;
 import com.runemate.game.api.hybrid.local.hud.interfaces.SpriteItem;
 import com.runemate.game.api.hybrid.queries.SpriteItemQueryBuilder;
-import com.runemate.game.api.hybrid.util.Filter;
-import com.runemate.game.api.hybrid.util.Filters;
+
+
 import com.runemate.game.api.osrs.local.hud.interfaces.Magic;
 import com.runemate.game.api.rs3.local.hud.Powers;
 import com.runemate.game.api.rs3.local.hud.interfaces.eoc.ActionBar;
-import com.runemate.game.api.rs3.local.hud.interfaces.eoc.SlotAction;
+
 import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.task.Task;
 import scripts.massfighter.framework.Methods;
@@ -23,18 +23,19 @@ import scripts.massfighter.MassFighter;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Predicate;
 
 import static scripts.massfighter.framework.Methods.out;
 
 public class Alchemy extends Task {
 
     private SpriteItemQueryBuilder getAlchableItems() {
-        SpriteItemQueryBuilder alchableItemQuery = Inventory.newQuery().filter(Filters.DECLINE_ALL);
+        SpriteItemQueryBuilder alchableItemQuery = Inventory.newQuery().filter(o -> false);
         String[] alchLootNames = Settings.alchLoot;
         if (Methods.arrayIsValid(alchLootNames)) {
-            alchableItemQuery = Inventory.newQuery().filter(new Filter<SpriteItem>() {
+            alchableItemQuery = Inventory.newQuery().filter(new Predicate<SpriteItem>() {
                 @Override
-                public boolean accepts(SpriteItem spriteItem) {
+                public boolean test(SpriteItem spriteItem) {
                     return Arrays.asList(alchLootNames).contains(spriteItem.getDefinition().getName().toLowerCase());
                 }
             });
@@ -83,8 +84,8 @@ public class Alchemy extends Task {
         out("Alchemy: Not Activated -> Activating");
         if (Environment.isRS3() && Powers.Magic.Book.getCurrent().equals(Powers.Magic.Book.STANDARD)) {
             out("Alchemy: Not Activated -> RS3");
-            SlotAction highAlch = ActionBar.getFirstAction("High Level Alchemy");
-            if ((highAlch != null && highAlch.isValid() && highAlch.isActivatable() && highAlch.activate()) || Powers.Magic.HIGH_LEVEL_ALCHEMY.activate()) {
+            ActionBar.Slot highAlch = ActionBar.newQuery().names("High Level Alchemy").results().first();
+            if ((highAlch != null && !highAlch.isEmpty() && highAlch.isActivatable() && highAlch.activate()) || Powers.Magic.HIGH_LEVEL_ALCHEMY.activate()) {
                 Execution.delayUntil(this::alchemyIsActivated, 800, 1500);
             }
         } else if (Environment.isOSRS() && Magic.Book.getCurrent().equals(Magic.Book.STANDARD)) {

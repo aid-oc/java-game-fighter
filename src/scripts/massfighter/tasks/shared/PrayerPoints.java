@@ -3,7 +3,7 @@ package scripts.massfighter.tasks.shared;
 import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.local.hud.interfaces.*;
 import com.runemate.game.api.hybrid.queries.SpriteItemQueryBuilder;
-import com.runemate.game.api.hybrid.util.Filter;
+
 import com.runemate.game.api.hybrid.util.calculations.Random;
 import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.task.Task;
@@ -11,14 +11,16 @@ import com.runemate.game.api.script.framework.task.TaskScript;
 import scripts.massfighter.framework.Methods;
 import scripts.massfighter.gui.Settings;
 
+import java.util.function.Predicate;
+
 import static scripts.massfighter.framework.Methods.out;
 
 
 public class PrayerPoints extends Task {
 
-    private final SpriteItemQueryBuilder validPrayerItems = Inventory.newQuery().filter(new Filter<SpriteItem>() {
+    private final SpriteItemQueryBuilder validPrayerItems = Inventory.newQuery().filter(new Predicate<SpriteItem>() {
         @Override
-        public boolean accepts(SpriteItem spriteItem) {
+        public boolean test(SpriteItem spriteItem) {
             if (spriteItem != null && spriteItem.getDefinition() != null) {
                 String name = spriteItem.getDefinition().getName().toLowerCase();
                 return name.contains("prayer potion") ||

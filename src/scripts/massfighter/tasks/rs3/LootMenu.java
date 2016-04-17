@@ -6,8 +6,6 @@ import com.runemate.game.api.hybrid.location.Area;
 import com.runemate.game.api.hybrid.location.Coordinate;
 import com.runemate.game.api.hybrid.queries.SpriteItemQueryBuilder;
 import com.runemate.game.api.hybrid.queries.results.SpriteItemQueryResults;
-import com.runemate.game.api.hybrid.util.Filter;
-import com.runemate.game.api.hybrid.util.Filters;
 import com.runemate.game.api.rs3.local.hud.interfaces.LootInventory;
 import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.task.Task;
@@ -17,6 +15,7 @@ import scripts.massfighter.gui.Settings;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * ozzy.
@@ -24,13 +23,13 @@ import java.util.List;
 public class LootMenu extends Task {
 
     private SpriteItemQueryBuilder getSelectedLoot() {
-        SpriteItemQueryBuilder lootOnInventoryQuery = LootInventory.newQuery().filter(Filters.DECLINE_ALL);
+        SpriteItemQueryBuilder lootOnInventoryQuery = LootInventory.newQuery().filter(o -> false);
         String[] lootNames = Settings.lootNames;
         if (Methods.arrayIsValid(lootNames)) {
             List<String> lootList = Arrays.asList(lootNames);
-            lootOnInventoryQuery = LootInventory.newQuery().filter(new Filter<SpriteItem>() {
+            lootOnInventoryQuery = LootInventory.newQuery().filter(new Predicate<SpriteItem>() {
                 @Override
-                public boolean accepts(SpriteItem spriteItem) {
+                public boolean test(SpriteItem spriteItem) {
                     ItemDefinition itemDefinition;
                     return spriteItem != null && (itemDefinition = spriteItem.getDefinition()) != null
                             && lootList.contains(itemDefinition.getName().toLowerCase()) && Methods.hasRoomForItem(spriteItem);

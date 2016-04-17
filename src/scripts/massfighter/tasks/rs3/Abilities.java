@@ -1,6 +1,5 @@
 package scripts.massfighter.tasks.rs3;
 
-import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.entities.Actor;
 import com.runemate.game.api.hybrid.entities.Npc;
 import com.runemate.game.api.hybrid.entities.Player;
@@ -9,7 +8,6 @@ import com.runemate.game.api.hybrid.queries.results.LocatableEntityQueryResults;
 import com.runemate.game.api.hybrid.region.Npcs;
 import com.runemate.game.api.hybrid.region.Players;
 import com.runemate.game.api.rs3.local.hud.interfaces.eoc.ActionBar;
-import com.runemate.game.api.rs3.local.hud.interfaces.eoc.SlotAction;
 import com.runemate.game.api.script.Execution;
 import com.runemate.game.api.script.framework.task.Task;
 import scripts.massfighter.data.Ability;
@@ -22,7 +20,7 @@ import static scripts.massfighter.framework.Methods.out;
 
 public class Abilities extends Task implements Runnable {
 
-    private List<SlotAction> abilities = new ArrayList<>();
+    private List<ActionBar.Slot> abilities = new ArrayList<>();
     private NpcQueryBuilder getNearbyTargets(Player player) {
         return player != null ? Npcs.newQuery().targeting(player).actions("Attack") : null;
     }
@@ -32,7 +30,7 @@ public class Abilities extends Task implements Runnable {
         Npc target;
         Actor potentialTarget;
         LocatableEntityQueryResults<Npc> nearbyAttackableNcps;
-        return !Environment.isDarkScape() && Settings.useAbilities && (player = Players.getLocal()) != null && (potentialTarget = player.getTarget()) != null && (potentialTarget instanceof Npc) && (target = (Npc)potentialTarget) != null
+        return Settings.useAbilities && (player = Players.getLocal()) != null && (potentialTarget = player.getTarget()) != null && (potentialTarget instanceof Npc) && (target = (Npc)potentialTarget) != null
                 && (nearbyAttackableNcps = getNearbyTargets(player).results()) != null && !nearbyAttackableNcps.isEmpty() && nearbyAttackableNcps.contains(target);
     }
 
@@ -42,7 +40,7 @@ public class Abilities extends Task implements Runnable {
         if (!ActionBar.isLocked()) ActionBar.toggleLock();
         if (!ActionBar.isAutoRetaliating()) ActionBar.toggleAutoRetaliation();
         if (!abilities.isEmpty()) {
-            for (SlotAction ability : abilities) {
+            for (ActionBar.Slot ability : abilities) {
                 if (ability != null) {
                     if (ability.getName() != null && ability.isReady()) {
                         if (ability.activate()) {
@@ -54,21 +52,21 @@ public class Abilities extends Task implements Runnable {
                 }
             }
         } else {
-            abilities = sortAbilities(ActionBar.getActions());
+            abilities = sortAbilities(ActionBar.getFilledSlots().asList());
         }
     }
 
 
-    private List<SlotAction> sortAbilities(List<SlotAction> abilities) {
-        List<SlotAction> ultimates = new ArrayList<>();
-        List<SlotAction> thresholds = new ArrayList<>();
-        List<SlotAction> basics = new ArrayList<>();
-        List<SlotAction> specials = new ArrayList<>();
-        List<SlotAction> sortedAbilities = new ArrayList<>();
+    private List<ActionBar.Slot> sortAbilities(List<ActionBar.Slot> abilities) {
+        List<ActionBar.Slot> ultimates = new ArrayList<>();
+        List<ActionBar.Slot> thresholds = new ArrayList<>();
+        List<ActionBar.Slot> basics = new ArrayList<>();
+        List<ActionBar.Slot> specials = new ArrayList<>();
+        List<ActionBar.Slot> sortedAbilities = new ArrayList<>();
         for (Ability enumAbility : Ability.values()) {
-            for (SlotAction barAbility : abilities) {
+            for (ActionBar.Slot barAbility : abilities) {
                 String abilityName;
-                if ((abilityName = barAbility.getName()) != null && barAbility.getType().equals(SlotAction.Type.ABILITY)) {
+                if ((abilityName = barAbility.getName()) != null/* && barAbility.getType().equals(ActionBar.Slot.ContentType.ABILITY)*/) {
                     if (abilityName.toLowerCase().equals("death's swiftness")) {
                         ultimates.add(barAbility);
                     }
