@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.canvas.*?>
+<?import javafx.geometry.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.text.*?>
+
+<TitledPane collapsible="false" text="MassFighter - 2.0 - AIO Combat" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1">
+   <content>
+      <VBox fx:id="guiVbox" prefHeight="626.0" prefWidth="640.0">
+        <children>
+            <SplitPane>
+               <items>
+                  <ToolBar fx:id="splt" prefHeight="40.0" prefWidth="200.0">
+                    <items>
+                        <Label text="Keep your favourite settings in the Cloud:" />
+                      <Button fx:id="btnSave" mnemonicParsing="false" text="Upload Settings" />
+                        <Button fx:id="btnLoad" mnemonicParsing="false" text="Download Settings" />
+                    </items>
+                  </ToolBar>
+               </items>
+            </SplitPane>
+          <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="568.0" prefWidth="640.0" VBox.vgrow="ALWAYS">
+            <children>
+                  <Accordion layoutX="14.0" layoutY="14.0" prefHeight="520.0" prefWidth="620.0" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <panes>
+                      <TitledPane animated="false" text="Target Selection">
+                        <content>
+                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                 <children>
+                                    <ListView fx:id="availableMonsters" layoutX="29.0" layoutY="38.0" prefHeight="140.0" prefWidth="179.0" />
+                                    <Label layoutX="73.0" layoutY="14.0" text="Available Targets" />
+                                    <Label layoutX="238.0" layoutY="38.0" prefHeight="58.0" prefWidth="143.0" text="Click an available target and press &quot;Add as target&quot;" wrapText="true" />
+                                    <Button fx:id="npcButton" layoutX="255.0" layoutY="108.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="95.0" text="Add as target" />
+                                    <ListView fx:id="selectedMonsters" layoutX="400.0" layoutY="38.0" prefHeight="140.0" prefWidth="179.0" />
+                                    <Label layoutX="444.0" layoutY="14.0" text="Selected Targets" />
+                                    <Button fx:id="refreshButton" layoutX="254.0" layoutY="147.0" mnemonicParsing="false" text="Re-scan targets" />
+                                 </children>
+                              </AnchorPane>
+                        </content>
+                      </TitledPane>
+                        <TitledPane animated="false" layoutX="10.0" layoutY="10.0" text="Camera">
+                           <content>
+                              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                 <children>
+                                    <CheckBox fx:id="lockCamera" layoutX="14.0" layoutY="33.0" mnemonicParsing="false" text="Prevent the bot from moving the camera when possible" />
+                                    <CheckBox fx:id="resetPitch" layoutX="14.0" layoutY="66.0" mnemonicParsing="false" text="Reset the camera to the usual top-down pitch after finding a target" />
+                                 </children>
+                              </AnchorPane>
+                           </content>
+                        </TitledPane>
+                        <TitledPane animated="false" text="Fight Region">
+                          <content>
+                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                 <children>
+                                    <Label layoutX="98.0" layoutY="14.0" prefHeight="86.0" prefWidth="411.0" text="Please choose how far you wish for the bot to look for targets, this number is used as the radius to create a circle around where your player currently is." textAlignment="JUSTIFY" wrapText="true" />
+                                    <Label layoutX="92.0" layoutY="105.0" text="Look for targets up to" textAlignment="JUSTIFY" />
+                                    <TextField fx:id="tileRange" layoutX="229.0" layoutY="100.0" prefHeight="25.0" prefWidth="92.0" />
+                                    <Label layoutX="332.0" layoutY="105.0" prefHeight="17.0" prefWidth="219.0" text="tiles around where I currently stand" textAlignment="JUSTIFY" wrapText="true" />
+                                 </children>
+                              </AnchorPane>
+                          </content>
+                        </TitledPane>
+                        <TitledPane animated="false" layoutX="10.0" layoutY="10.0" text="Combat">
+                           <content>
+                              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                 <children>
+                                    <Slider fx:id="targetSlider" layoutX="304.0" layoutY="20.0" majorTickUnit="1.0" max="10.0" min="1.0" minorTickCount="1" showTickLabels="true" snapToTicks="true" />
+                                    <Label layoutX="14.0" layoutY="19.0" prefHeight="17.0" prefWidth="252.0" text="Number of nearby targets to choose from:" textAlignment="JUSTIFY" />
+                                    <Slider fx:id="tagSlider" layoutX="304.0" layoutY="53.0" majorTickUnit="1.0" max="10.0" min="1.0" minorTickCount="1" showTickLabels="true" snapToTicks="true" />
+                                    <Label layoutX="14.0" layoutY="53.0" text="Number of targets to try and have attacking us:" />
+                                    <Label layoutX="14.0" layoutY="91.0" text="Attack targets which are already fighting:" />
+                                    <CheckBox fx:id="attackCombatMonsters" layoutX="309.0" layoutY="90.0" mnemonicParsing="false" />
+                                    <Label layoutX="14.0" layoutY="121.0" text="Attack targets which are unreachable:" />
+                                    <CheckBox fx:id="bypassReachable" layoutX="309.0" layoutY="120.0" mnemonicParsing="false" />
+                                    <Label layoutX="14.0" layoutY="155.0" text="Abilities Mode:" />
+                                    <ComboBox fx:id="abilitiesMode" layoutX="309.0" layoutY="150.0" prefWidth="150.0" />
+                                    <Label layoutX="14.0" layoutY="184.0" prefHeight="56.0" prefWidth="239.0" text="Try and stay out of melee range of targets (only works on targets which don't move such as certain dragons):" wrapText="true" />
+                                    <CheckBox fx:id="keepDistance" layoutX="309.0" layoutY="184.0" mnemonicParsing="false" />
+                                 </children>
+                              </AnchorPane>
+                           </content>
+                        </TitledPane>
+                        <TitledPane animated="false" text="Boosts/Antifires">
+                          <content>
+                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                 <children>
+                                    <ListView fx:id="availableBoosts" layoutX="29.0" layoutY="105.0" prefHeight="200.0" prefWidth="200.0" />
+                                    <ListView fx:id="selectedBoosts" layoutX="389.0" layoutY="105.0" prefHeight="200.0" prefWidth="200.0" />
+                                    <Label layoutX="76.0" layoutY="79.0" text="Available Boosts" />
+                                    <Label layoutX="446.0" layoutY="79.0" text="Selected Boosts" />
+                                    <Button fx:id="boostButton" layoutX="244.0" layoutY="140.0" mnemonicParsing="false" text="Add/Remove Boost" />
+                                    <Label layoutX="259.0" layoutY="189.0" text="Boost top up (%):" />
+                                    <Slider fx:id="boostRefreshPercentage" layoutX="241.0" layoutY="218.0" showTickLabels="true" showTickMarks="true" />
+                                    <CheckBox fx:id="useAntifires" layoutX="29.0" layoutY="20.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="565.0" text="Keep antifire active? (Supports both super and non-super, will take a dose on script start and monitor chat to refresh from there in order to support both RS3 and OSRS.)" wrapText="true" />
+                                 </children>
+                              </AnchorPane>
+                          </content>
+                        </TitledPane>
+                      <TitledPane animated="false" text="Food">
+                        <content>
+                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                 <children>
+                                    <TextField fx:id="txtFoodInput" layoutX="20.0" layoutY="10.0" promptText="Enter a food name" />
+                                    <Button fx:id="btnAddFood" layoutX="188.0" layoutY="10.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="61.0" text="Add" />
+                                    <ListView fx:id="foodSelection" layoutX="19.0" layoutY="74.0" prefHeight="131.0" prefWidth="171.0" />
+                                    <Label layoutX="56.0" layoutY="53.0" text="Selected Food" />
+                                    <Button fx:id="btnRemoveFood" layoutX="196.0" layoutY="82.0" mnemonicParsing="false" text="-" />
+                                    <Label layoutX="346.0" layoutY="14.0" text="When should the bot eat food?" />
+                                    <Label layoutX="333.0" layoutY="62.0" text="Eat Percentage:" />
+                                    <Slider fx:id="eatValue" layoutX="429.0" layoutY="64.0" showTickLabels="true" showTickMarks="true" snapToTicks="true" />
+                                    <Label layoutX="333.0" layoutY="123.0" prefHeight="59.0" prefWidth="251.0" text="Notice: The bot will eat at a random percentage each time close to what you have seleceted." wrapText="true" />
+                                 </children>
+                              </AnchorPane>
+                        </content>
+                      </TitledPane>
+                      <TitledPane animated="false" prefHeight="216.0" prefWidth="609.0" text="Loot">
+                        <content>
+                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                 <children>
+                                    <Accordion layoutX="14.0" layoutY="14.0" prefHeight="213.0" prefWidth="607.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                       <panes>
+                                        <TitledPane animated="false" prefHeight="213.0" prefWidth="607.0" text="Pickup Options">
+                                          <content>
+                                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="518.0">
+                                                   <children>
+                                                      <Label layoutX="14.0" layoutY="6.0" prefHeight="58.0" prefWidth="219.0" text="If you wish to loot only the noted version of an item, add a * to the end of the items name." wrapText="true" />
+                                                      <TextField fx:id="lootName" layoutX="14.0" layoutY="72.0" promptText="Enter an items name" />
+                                                      <Button fx:id="addLoot" layoutX="14.0" layoutY="104.0" mnemonicParsing="false" text="Pick up" />
+                                                      <Button fx:id="btnAddToAlch" layoutX="77.0" layoutY="104.0" mnemonicParsing="false" text="Pick up + Alch" />
+                                                      <Button fx:id="btnAddToNotepaper" layoutX="178.0" layoutY="104.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="146.0" text="Pick up + Notepaper" />
+                                                      <TabPane layoutX="312.0" layoutY="7.0" prefHeight="209.0" prefWidth="289.0" tabClosingPolicy="UNAVAILABLE">
+                                                        <tabs>
+                                                          <Tab text="Picking Up">
+                                                            <content>
+                                                              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                                                     <children>
+                                                                        <ListView fx:id="pickupLoot" layoutX="13.0" layoutY="9.0" prefHeight="163.0" prefWidth="209.0" />
+                                                                        <Button fx:id="btnRemovePickupLoot" layoutX="227.0" layoutY="29.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="26.0" text="-" />
+                                                                     </children>
+                                                                  </AnchorPane>
+                                                            </content>
+                                                          </Tab>
+                                                          <Tab text="Alching">
+                                                            <content>
+                                                              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                                                     <children>
+                                                                        <ListView fx:id="alchemyLoot" layoutX="14.0" layoutY="9.0" prefHeight="163.0" prefWidth="209.0" />
+                                                                        <Button fx:id="btnRemoveAlchemyLoot" layoutX="227.0" layoutY="25.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="26.0" text="-" />
+                                                                     </children>
+                                                                  </AnchorPane>
+                                                            </content>
+                                                          </Tab>
+                                                            <Tab text="Magic Notepaper">
+                                                               <content>
+                                                                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                                                     <children>
+                                                                        <ListView fx:id="magicNotepaperLoot" layoutX="14.0" layoutY="9.0" prefHeight="163.0" prefWidth="209.0" />
+                                                                        <Button fx:id="btnRemoveNotepaperLoot" layoutX="227.0" layoutY="21.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="26.0" text="-" />
+                                                                     </children>
+                                                                  </AnchorPane>
+                                                               </content>
+                                                            </Tab>
+                                                        </tabs>
+                                                      </TabPane>
+                                                   </children>
+                                                </AnchorPane>
+                                          </content>
+                                        </TitledPane>
+                                          <TitledPane animated="false" text="More Loot Options">
+                                            <content>
+                                              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                                   <children>
+                                                      <Label layoutX="14.0" layoutY="22.0" text="Loot items worth over:" />
+                                                      <TextField fx:id="lootValue" layoutX="144.0" layoutY="18.0" prefHeight="25.0" prefWidth="102.0" />
+                                                      <Label layoutX="254.0" layoutY="22.0" text="gp" />
+                                                      <CheckBox fx:id="coinValueRestrict" layoutX="284.0" layoutY="22.0" mnemonicParsing="false" text="Also restrict coins to this amount" />
+                                                      <CheckBox fx:id="lootInCombat" layoutX="14.0" layoutY="54.0" mnemonicParsing="false" text="Loot whilst in combat" />
+                                                      <CheckBox fx:id="buryBones" layoutX="14.0" layoutY="82.0" mnemonicParsing="false" text="Bury bones/ashes in my inventory" />
+                                                      <CheckBox fx:id="reequipAmmunition" layoutX="14.0" layoutY="112.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="572.0" text="Equip ammunition/throwing weapons in my inventory (Prioritises the type you are using), remember to add to loot the ones you want!" wrapText="true" />
+                                                      <Slider fx:id="ammoSlider" layoutX="299.0" layoutY="157.0" majorTickUnit="10.0" min="10.0" minorTickCount="1" showTickLabels="true" showTickMarks="true" value="1.0" />
+                                                      <Label layoutX="14.0" layoutY="159.0" text="Equip Ammunition/Throwing Weapons when I have:" />
+                                                      <Label layoutX="453.0" layoutY="147.0" prefHeight="58.0" prefWidth="133.0" text="The bot will randomise this value a bit, so don't worry if it equips early!" wrapText="true" />
+                                                   </children>
+                                                </AnchorPane>
+                                            </content>
+                                          </TitledPane>
+                                       </panes>
+                                    </Accordion>
+                                 </children>
+                              </AnchorPane>
+                        </content>
+                      </TitledPane>
+                        <TitledPane animated="false" text="Prayer">
+                          <content>
+                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                 <children>
+                                    <SplitPane dividerPositions="0.47619047619047616" layoutX="14.0" layoutY="14.0" prefHeight="199.0" prefWidth="575.0">
+                                      <items>
+                                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+                                             <children>
+                                                <CheckBox fx:id="soulsplit" layoutX="84.0" layoutY="14.0" mnemonicParsing="false" text="Use Soulsplit" />
+                                                <CheckBox fx:id="soulsplitPerm" layoutX="14.0" layoutY="52.0" mnemonicParsing="false" text="Always activated" />
+                                                <Label layoutX="14.0" layoutY="82.0" text="or" />
+                                                <Label layoutX="14.0" layoutY="112.0" text="Keep my health above (%):" />
+                                                <Slider fx:id="soulsplitPercentage" layoutX="8.0" layoutY="143.0" majorTickUnit="10.0" minorTickCount="1" prefHeight="40.0" prefWidth="242.0" showTickLabels="true" showTickMarks="true" snapToTicks="true" />
+                                             </children>
+                                          </AnchorPane>
+                                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+                                             <children>
+                                                <CheckBox fx:id="quickPray" layoutX="91.0" layoutY="14.0" mnemonicParsing="false" text="Use Quick Prayers" />
+                                             </children>
+                                          </AnchorPane>
+                                      </items>
+                                    </SplitPane>
+                                    <Slider fx:id="prayValue" layoutX="309.0" layoutY="224.0" majorTickUnit="10.0" minorTickCount="1" prefHeight="42.0" prefWidth="219.0" showTickLabels="true" showTickMarks="true" snapToTicks="true" />
+                                    <Label layoutX="14.0" layoutY="237.0" text="Top up prayer points when they fall below (%):" />
+                                 </children>
+                              </AnchorPane>
+                          </content>
+                        </TitledPane>
+                        <TitledPane animated="false" text="Safety">
+                          <content>
+                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                 <children>
+                                    <Label layoutX="14.0" layoutY="26.0" text="When the bot runs out of food, should the bot:" />
+                                    <CheckBox fx:id="logoutFood" layoutX="382.0" layoutY="25.0" mnemonicParsing="false" text="Logout" />
+                                    <CheckBox fx:id="teleportFood" layoutX="473.0" layoutY="26.0" mnemonicParsing="false" text="Break a teleport tab" />
+                                    <Label layoutX="14.0" layoutY="52.0" text="Below" />
+                                    <TextField fx:id="criticalHitpoints" layoutX="65.0" layoutY="48.0" prefHeight="25.0" prefWidth="101.0" />
+                                    <Label layoutX="176.0" layoutY="52.0" text="hitpoints, should the bot:" />
+                                    <CheckBox fx:id="logoutHitpoints" layoutX="382.0" layoutY="52.0" mnemonicParsing="false" text="Logout" />
+                                    <CheckBox fx:id="teleportHitpoints" layoutX="473.0" layoutY="52.0" mnemonicParsing="false" text="Break a teleport tab" />
+                                    <Label layoutX="37.0" layoutY="96.0" prefHeight="79.0" prefWidth="533.0" text="Notice: If you're in combat the bot will not be able to log you out and so the bot will stop anyway, if you want to be extra safe be sure to select break a teleport tab." wrapText="true" />
+                                 </children>
+                              </AnchorPane>
+                          </content>
+                        </TitledPane>
+                    </panes>
+                  </Accordion>
+                  <Button fx:id="btnStart" layoutX="199.0" layoutY="530.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="223.0" text="We're not ready to start yet." />
+            </children>
+          </AnchorPane>
+        </children>
+      </VBox>
+   </content>
+</TitledPane>
