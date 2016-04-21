@@ -179,6 +179,7 @@ public class Controller {
         reequipAmmunition.setOnAction(event -> ammoSlider.setDisable(reequipAmmunition.isDisable()));
 
         refreshButton.setOnAction(event -> {
+            System.out.println("Refreshing monsters.");
             availableMonsters.getItems().remove(0, availableMonsters.getItems().size());
             bot.getPlatform().invokeLater(() -> {
                 final Player player = Players.getLocal();
