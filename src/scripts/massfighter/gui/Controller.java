@@ -15,6 +15,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.*;
 import javafx.scene.control.TextField;
@@ -23,14 +24,16 @@ import scripts.massfighter.MassFighter;
 import scripts.massfighter.data.SkillPotion;
 
 import java.awt.*;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 
-public class Controller {
+public class Controller implements Initializable {
 
     @FXML
     private ListView<String> availableMonsters;
@@ -156,8 +159,8 @@ public class Controller {
         return availableNpcs;
     }
 
-    public void initialize() {
-
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
         guiVbox.setOnMouseMoved(event -> {
             if (!selectedMonsters.getItems().isEmpty() && isNumeric(tileRange.getText())) {
                 btnStart.setText("Start Bot");
@@ -525,5 +528,4 @@ public class Controller {
     private void closeUI() {
         bot.getEmbeddableUI().botInterfaceProperty().set(null);
     }
-
 }
