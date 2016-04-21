@@ -41,6 +41,7 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
     public static String status;
     public static boolean setupRunning;
     public static final boolean debug = false;
+    private static final boolean forcedBytecodeChange = true;
 
     private final StopWatch runningTime = new StopWatch();
     private final NumberFormat numberFormat = NumberFormat.getNumberInstance();
