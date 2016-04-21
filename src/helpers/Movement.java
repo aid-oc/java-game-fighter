@@ -21,7 +21,7 @@ public class Movement {
                 pathToLocatable(l);
             } else {
                 Future<Boolean> cameraMovement = Camera.concurrentlyTurnTo(l);
-                if (!cameraMovement.isCancelled()) {
+                if (cameraMovement != null && !cameraMovement.isCancelled()) {
                     Execution.delayUntil(cameraMovement::get, 2000, 4000);
                     if (!i.isVisible()) {
                         pathToLocatable(l);
