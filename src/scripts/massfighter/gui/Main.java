@@ -17,9 +17,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class Main implements EmbeddableUI {
-
-    private static Controller controller;
-
     private final AbstractScript bot;
 
     public Main(AbstractScript bot) {
@@ -36,8 +33,6 @@ public class Main implements EmbeddableUI {
             stage.setTitle("MassFighter");
             stage.setScene(scene);
             //Main.stage = stage;
-            Main.controller = loader.getController();
-            controller.initialize();
             stage.setOnCloseRequest(event -> {
                 System.out.println("UI Closed - Stopping Script");
                 if (Environment.getScript() != null && Environment.getScript().isRunning()) {
